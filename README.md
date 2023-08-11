@@ -6,3 +6,4 @@ This Next.js demo app can be used as a base for building subscription-based SaaS
 - NextAuth.js auth
 - Prisma ORM
 - Tailwind CSS
+- Resend emails

@@ -1,8 +1,11 @@
-import { LemonSqueezy } from "../../billing/lemonsqueezy";
+import { getSession } from "@/lib/auth";
+
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
 export async function POST(request: Request) {
+  const session = await getSession();
 
   const res = await request.json()
 
@@ -19,9 +22,9 @@ export async function POST(request: Request) {
           'button_color': '#fde68a'
       },
       'checkout_data': {
-          'email': "dan@lemonsqueezy.com", // Displays in the checkout form eg session.user.email with NextAuth.js
+          'email': session.user.email, // Displays in the checkout form eg session.user.email with NextAuth.js
           'custom': {
-              'user_id': "1" // Sent in the background; visible in webhooks and API calls eg session.user.id with NextAuth.js
+              'user_id': session.user.id // Sent in the background; visible in webhooks and API calls eg session.user.id with NextAuth.js
           }
       },
       'product_options': {

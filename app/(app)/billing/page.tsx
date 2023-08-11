@@ -1,9 +1,10 @@
+import { getSession } from "@/lib/auth";
 import type { Metadata } from 'next';
-import prisma from "lib/prisma";
+import prisma from "@/lib/prisma";
 
-import Plans from 'components/plan';
+import Plans from '@/components/plan';
 
-import { LemonSqueezy } from "./lemonsqueezy";
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
@@ -35,6 +36,7 @@ async function getSubscription(userId) {
 
 
 export default async function Billing() {
+  const session = await getSession();
 
   const plans = await getPlans()
 
