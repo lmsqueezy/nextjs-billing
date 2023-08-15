@@ -37,8 +37,6 @@ async function processEvent(event) {
 
     var lemonSqueezyId = parseInt(obj['id'])
 
-    // TODO: Link this to a real user object with customData['user_id']
-
     var updateData = {
       orderId: data['order_id'],
       name: data['user_name'],
@@ -51,7 +49,7 @@ async function processEvent(event) {
       userId: customData['user_id']
     }
     if ( event.eventName == 'subscription_created' ) {
-      updateData.price = plan['price']
+      updateData.price = plan['price'] // save original price to be able to display in UI
     }
 
     const createData = updateData

@@ -42,12 +42,13 @@ function IntervalSwitcher({ intervalValue, changeInterval }) {
 
 
 function Plan({ plan, subscription, intervalValue }) {
+  console.log(subscription)
   return (
     <div
       className={
         'flex flex-col p-4 rounded-md border-solid border-2 border-gray-200' 
         + (plan.interval !== intervalValue ? ' hidden' : '')
-        + (subscription && subscription.plan == plan ? ' opacity-50' : '')
+        + (subscription?.planId == plan.id ? ' opacity-50' : '')
       }
     >
       <div className="grow">
@@ -68,9 +69,21 @@ function Plan({ plan, subscription, intervalValue }) {
 }
 
 
-export default function Plans({ plans, subscription }) {
+export default function Plans({ plans, sub }) {
 
   const [intervalValue, setIntervalValue] = useState('month')
+  const [subscription, setSubscription] = useState(() => {
+    if (sub) {
+      return {
+        id: sub.lemonSqueezyId,
+        planId: sub.plan?.id,
+        productId: sub.plan?.productId,
+        variantId: sub.plan?.variantId,
+      }
+    } else {
+      return {}
+    }
+  })
 
   return (
     <>

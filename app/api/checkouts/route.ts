@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
-
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
+
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
@@ -38,11 +38,12 @@ export async function POST(request: Request) {
   console.log(attributes)
 
   try {
-    const checkout = await ls.createCheckout(
-                          process.env.LEMONSQUEEZY_STORE_ID,
-                          res.variantId,
-                          attributes
-                        )
+    const checkout = await ls.createCheckout({
+      storeId: process.env.LEMONSQUEEZY_STORE_ID,
+      variantId: res.variantId,
+      attributes
+    })
+    
     return Response.json({'error': false, 'url': checkout['data']['attributes']['url']}, {status: 200})
   } catch(e) {
     return Response.json({'error': true, 'message': e.message}, {status: 400})

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { LemonSqueezy } from "../lemonsqueezy";
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
@@ -7,7 +7,7 @@ const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 async function getPlans() {
   // Fetch data from Lemon Squeezy
 
-  const params = {include: 'product', 'page[size]': 50}
+  const params = {include: 'product', 'perPage': 50}
 
   var hasNextPage = true
   var page = 1
@@ -23,7 +23,7 @@ async function getPlans() {
 
     if (resp['meta']['page']['lastPage'] > page) {
       page += 1
-      params['page[number]'] = page
+      params['page'] = page
     } else {
       hasNextPage = false
     }
@@ -66,6 +66,7 @@ async function getPlans() {
     variant = variant['attributes']
 
     try {
+      console.log('Adding/updating variant ' + variantId)
       await prisma.plan.upsert({
         where: {
           variantId: variantId
