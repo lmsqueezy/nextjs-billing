@@ -15,8 +15,9 @@ async function processEvent(event) {
 
   const obj = event.body['data']
 
-  console.log(event.eventName)
-  console.log(obj)
+  // console.log('======== WEBHOOK ===')
+  // console.log(event.eventName)
+  // console.log(obj)
 
   if ( event.eventName.startsWith('subscription_payment_') ) {
     // Save subscription invoices; obj is a "Subscription invoice"
@@ -32,8 +33,6 @@ async function processEvent(event) {
         variantId: data['variant_id']
       },
     })
-
-    console.log(plan)
 
     var lemonSqueezyId = parseInt(obj['id'])
 
@@ -54,6 +53,7 @@ async function processEvent(event) {
 
     const createData = updateData
     createData.lemonSqueezyId = lemonSqueezyId
+    createData.price = plan.price
 
     try {
 
@@ -66,7 +66,8 @@ async function processEvent(event) {
         create: createData
       })
 
-      await prisma.event.update({
+      // Mark event as processed
+      await prisma.webhookEvent.update({
         where: {
           id: event.id
         },

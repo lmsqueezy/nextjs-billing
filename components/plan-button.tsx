@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useSession } from "next-auth/react"
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 
-export default function PlanButton({ plan, subscription }) {
+export default function PlanButton({ plan, subscription, setSubscription }) {
   const { data: session, status } = useSession()
   
   const [isMutating, setIsMutating] = useState(false)
@@ -32,20 +33,48 @@ export default function PlanButton({ plan, subscription }) {
   }
 
 
-  const changePlan = async (e, subscription, plan) => {
+  async function changePlan(e, subscription, plan) {
+    
     e.preventDefault()
-    if (confirm(`Please confirm you want to change to the ${plan.name} (${plan.variantName} ${plan.interval}ly) plan. \
-For upgrades you will be charged a prorated amount.`)) {
-      alert('change plan to ' + plan.variantId)
 
-      /* Change plan */
+    if (confirm(`Please confirm you want to change to the ${plan.variantName} ${plan.interval}ly plan. \
+For upgrades you will be charged a prorated amount.`)) {
+
+      setIsMutating(true)
+
+      /* Send request */
+      const res = await fetch('/api/subscriptions/'+subscription.id, {
+        method: 'POST',
+        body: JSON.stringify({
+          variantId: plan.variantId,
+          productId: plan.productId
+        })
+      })
+      const result = await res.json();
+      if (result.error) {
+        alert(result.message)
+      } else {
+        
+        // Update page's subscription state
+        setSubscription({
+          ...subscription,
+          productId: result.subscription.product_id,
+          variantId: result.subscription.variant_id
+        })
+
+        toast.success('Your subscription plan has changed!')
+
+        // Webhooks will update the DB in the background
+      }
+      
+      setIsMutating(false)
 
     }
   }
 
   return (
     <>
-      {!subscription ? (
+      {(!subscription || subscription.status == 'expired') ? (
         <a
           href="#"
           onClick={(e) => createCheckout(e, plan.variantId)}
@@ -57,7 +86,7 @@ For upgrades you will be charged a prorated amount.`)) {
         </a>
       ) : (
         <>
-          {subscription?.planId == plan.id ? (
+          {subscription?.variantId == plan.variantId ? (
             <span className="block text-center py-2 px-5 bg-gray-200 rounded-full font-bold shadow-md shadow-gray-300/30 select-none">
               <span className="leading-[28px] inline-block">Your current plan</span>
             </span>
@@ -69,7 +98,7 @@ For upgrades you will be charged a prorated amount.`)) {
               disabled={isMutating}
             >
               <Loader2 className={"animate-spin inline-block relative top-[-1px] mr-2" + (!isMutating ? ' hidden' : '')} />
-              <span className="leading-[28px] inline-block">Change to this plan</span>
+              <span className={"leading-[28px] inline-block" + (isMutating ? ' hidden' : '')}>Change to this plan</span>
             </a>
           )}
         </>

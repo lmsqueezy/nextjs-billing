@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import PlanButton from './plan-button';
+import PlanButton from '@/components/plan-button';
 
 
 function createMarkup(html) {
@@ -41,14 +41,13 @@ function IntervalSwitcher({ intervalValue, changeInterval }) {
 }
 
 
-function Plan({ plan, subscription, intervalValue }) {
-  console.log(subscription)
+function Plan({ plan, subscription, intervalValue, setSubscription }) {
   return (
     <div
       className={
         'flex flex-col p-4 rounded-md border-solid border-2 border-gray-200' 
         + (plan.interval !== intervalValue ? ' hidden' : '')
-        + (subscription?.planId == plan.id ? ' opacity-50' : '')
+        + (subscription?.status !== 'expired' && subscription?.variantId == plan.variantId ? ' opacity-50' : '')
       }
     >
       <div className="grow">
@@ -62,28 +61,16 @@ function Plan({ plan, subscription, intervalValue }) {
       </div>
 
       <div className="mt-4">
-        <PlanButton plan={plan} subscription={subscription} />
+        <PlanButton plan={plan} subscription={subscription} setSubscription={setSubscription} />
       </div>
     </div>
   )
 }
 
 
-export default function Plans({ plans, sub }) {
+export default function Plans({ plans, subscription, setSubscription }) {
 
   const [intervalValue, setIntervalValue] = useState('month')
-  const [subscription, setSubscription] = useState(() => {
-    if (sub) {
-      return {
-        id: sub.lemonSqueezyId,
-        planId: sub.plan?.id,
-        productId: sub.plan?.productId,
-        variantId: sub.plan?.variantId,
-      }
-    } else {
-      return {}
-    }
-  })
 
   return (
     <>
@@ -92,10 +79,14 @@ export default function Plans({ plans, sub }) {
       <div className="mt-5 grid gap-6 sm:grid-cols-2">
 
         {plans.map(plan => (
-          <Plan plan={plan} subscription={subscription} intervalValue={intervalValue} key={plan.variantId} />
+          <Plan plan={plan} subscription={subscription} intervalValue={intervalValue} key={plan.variantId} setSubscription={setSubscription} />
         ))}
 
       </div>
+
+      <p className="mt-8 text-gray-400 text-sm text-center">
+        Payments are processed securely by Lemon Squeezy.
+      </p>
     </>
   );
 }

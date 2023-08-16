@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const res = await request.json()
 
   if ( !res.variantId ) {
-    return Response.json({'error': true, 'message': 'No variant ID was provided.'}, {status: 400})
+    return Response.json({ error: true, message: 'No variant ID was provided.' }, { status: 400 })
   }
 
   // Customise the checkout experience
@@ -22,9 +22,9 @@ export async function POST(request: Request) {
           'button_color': '#fde68a'
       },
       'checkout_data': {
-          'email': session.user.email, // Displays in the checkout form eg session.user.email with NextAuth.js
+          'email': session.user.email, // Displays in the checkout form
           'custom': {
-              'user_id': session.user.id // Sent in the background; visible in webhooks and API calls eg session.user.id with NextAuth.js
+              'user_id': session.user.id // Sent in the background; visible in webhooks and API calls
           }
       },
       'product_options': {
@@ -35,7 +35,6 @@ export async function POST(request: Request) {
           'receipt_thank_you_note': 'Thank you for signing up to Lemonstand!'
       }
   }
-  console.log(attributes)
 
   try {
     const checkout = await ls.createCheckout({
