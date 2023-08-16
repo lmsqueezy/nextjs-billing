@@ -11,6 +11,19 @@ export async function getPlans() {
 }
 
 
+export async function getPlan(variantId) {
+  // Gets all active plans
+  return await prisma.plan.findFirst({
+    where: {
+      variantId: variantId,
+      NOT: {
+        status: 'draft'
+      }
+    }
+  });
+}
+
+
 export async function getSubscription(userId) {
   // Gets the most recent subscription
   return await prisma.subscription.findFirst({

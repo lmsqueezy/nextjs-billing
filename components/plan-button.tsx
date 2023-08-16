@@ -15,7 +15,8 @@ export default function PlanButton({ plan, subscription, setSubscription }) {
     e.preventDefault()
     
     setIsMutating(true)
-    /* Create a checkout */
+
+    // Create a checkout
     const res = await fetch('/api/checkouts', {
       method: 'POST',
       body: JSON.stringify({
@@ -42,7 +43,7 @@ For upgrades you will be charged a prorated amount.`)) {
 
       setIsMutating(true)
 
-      /* Send request */
+      // Send request
       const res = await fetch('/api/subscriptions/'+subscription.id, {
         method: 'POST',
         body: JSON.stringify({
@@ -58,8 +59,12 @@ For upgrades you will be charged a prorated amount.`)) {
         // Update page's subscription state
         setSubscription({
           ...subscription,
-          productId: result.subscription.product_id,
-          variantId: result.subscription.variant_id
+          productId: result['subscription']['product_id'],
+          variantId: result['subscription']['variant_id'],
+          planName: result['subscription']['plan']['name'],
+          planInterval: result['subscription']['plan']['interval'],
+          status: result['subscription']['status'],
+          renewalDate: result['subscription']['renews_at'],
         })
 
         toast.success('Your subscription plan has changed!')

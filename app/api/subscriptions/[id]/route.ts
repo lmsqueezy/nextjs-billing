@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth";
-import { getSubscription } from '@/lib/data';
+import { getPlan } from '@/lib/data';
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
@@ -61,7 +61,7 @@ export async function POST(request, { params }) {
         data: {
           attributes: {
             status: 'cancelled',
-
+            // endsAt
           }
         }
       }
@@ -79,6 +79,26 @@ export async function POST(request, { params }) {
 
   // Return values needed to refresh state in UI
   // DB will be updated in the background with webhooks
-  return Response.json({ error: false, subscription: subscription['data']['attributes'] }, { status: 200 })
+
+  // Filtered object
+  const sub = {
+    product_id: subscription['data']['attributes']['product_id'],
+    variant_id: subscription['data']['attributes']['variant_id'],
+    status: subscription['data']['attributes']['status'],
+    card_brand: subscription['data']['attributes']['card_brand'],
+    card_last_four: subscription['data']['attributes']['card_last_four'],
+    trial_ends_at: subscription['data']['attributes']['trial_ends_at'],
+    renews_at: subscription['data']['attributes']['renews_at'],
+    ends_at: subscription['data']['attributes']['ends_at'],
+  }
+
+  // Get new plan's data
+  const plan = await getPlan(sub.variant_id)
+  sub.plan = {
+    interval: plan.interval,
+    name: plan.variantName
+  }
+
+  return Response.json({ error: false, subscription: sub }, { status: 200 })
 
 }

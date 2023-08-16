@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import Plans from '@/components/plan';
 
 
-export function UpdateBillingLink({ subscription }) {
+export function UpdateBillingLink({ subscription, type }) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -31,12 +31,21 @@ export function UpdateBillingLink({ subscription }) {
     }
   }
 
-  return (
-    <a href="" className="mb-2 text-sm text-gray-500" onClick={openUpdateModal}>
-      Update your payment method
-      <Loader2 size={16} className={"animate-spin inline-block relative top-[-1px] ml-2 w-8" + (!isMutating ? ' invisible' : 'visible')} />
-    </a>
-  )
+  if (type == 'button') {
+    return (
+      <a href="" className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold" onClick={openUpdateModal}>
+        <Loader2 className={"animate-spin inline-block relative top-[-1px] mr-2" + (!isMutating ? ' hidden' : '')} />
+        Update your payment method
+      </a>
+    )
+  } else {
+    return (
+      <a href="" className="mb-2 text-sm text-gray-500" onClick={openUpdateModal}>
+        Update your payment method
+        <Loader2 size={16} className={"animate-spin inline-block relative top-[-1px] ml-2 w-8" + (!isMutating ? ' invisible' : 'visible')} />
+      </a>
+    )
+  }
 }
 
 export function CancelLink({ subscription, setSubscription }) {
@@ -70,6 +79,7 @@ export function CancelLink({ subscription, setSubscription }) {
           status: result['subscription']['status'],
           expiryDate: result['subscription']['ends_at'],
         })
+
         toast.success('Your subscription has been cancelled.')
 
       }
@@ -114,8 +124,10 @@ export function ResumeButton({ subscription, setSubscription }) {
         
         setSubscription({
           ...subscription,
-          status: result['subscription']['status']
+          status: result['subscription']['status'],
+          renewalDate: result['subscription']['renews_at'],
         })
+
         toast.success('Your subscription is now active again!')
 
       }
