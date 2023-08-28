@@ -85,12 +85,6 @@ async function processEvent(event) {
 }
 
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(request: NextRequest) {
   
   const crypto = require('crypto');

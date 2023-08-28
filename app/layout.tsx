@@ -33,7 +33,7 @@ export default function RootLayout({
           <footer className="p-3 text-sm text-gray-400 md:flex md:justify-between">
             <div>
               <span className="text-gray-500">Lemonsqueezy Demo App</span> &middot;&nbsp;
-              <a href="" target="_blank">View on GitHub ↗</a> &middot;&nbsp;
+              <a href="https://github.com/lmsqueezy/nextjs-billing" target="_blank">View on GitHub ↗</a> &middot;&nbsp;
               <a href="https://docs.lemonsqueezy.com" target="_blank">Lemon Squeezy Docs ↗</a>
             </div>
             <div className="mt-2 md:mt-0">
