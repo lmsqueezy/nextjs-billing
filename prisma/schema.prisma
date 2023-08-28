@@ -23,6 +23,8 @@ model Subscription {
   renewsAt       DateTime?
   endsAt         DateTime?
   trialEndsAt    DateTime?
+  resumesAt      DateTime?
+  pauseReason    String?
   price          Int
   plan           Plan      @relation(fields: [planId], references: [id])
   planId         Int

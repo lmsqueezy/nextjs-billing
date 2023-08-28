@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Plans from '@/components/plan';
-import { UpdateBillingLink, CancelLink, ResumeButton } from '@/components/manage'
+import {
+  UpdateBillingLink,
+  CancelLink,
+  ResumeButton,
+  PauseLink,
+  UnpauseButton
+} from '@/components/manage'
 
 
 // Main component
@@ -21,6 +27,7 @@ export function SubscriptionComponent({ sub, plans }) {
         renewalDate: sub.renewsAt,
         trialEndDate: sub.trialEndsAt,
         expiryDate: sub.endsAt,
+        unpauseDate: sub.resumesAt,
       }
     } else {
       return {}
@@ -37,13 +44,12 @@ export function SubscriptionComponent({ sub, plans }) {
       return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />;
     case 'cancelled':
       return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />;
+    case 'paused':
+      return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />;
     case 'unpaid':
       return <UnpaidSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
     case 'expired':
       return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
-
-    // TODO: Paused, Unpaused
-
   }
 }
 
@@ -67,6 +73,8 @@ function ActiveSubscription({ subscription, setSubscription }) {
 
       <p><UpdateBillingLink subscription={subscription} /></p>
 
+      <p><PauseLink subscription={subscription} setSubscription={setSubscription} /></p>
+
       <p><CancelLink subscription={subscription} setSubscription={setSubscription} /></p>
     </>
   )
@@ -83,6 +91,25 @@ function CancelledSubscription({ subscription, setSubscription }) {
       <p className="mb-8">Your subscription has been cancelled and <b>will end on {formatDate(subscription.expiryDate)}</b>. After this date you will no longer have access to the app.</p>
 
       <p><ResumeButton subscription={subscription} setSubscription={setSubscription} /></p>
+    </>
+  )
+}
+
+
+function PausedSubscription({ subscription, setSubscription }) {
+  return (
+    <>
+      <p className="mb-2">
+        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+      </p>
+
+      {subscription.resumeDate ? (
+        <p className="mb-8">Your subscription payments are currently paused. Your subscription will automatically resume on {formatDate(subscription.resumeDate)}.</p>
+      ) : (
+        <p className="mb-8">Your subscription payments are currently paused.</p>
+      )}
+
+      <p><UnpauseButton subscription={subscription} setSubscription={setSubscription} /></p>
     </>
   )
 }

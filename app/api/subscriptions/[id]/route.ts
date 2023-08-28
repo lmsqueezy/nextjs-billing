@@ -57,14 +57,27 @@ export async function POST(request, { params }) {
     try {
       await ls.cancelSubscription({ id: params.id })
       // TODO get proper result from cancelSubscription()
-      subscription = {
-        data: {
-          attributes: {
-            status: 'cancelled',
-            // endsAt
-          }
-        }
-      }
+      subscription = await ls.getSubscription({ id: params.id })
+    } catch(e) {
+      return Response.json({ error: true,  message: e.message }, { status: 400 })
+    }
+
+  } else if (res.action == 'pause') {
+
+    // Pause
+
+    try {
+      subscription = await ls.pauseSubscription({ id: params.id })
+    } catch(e) {
+      return Response.json({ error: true,  message: e.message }, { status: 400 })
+    }
+
+  } else if (res.action == 'unpause') {
+
+    // Unpause
+
+    try {
+      subscription = await ls.unpauseSubscription({ id: params.id })
     } catch(e) {
       return Response.json({ error: true,  message: e.message }, { status: 400 })
     }
@@ -90,6 +103,7 @@ export async function POST(request, { params }) {
     trial_ends_at: subscription['data']['attributes']['trial_ends_at'],
     renews_at: subscription['data']['attributes']['renews_at'],
     ends_at: subscription['data']['attributes']['ends_at'],
+    resumes_at: subscription['data']['attributes']['resumes_at'],
   }
 
   // Get new plan's data

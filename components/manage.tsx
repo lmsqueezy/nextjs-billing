@@ -146,6 +146,106 @@ export function ResumeButton({ subscription, setSubscription }) {
   )
 }
 
+
+export function PauseLink({ subscription, setSubscription }) {
+  
+  const [isMutating, setIsMutating] = useState(false)
+
+  async function handlePause(e) {
+
+    e.preventDefault()
+
+    if (confirm(`Please confirm you want to pause your subscription.`)) {
+
+      setIsMutating(true)
+
+      /* Send request */
+      const res = await fetch('/api/subscriptions/'+subscription.id, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'pause'
+        })
+      })
+      const result = await res.json();
+      if (result.error) {
+        alert(result.message)
+        setIsMutating(false)
+
+      } else {
+        
+        setSubscription({
+          ...subscription,
+          status: result['subscription']['status'],
+          unpauseDate: result['subscription']['resumes_at'],
+        })
+
+        toast.success('Your subscription has been paused.')
+
+      }
+
+    }
+
+  }
+
+  return (
+    <a href="" className="mb-2 text-sm text-gray-500" onClick={handlePause}>
+      Pause payments
+      <Loader2 size={16} className={"animate-spin inline-block relative top-[-1px] ml-2 w-8" + (!isMutating ? ' invisible' : 'visible')} />
+    </a>
+  )
+}
+
+
+export function UnpauseButton({ subscription, setSubscription }) {
+
+  const [isMutating, setIsMutating] = useState(false)
+
+  const unpauseSubscription = async (e) => {
+    
+    e.preventDefault()
+
+    if (confirm(`Please confirm you want to unpause your subscription. Your payments will reactivate on their original schedule.`)) {
+
+      setIsMutating(true)
+
+      /* Send request */
+      const res = await fetch('/api/subscriptions/'+subscription.id, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'unpause'
+        })
+      })
+      const result = await res.json();
+      if (result.error) {
+        alert(result.message)
+        setIsMutating(false)
+      } else {
+        
+        setSubscription({
+          ...subscription,
+          status: result['subscription']['status'],
+          renewalDate: result['subscription']['renews_at'],
+        })
+
+        toast.success('Your subscription is now active again!')
+
+      }
+
+    }
+  }
+
+  return (
+    <a href="" 
+      onClick={unpauseSubscription} 
+      className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold"
+    >
+      <Loader2 className={"animate-spin inline-block relative top-[-1px] mr-2" + (!isMutating ? ' hidden' : '')} />
+      Unpause your subscription
+    </a>
+  )
+}
+
+
 export function PlansComponent({ plans, sub }) {
 
   const [subscription, setSubscription] = useState(() => {
