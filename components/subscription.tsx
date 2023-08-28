@@ -122,7 +122,7 @@ function TrialSubscription({ subscription, setSubscription }) {
         You are currently on a free trial of the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
       </p>
 
-      <p className="mb-6">Your trial ends on {formatDate(subscription.trialEndDate)}. You can cancel your subscription before this date and you won't be charged.</p>
+      <p className="mb-6">Your trial ends on {formatDate(subscription.trialEndDate)}. You can cancel your subscription before this date and you won&apos;t be charged.</p>
 
       <hr className="my-8" />
 
@@ -171,7 +171,7 @@ function UnpaidSubscription({ subscription, plans, setSubscription }) {
   */
   return (
     <>
-      <p className="mb-2">We haven't been able to make a successful payment and your subscription is currently marked as unpaid.</p>
+      <p className="mb-2">We haven&apos;t been able to make a successful payment and your subscription is currently marked as unpaid.</p>
 
       <p className="mb-6">Please updated your billing information to regain access.</p>
 
