@@ -39,22 +39,36 @@ export function SubscriptionComponent({ sub, plans }) {
     }
   })
 
-  switch(subscription.status) {
+  if (sub) {
 
-    case 'active':
-      return <ActiveSubscription subscription={subscription} setSubscription={setSubscription} />
-    case 'on_trial':
-      return <TrialSubscription subscription={subscription} setSubscription={setSubscription} />;
-    case 'past_due':
-      return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />;
-    case 'cancelled':
-      return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />;
-    case 'paused':
-      return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />;
-    case 'unpaid':
-      return <UnpaidSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
-    case 'expired':
-      return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
+    switch(subscription.status) {
+
+      case 'active':
+        return <ActiveSubscription subscription={subscription} setSubscription={setSubscription} />
+      case 'on_trial':
+        return <TrialSubscription subscription={subscription} setSubscription={setSubscription} />;
+      case 'past_due':
+        return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />;
+      case 'cancelled':
+        return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />;
+      case 'paused':
+        return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />;
+      case 'unpaid':
+        return <UnpaidSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
+      case 'expired':
+        return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
+    }
+
+  } else {
+
+    return (
+      <>
+        <p>Please sign up to a paid plan.</p>
+
+        <Plans plans={plans} setSubscription={setSubscription} />
+      </>
+    )
+
   }
 }
 

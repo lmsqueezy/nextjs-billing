@@ -28,18 +28,7 @@ export default async function Page() {
 
       <h1 className="text-xl font-bold mb-3">Billing</h1>
 
-      {sub ? (
-        
-        <SubscriptionComponent sub={sub} plans={plans} />
-
-      ) : (
-        
-        <>
-          <p>Please sign up to a paid plan.</p>
-
-          <Plans plans={plans} />
-        </>
-      )}
+      <SubscriptionComponent sub={sub} plans={plans} />
 
       <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
