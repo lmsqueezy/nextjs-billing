@@ -1,30 +1,11 @@
-import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server'
-import { Readable } from 'node:stream';
 import prisma from "@/lib/prisma";
-
-
-interface UpdateData {
-  orderId: number,
-  name: string,
-  email: string,
-  status: string,
-  renewsAt: string,
-  endsAt: string,
-  trialEndsAt: string,
-  planId: number,
-  userId: string,
-  price: number | null
-}
-
-interface CreateData extends UpdateData {
-  lemonSqueezyId?: number
-}
+import { SubscriptionCreateData, SubscriptionUpdateData } from '@/types/types';
 
 
 async function processEvent(event) {
 
-  var processingError = ''
+  let processingError = ''
 
   const customData = event.body['meta']['custom_data'] || null
 
@@ -59,9 +40,9 @@ async function processEvent(event) {
 
         // Update the subscription
 
-        var lemonSqueezyId = parseInt(obj['id'])
+        const lemonSqueezyId = parseInt(obj['id'])
 
-        var updateData: UpdateData = {
+        const updateData: SubscriptionUpdateData = {
           orderId: data['order_id'],
           name: data['user_name'],
           email: data['user_email'],
@@ -74,7 +55,7 @@ async function processEvent(event) {
           price: event.eventName == 'subscription_created' ? plan['price'] : null
         }
 
-        const createData: CreateData = updateData
+        const createData: SubscriptionCreateData = updateData
         createData.lemonSqueezyId = lemonSqueezyId
         createData.price = plan.price
 
@@ -145,7 +126,6 @@ export async function POST(request: NextRequest) {
 
   // Process
   processEvent(event)
-
   
   return new Response('Done');
 }

@@ -2,9 +2,9 @@
 export interface ApiObject {
   type: string,
   id: string,
-  relationships: Object, // Expand
-  links: Object, // Expand
-  product: Object // Expand
+  relationships: object, // Expand
+  links: object, // Expand
+  product: object // Expand
 }
 
 export interface Variant extends ApiObject {
@@ -58,4 +58,42 @@ export interface ProductAttributes {
 
 export interface Product extends ApiObject {
   attributes: ProductAttributes
+}
+
+export interface ApiQueryParams {
+  include?: string,
+  perPage?: number,
+  page?: number
+}
+
+export interface SubscriptionUpdateData {
+  orderId: number,
+  name: string,
+  email: string,
+  status: string,
+  renewsAt: string,
+  endsAt: string,
+  trialEndsAt: string,
+  planId: number,
+  userId: string,
+  price: number | null
+}
+
+export interface SubscriptionCreateData extends SubscriptionUpdateData {
+  lemonSqueezyId?: number
+}
+
+
+/* Internal object used in the UI */
+interface SubscriptionRecord {
+  id: number,
+  planName: string | null,
+  planInterval: number | null,
+  productId: number | null,
+  variantId: number | null,
+  status: string,
+  renewalDate: string | null,
+  trialEndDate: string | null,
+  expiryDate: string | null,
+  unpauseDate: string | null
 }

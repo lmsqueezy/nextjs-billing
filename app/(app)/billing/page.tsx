@@ -1,12 +1,7 @@
 import { getSession } from "@/lib/auth";
 import type { Metadata } from 'next';
-import prisma from "@/lib/prisma";
-import Plans from '@/components/plan';
 import { SubscriptionComponent } from '@/components/subscription';
 import { getPlans, getSubscription } from '@/lib/data';
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
-
-const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
 export const metadata: Metadata = {

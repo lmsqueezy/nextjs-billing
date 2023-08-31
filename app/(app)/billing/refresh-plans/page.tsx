@@ -1,27 +1,21 @@
 import prisma from "@/lib/prisma";
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
-import type { Variant, Product, ProductAttributes } from '@/types/types';
+import type { Variant, Product, ProductAttributes, ApiQueryParams } from '@/types/types';
 
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
-interface QueryParams {
-  include?: string,
-  perPage?: number,
-  page?: number
-}
-
 async function getPlans() {
   // Fetch data from Lemon Squeezy
 
-  const params: QueryParams = { include: 'product', 'perPage': 50 }
+  const params: ApiQueryParams = { include: 'product', perPage: 50 }
 
-  var hasNextPage = true
-  var page = 1
+  let hasNextPage = true;
+  let page = 1;
 
-  var variants: Variant[] = []
-  var products: Product[] = []
+  let variants: Variant[] = []
+  let products: Product[] = []
 
   while (hasNextPage) {
     const resp = await ls.getVariants(params);
@@ -38,22 +32,22 @@ async function getPlans() {
   }
 
   // Nest products inside variants
-  let prods: Record<string, ProductAttributes> = {};
-  for (var i = 0; i < products.length; i++) {
+  const prods: Record<string, ProductAttributes> = {};
+  for (let i = 0; i < products.length; i++) {
     prods[products[i]['id']] = products[i]['attributes']
   }
-  for (var i = 0; i < variants.length; i++) {
+  for (let i = 0; i < variants.length; i++) {
     variants[i]['product'] = prods[variants[i]['attributes']['product_id']]
   }
 
 
   // Save locally
-  var variantId,
+  let variantId,
       variant,
       product,
       productId
 
-  for (var i = 0; i < variants.length; i++) {
+  for (let i = 0; i < variants.length; i++) {
 
     variant = variants[i]
 
@@ -111,12 +105,12 @@ async function getPlans() {
 }
 
 export default async function Page() {
-  const plans = await getPlans()
+  await getPlans()
   
   return (
-    <>
+    <p>
       Done!
-    </>
+    </p>
   )
 }
 

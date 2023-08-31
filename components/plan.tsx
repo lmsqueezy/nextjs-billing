@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import PlanButton from '@/components/plan-button';
 
 
-function createMarkup(html: string): Object {
+function createMarkup(html: string): object {
   return {__html: html};
 }
 
@@ -27,7 +27,7 @@ function IntervalSwitcher({ intervalValue, changeInterval }) {
         <label className="toggle relative inline-block">
           <input 
             type="checkbox"
-            checked={intervalValue == 'year' ? 'checked': ''}
+            checked={intervalValue == 'year'}
             onChange={(e) => changeInterval(e.target.checked ? 'year' : 'month')}
           />
           <span className="slider absolute rounded-full bg-gray-300 shadow-md"></span>
@@ -69,8 +69,8 @@ function Plan({ plan, subscription, intervalValue, setSubscription }) {
 
 
 interface PlanProps {
-  plans: Object,
-  subscription?: Object,
+  plans: object,
+  subscription?: object,
   setSubscription?: Function
 }
 

@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 
 export async function getPlans() {
   // Gets all active plans

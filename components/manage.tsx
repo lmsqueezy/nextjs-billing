@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Plans from '@/components/plan';
+import { SubscriptionRecord } from '@/types/types';
+import { Subscription } from '@prisma/client';
 
 
-export function UpdateBillingLink({ subscription, type }) {
+export function UpdateBillingLink({ subscription, elementType }: { subscription: SubscriptionRecord; elementType: string }) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -31,7 +33,7 @@ export function UpdateBillingLink({ subscription, type }) {
     }
   }
 
-  if (type == 'button') {
+  if (elementType == 'button') {
     return (
       <a href="" className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold" onClick={openUpdateModal}>
         <Loader2 className={"animate-spin inline-block relative top-[-1px] mr-2" + (!isMutating ? ' hidden' : '')} />
@@ -48,7 +50,12 @@ export function UpdateBillingLink({ subscription, type }) {
   }
 }
 
-export function CancelLink({ subscription, setSubscription }) {
+interface Props {
+  subscription: SubscriptionRecord,
+  setSubscription: Function
+}
+
+export function CancelLink({ subscription, setSubscription }: Props) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -97,7 +104,7 @@ export function CancelLink({ subscription, setSubscription }) {
 }
 
 
-export function ResumeButton({ subscription, setSubscription }) {
+export function ResumeButton({ subscription, setSubscription }: Props) {
 
   const [isMutating, setIsMutating] = useState(false)
 
@@ -147,7 +154,7 @@ export function ResumeButton({ subscription, setSubscription }) {
 }
 
 
-export function PauseLink({ subscription, setSubscription }) {
+export function PauseLink({ subscription, setSubscription }: Props) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -196,7 +203,7 @@ export function PauseLink({ subscription, setSubscription }) {
 }
 
 
-export function UnpauseButton({ subscription, setSubscription }) {
+export function UnpauseButton({ subscription, setSubscription }: Props) {
 
   const [isMutating, setIsMutating] = useState(false)
 
@@ -246,7 +253,7 @@ export function UnpauseButton({ subscription, setSubscription }) {
 }
 
 
-export function PlansComponent({ plans, sub }) {
+export function PlansComponent({ plans, sub }: { plans: object, sub: Subscription}) {
 
   const [subscription, setSubscription] = useState(() => {
     if (sub) {

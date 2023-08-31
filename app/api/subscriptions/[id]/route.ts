@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getSession } from "@/lib/auth";
 import { getPlan } from '@/lib/data';
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
@@ -20,12 +19,10 @@ export async function GET(request, { params }) {
 
 
 export async function POST(request, { params }) {
-  const session = await getSession();
 
   const res = await request.json()
 
-  var subscription;
-
+  let subscription;
 
   if (res.variantId && res.productId) {
 
