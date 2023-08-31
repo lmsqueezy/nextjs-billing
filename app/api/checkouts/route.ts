@@ -1,5 +1,6 @@
+import { NextResponse } from 'next/server';
 import { getSession } from "@/lib/auth";
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
@@ -7,10 +8,14 @@ const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 export async function POST(request: Request) {
   const session = await getSession();
 
+  if (!session) {
+    return NextResponse.json({ error: true, message: 'Not logged in.' }, { status: 401 })
+  }
+
   const res = await request.json()
 
   if ( !res.variantId ) {
-    return Response.json({ error: true, message: 'No variant ID was provided.' }, { status: 400 })
+    return NextResponse.json({ error: true, message: 'No variant ID was provided.' }, { status: 400 })
   }
 
   // Customise the checkout experience
@@ -43,9 +48,9 @@ export async function POST(request: Request) {
       attributes
     })
     
-    return Response.json({'error': false, 'url': checkout['data']['attributes']['url']}, {status: 200})
+    return NextResponse.json({'error': false, 'url': checkout['data']['attributes']['url']}, {status: 200})
   } catch(e) {
-    return Response.json({'error': true, 'message': e.message}, {status: 400})
+    return NextResponse.json({'error': true, 'message': e.message}, {status: 400})
   }
   
 

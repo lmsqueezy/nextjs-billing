@@ -1,19 +1,27 @@
 import prisma from "@/lib/prisma";
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
+import type { Variant, Product, ProductAttributes } from '@/types/types';
+
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
+interface QueryParams {
+  include?: string,
+  perPage?: number,
+  page?: number
+}
+
 async function getPlans() {
   // Fetch data from Lemon Squeezy
 
-  const params = {include: 'product', 'perPage': 50}
+  const params: QueryParams = { include: 'product', 'perPage': 50 }
 
   var hasNextPage = true
   var page = 1
 
-  var variants = []
-  var products = []
+  var variants: Variant[] = []
+  var products: Product[] = []
 
   while (hasNextPage) {
     const resp = await ls.getVariants(params);
@@ -30,7 +38,7 @@ async function getPlans() {
   }
 
   // Nest products inside variants
-  let prods = {}
+  let prods: Record<string, ProductAttributes> = {};
   for (var i = 0; i < products.length; i++) {
     prods[products[i]['id']] = products[i]['attributes']
   }
@@ -54,7 +62,7 @@ async function getPlans() {
       continue
     }
 
-    if ( parseInt(variant['product']['store_id']) != process.env.LEMONSQUEEZY_STORE_ID ) {
+    if ( variant['product']['store_id'] !== process.env.LEMONSQUEEZY_STORE_ID ) {
       console.log(`Store ID ${variant['product']['store_id']} does not match (${process.env.LEMONSQUEEZY_STORE_ID})`)
       continue
     }

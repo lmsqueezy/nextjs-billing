@@ -50,11 +50,12 @@ model Plan {
 }
 
 model WebhookEvent {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  eventName   String
-  processed   Boolean   @default(false)
-  body        Json
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  eventName       String
+  processed       Boolean   @default(false)
+  body            Json
+  processingError String?
 }
 
 

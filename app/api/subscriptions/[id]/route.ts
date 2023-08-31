@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { getSession } from "@/lib/auth";
 import { getPlan } from '@/lib/data';
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
@@ -9,11 +10,11 @@ export async function GET(request, { params }) {
   // Get subscription update billing link
   try {
     const subscription = await ls.getSubscription({ id: params.id })
-    return Response.json({ error: false, subscription: {
+    return NextResponse.json({ error: false, subscription: {
       update_billing_url: subscription['data']['attributes']['urls']['update_payment_method']
     } }, { status: 200 })
   } catch(e) {
-    return Response.json({ error: true,  message: e.message }, { status: 400 })
+    return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
   }
 }
 
@@ -37,7 +38,7 @@ export async function POST(request, { params }) {
         variantId: res.variantId,
       })
     } catch(e) {
-      return Response.json({ error: true,  message: e.message }, { status: 400 })
+      return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
   } else if (res.action == 'resume') {
@@ -47,7 +48,7 @@ export async function POST(request, { params }) {
     try {
       subscription = await ls.resumeSubscription({ id: params.id })
     } catch(e) {
-      return Response.json({ error: true,  message: e.message }, { status: 400 })
+      return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
   } else if (res.action == 'cancel') {
@@ -59,7 +60,7 @@ export async function POST(request, { params }) {
       // TODO get proper result from cancelSubscription()
       subscription = await ls.getSubscription({ id: params.id })
     } catch(e) {
-      return Response.json({ error: true,  message: e.message }, { status: 400 })
+      return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
   } else if (res.action == 'pause') {
@@ -69,7 +70,7 @@ export async function POST(request, { params }) {
     try {
       subscription = await ls.pauseSubscription({ id: params.id })
     } catch(e) {
-      return Response.json({ error: true,  message: e.message }, { status: 400 })
+      return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
   } else if (res.action == 'unpause') {
@@ -79,14 +80,14 @@ export async function POST(request, { params }) {
     try {
       subscription = await ls.unpauseSubscription({ id: params.id })
     } catch(e) {
-      return Response.json({ error: true,  message: e.message }, { status: 400 })
+      return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
   } else {
 
     // Missing data in request
 
-    return Response.json({ error: true,  message: 'Correct data not found.' }, { status: 400 })
+    return NextResponse.json({ error: true,  message: 'Correct data not found.' }, { status: 400 })
 
   }
 
@@ -104,6 +105,7 @@ export async function POST(request, { params }) {
     renews_at: subscription['data']['attributes']['renews_at'],
     ends_at: subscription['data']['attributes']['ends_at'],
     resumes_at: subscription['data']['attributes']['resumes_at'],
+    plan: {}
   }
 
   // Get new plan's data
@@ -113,6 +115,6 @@ export async function POST(request, { params }) {
     name: plan.variantName
   }
 
-  return Response.json({ error: false, subscription: sub }, { status: 200 })
+  return NextResponse.json({ error: false, subscription: sub }, { status: 200 })
 
 }

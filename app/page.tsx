@@ -11,8 +11,8 @@ export default async function Home() {
 
       {session ? (
         <>
-          <p class="mb-4">Welcome, {email}</p>
-          <p class="mb-8"><Link href="/billing">Go to the Billing page &rarr;</Link></p>
+          <p className="mb-4">Welcome, {email}</p>
+          <p className="mb-8"><Link href="/billing">Go to the Billing page &rarr;</Link></p>
           <p><SignOutButton /></p>
         </>
       ) : (

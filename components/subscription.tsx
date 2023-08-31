@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, FC, useEffect } from 'react';
 import Link from 'next/link';
 import Plans from '@/components/plan';
 import {
@@ -12,8 +12,13 @@ import {
 } from '@/components/manage'
 
 
+interface SubscriptionProps {
+  sub: Object,
+  plans: Object
+}
+
 // Main component
-export function SubscriptionComponent({ sub, plans }) {
+export const SubscriptionComponent: FC<SubscriptionProps> = ({ sub, plans }) => {
 
   // Make sure Lemon.js is loaded
   useEffect(() => {
@@ -73,7 +78,7 @@ export function SubscriptionComponent({ sub, plans }) {
 }
 
 
-function ActiveSubscription({ subscription, setSubscription }) {
+const ActiveSubscription: FC = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -100,7 +105,7 @@ function ActiveSubscription({ subscription, setSubscription }) {
 }
 
 
-function CancelledSubscription({ subscription, setSubscription }) {
+const CancelledSubscription: FC = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -115,7 +120,7 @@ function CancelledSubscription({ subscription, setSubscription }) {
 }
 
 
-function PausedSubscription({ subscription, setSubscription }) {
+const PausedSubscription: FC = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -134,7 +139,7 @@ function PausedSubscription({ subscription, setSubscription }) {
 }
 
 
-function TrialSubscription({ subscription, setSubscription }) {
+const TrialSubscription: FC = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -159,7 +164,7 @@ function TrialSubscription({ subscription, setSubscription }) {
 }
 
 
-function PastDueSubscription({ subscription, setSubscription }) {
+const PastDueSubscription: FC = ({ subscription, setSubscription }) => {
   return (
     <>
       <div className="my-8 p-4 text-sm text-red-800 rounded-md border border-red-200 bg-red-50">
@@ -182,7 +187,7 @@ function PastDueSubscription({ subscription, setSubscription }) {
   )
 }
 
-function UnpaidSubscription({ subscription, plans, setSubscription }) {
+const UnpaidSubscription: FC = ({ subscription, plans, setSubscription }) => {
   /*
   Unpaid subscriptions have had four failed recovery payments.
   If you have dunning enabled in your store settings, customers will be sent emails trying to reactivate their subscription.
@@ -204,7 +209,7 @@ function UnpaidSubscription({ subscription, plans, setSubscription }) {
   )
 }
 
-function ExpiredSubscription({ subscription, plans, setSubscription }) {
+const ExpiredSubscription: FC = ({ subscription, plans, setSubscription }) => {
   return (
     <>
       <p className="mb-2">Your subscription expired on {formatDate(subscription.expiryDate)}.</p>
@@ -220,7 +225,7 @@ function ExpiredSubscription({ subscription, plans, setSubscription }) {
 }
 
 
-function formatDate(date) {
+function formatDate(date): string {
   if (!date) return ''
   return new Date(date).toLocaleString('en-US', {
     month: 'short',
