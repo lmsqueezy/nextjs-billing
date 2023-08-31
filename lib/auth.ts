@@ -11,7 +11,6 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       name: 'email',
       server: '',
-      from: 'hello@yourapp.com',
       sendVerificationRequest,
     }),
   ],

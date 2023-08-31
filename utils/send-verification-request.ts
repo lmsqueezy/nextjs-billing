@@ -8,7 +8,7 @@ export const sendVerificationRequest = async (
   const { host } = new URL(url)
   try {
     await resend.emails.send({
-      from: 'hello@yourapp.com',
+      from: process.env.EMAIL_FROM_DEFAULT,
       to: identifier,
       subject: `Sign in to ${host}`,
       text: text({ url, host }),

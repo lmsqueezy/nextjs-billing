@@ -11,7 +11,7 @@ export default withAuth(
     // Redirect auth pages (/login) to dashboard when logged in
     if (isAuthPage) {
       if (isAuth) {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
+        return NextResponse.redirect(new URL("/", req.url))
       }
 
       return null
@@ -21,11 +21,6 @@ export default withAuth(
       let from = req.nextUrl.pathname;
       if (req.nextUrl.search) {
         from += req.nextUrl.search;
-      }
-
-      // Load the homepage (/home) at / when not logged in
-      if (req.nextUrl.pathname == '/') {
-        return NextResponse.rewrite(new URL('/', req.url));
       }
 
       return NextResponse.redirect(
@@ -54,7 +49,6 @@ export const config = {
   // /login + all locked pages should be listed here
   matcher: [
     '/',
-    '/dashboard',
     '/billing',
     '/login'
   ],
