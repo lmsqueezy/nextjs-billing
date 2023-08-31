@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Plans from '@/components/plan';
 import {
@@ -14,6 +14,11 @@ import {
 
 // Main component
 export function SubscriptionComponent({ sub, plans }) {
+
+  // Make sure Lemon.js is loaded
+  useEffect(() => {
+    window.createLemonSqueezy();
+  }, [])
   
   const [subscription, setSubscription] = useState(() => {
     if (sub) {

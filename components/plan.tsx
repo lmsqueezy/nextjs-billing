@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PlanButton from '@/components/plan-button';
 
 
@@ -71,6 +71,11 @@ function Plan({ plan, subscription, intervalValue, setSubscription }) {
 export default function Plans({ plans, subscription, setSubscription }) {
 
   const [intervalValue, setIntervalValue] = useState('month')
+
+  // Make sure Lemon.js is loaded
+  useEffect(() => {
+    window.createLemonSqueezy();
+  }, [])
 
   return (
     <>
