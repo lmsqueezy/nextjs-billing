@@ -19,7 +19,7 @@ export default async function Page() {
 
   const plans = await getPlans()
 
-  const sub = await getSubscription(session?.user.id)
+  const sub = await getSubscription(session?.user?.id)
 
   // Uses Test mode in "Demo app" (prod server)
 

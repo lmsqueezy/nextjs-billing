@@ -17,7 +17,7 @@ export default async function Billing() {
 
   const plans = await getPlans();
 
-  const sub = await getSubscription(session?.user.id);
+  const sub = await getSubscription(session?.user?.id);
 
   if (!sub) {
     redirect('/billing')
