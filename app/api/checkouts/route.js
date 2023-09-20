@@ -5,7 +5,7 @@ import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
-export async function POST(request: Request) {
+export async function POST(request) {
   const session = await getSession();
 
   if (!session) {

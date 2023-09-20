@@ -1,12 +1,11 @@
 import { getSession } from "@/lib/auth";
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PlansComponent } from '@/components/manage';
 import { getPlans, getSubscription } from '@/lib/data';
 import { redirect } from 'next/navigation';
 
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Billing'
 }
 

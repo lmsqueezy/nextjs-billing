@@ -1,10 +1,10 @@
 import { getSession } from "@/lib/auth";
-import type { Metadata } from 'next';
-import { SubscriptionComponent } from '@/components/subscription';
+// import { SubscriptionComponent } from '@/components/subscription';
+import { PortalSubscriptionComponent } from '@/components/subscription-customer-portal';
 import { getPlans, getSubscription } from '@/lib/data';
 
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Billing'
 }
 
@@ -23,7 +23,8 @@ export default async function Page() {
 
       <h1 className="text-xl font-bold mb-3">Billing</h1>
 
-      <SubscriptionComponent sub={sub} plans={plans} />
+      {/* <SubscriptionComponent sub={sub} plans={plans} /> */}
+      <PortalSubscriptionComponent sub={sub} />
 
       <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 

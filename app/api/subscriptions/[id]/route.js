@@ -6,11 +6,14 @@ const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
 export async function GET(request, { params }) {
-  // Get subscription update billing link
+  /**
+   * Used by some buttons to get subscription update billing URLs
+   */
   try {
     const subscription = await ls.getSubscription({ id: params.id })
     return NextResponse.json({ error: false, subscription: {
-      update_billing_url: subscription['data']['attributes']['urls']['update_payment_method']
+      update_billing_url: subscription['data']['attributes']['urls']['update_payment_method'],
+      // customer_portal_url: subscription['data']['attributes']['urls']['customer_portal']
     } }, { status: 200 })
   } catch(e) {
     return NextResponse.json({ error: true,  message: e.message }, { status: 400 })

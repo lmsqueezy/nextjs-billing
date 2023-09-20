@@ -1,6 +1,4 @@
-import { type NextRequest } from 'next/server'
 import prisma from "@/lib/prisma";
-import { SubscriptionCreateData, SubscriptionUpdateData } from '@/types/types';
 
 
 async function processEvent(event) {
@@ -42,7 +40,7 @@ async function processEvent(event) {
 
         const lemonSqueezyId = parseInt(obj['id'])
 
-        const updateData: SubscriptionUpdateData = {
+        const updateData = {
           orderId: data['order_id'],
           name: data['user_name'],
           email: data['user_email'],
@@ -55,7 +53,7 @@ async function processEvent(event) {
           price: event.eventName == 'subscription_created' ? plan['price'] : null
         }
 
-        const createData: SubscriptionCreateData = updateData
+        const createData = updateData
         createData.lemonSqueezyId = lemonSqueezyId
         createData.price = plan.price
 
@@ -66,8 +64,8 @@ async function processEvent(event) {
             where: {
               lemonSqueezyId: lemonSqueezyId
             },
-            update: updateData as any,
-            create: createData as any
+            update: updateData,
+            create: createData,
           })
 
         } catch (error) {
@@ -100,7 +98,7 @@ async function processEvent(event) {
 }
 
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   
   const crypto = require('crypto');
 

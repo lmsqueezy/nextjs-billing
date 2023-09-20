@@ -2,9 +2,9 @@
 
 import { signIn } from "next-auth/react"
 
-const handleSubmit = (event) => {
-  event.preventDefault()
-  signIn("email", { email: event.target.email.value })
+const handleSubmit = (e) => {
+  e.preventDefault()
+  signIn("email", { email: e.target.email.value })
 }
 
 export default function SignIn() {
