@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import PlanButton from '@/components/plan-button';
 
 
-function createMarkup(html: string): object {
+function createMarkup(html) {
   return {__html: html};
 }
 
-function formatPrice(price): number {
+function formatPrice(price) {
   return price / 100;
 }
 
-function formatInterval(interval: number, intervalCount: number): string {
+function formatInterval(interval, intervalCount) {
   return intervalCount > 1 ? `${intervalCount} ${interval}s` : interval
 }
 
@@ -68,13 +68,7 @@ function Plan({ plan, subscription, intervalValue, setSubscription }) {
 }
 
 
-interface PlanProps {
-  plans: object,
-  subscription?: object,
-  setSubscription?: Function
-}
-
-export default function Plans<PlanProps>({ plans, subscription, setSubscription }) {
+export default function Plans({ plans, subscription, setSubscription }) {
 
   const [intervalValue, setIntervalValue] = useState('month')
 

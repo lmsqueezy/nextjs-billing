@@ -10,18 +10,10 @@ import {
   PauseLink,
   UnpauseButton
 } from '@/components/manage'
-import { Subscription } from '@prisma/client';
-import { SubscriptionRecord } from '@/types/types';
-
-
-interface SubscriptionProps {
-  sub: Subscription,
-  plans: object
-}
 
 
 // Main component
-export const SubscriptionComponent: FC<SubscriptionProps> = ({ sub, plans }) => {
+export const SubscriptionComponent = ({ sub, plans }) => {
 
   // Make sure Lemon.js is loaded
   useEffect(() => {
@@ -41,7 +33,7 @@ export const SubscriptionComponent: FC<SubscriptionProps> = ({ sub, plans }) => 
         trialEndDate: sub.trialEndsAt,
         expiryDate: sub.endsAt,
         unpauseDate: sub.resumesAt,
-      } as SubscriptionRecord
+      }
     } else {
       return {}
     }
@@ -81,17 +73,7 @@ export const SubscriptionComponent: FC<SubscriptionProps> = ({ sub, plans }) => 
 }
 
 
-
-interface BaseSubscriptionProps {
-  subscription: SubscriptionRecord,
-  setSubscription: Function
-}
-
-interface ExtendedSubscriptionProps extends BaseSubscriptionProps {
-  plans: object,
-}
-
-const ActiveSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const ActiveSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -118,7 +100,7 @@ const ActiveSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscr
 }
 
 
-const CancelledSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const CancelledSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -133,7 +115,7 @@ const CancelledSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSub
 }
 
 
-const PausedSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const PausedSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -152,7 +134,7 @@ const PausedSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscr
 }
 
 
-const TrialSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const TrialSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -177,7 +159,7 @@ const TrialSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscri
 }
 
 
-const PastDueSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const PastDueSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
       <div className="my-8 p-4 text-sm text-red-800 rounded-md border border-red-200 bg-red-50">
@@ -200,7 +182,7 @@ const PastDueSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubsc
   )
 }
 
-const UnpaidSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscription }) => {
+const UnpaidSubscription = ({ subscription, setSubscription }) => {
   /*
   Unpaid subscriptions have had four failed recovery payments.
   If you have dunning enabled in your store settings, customers will be sent emails trying to reactivate their subscription.
@@ -222,7 +204,7 @@ const UnpaidSubscription: FC<BaseSubscriptionProps> = ({ subscription, setSubscr
   )
 }
 
-const ExpiredSubscription: FC<ExtendedSubscriptionProps> = ({ subscription, plans, setSubscription }) => {
+const ExpiredSubscription = ({ subscription, plans, setSubscription }) => {
   return (
     <>
       <p className="mb-2">Your subscription expired on {formatDate(subscription.expiryDate)}.</p>
@@ -238,7 +220,7 @@ const ExpiredSubscription: FC<ExtendedSubscriptionProps> = ({ subscription, plan
 }
 
 
-function formatDate(date): string {
+function formatDate(date) {
   if (!date) return ''
   return new Date(date).toLocaleString('en-US', {
     month: 'short',

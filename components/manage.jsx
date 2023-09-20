@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Plans from '@/components/plan';
-import { SubscriptionRecord } from '@/types/types';
-import { Subscription } from '@prisma/client';
 
 
-export function UpdateBillingLink({ subscription, elementType }: { subscription: SubscriptionRecord; elementType: string }) {
+export function UpdateBillingLink({ subscription, elementType }) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -50,12 +48,7 @@ export function UpdateBillingLink({ subscription, elementType }: { subscription:
   }
 }
 
-interface Props {
-  subscription: SubscriptionRecord,
-  setSubscription: Function
-}
-
-export function CancelLink({ subscription, setSubscription }: Props) {
+export function CancelLink({ subscription, setSubscription }) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -104,7 +97,7 @@ export function CancelLink({ subscription, setSubscription }: Props) {
 }
 
 
-export function ResumeButton({ subscription, setSubscription }: Props) {
+export function ResumeButton({ subscription, setSubscription }) {
 
   const [isMutating, setIsMutating] = useState(false)
 
@@ -154,7 +147,7 @@ export function ResumeButton({ subscription, setSubscription }: Props) {
 }
 
 
-export function PauseLink({ subscription, setSubscription }: Props) {
+export function PauseLink({ subscription, setSubscription }) {
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -203,7 +196,7 @@ export function PauseLink({ subscription, setSubscription }: Props) {
 }
 
 
-export function UnpauseButton({ subscription, setSubscription }: Props) {
+export function UnpauseButton({ subscription, setSubscription }) {
 
   const [isMutating, setIsMutating] = useState(false)
 
@@ -253,7 +246,7 @@ export function UnpauseButton({ subscription, setSubscription }: Props) {
 }
 
 
-export function PlansComponent({ plans, sub }: { plans: object, sub: Subscription}) {
+export function PlansComponent({ plans, sub }) {
 
   const [subscription, setSubscription] = useState(() => {
     if (sub) {
