@@ -1,8 +1,7 @@
-import { SendVerificationRequestParams } from 'next-auth/providers';
 import { resend } from '@/lib/resend';
 
 export const sendVerificationRequest = async (
-  params: SendVerificationRequestParams,
+  param
 ) => {
   const { identifier, url, provider, theme } = params
   const { host } = new URL(url)
@@ -28,7 +27,7 @@ export const sendVerificationRequest = async (
  *
  * @note We don't add the email address to avoid needing to escape it, if you do, remember to sanitize it!
  */
-function html(params: { url: string; host: string; theme: Theme }) {
+function html(params) {
   const { url, host, theme } = params
 
   const escapedHost = host.replace(/\./g, "&#8203;.")
@@ -77,6 +76,6 @@ function html(params: { url: string; host: string; theme: Theme }) {
 }
 
 /** Email Text body (fallback for email clients that don't render HTML, e.g. feature phones) */
-function text({ url, host }: { url: string; host: string }) {
+function text({ url, host }) {
   return `Sign in to ${host} with this magic link.\n\n${url}\n\n`
 }
