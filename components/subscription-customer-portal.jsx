@@ -1,24 +1,46 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import Plans from '@/components/plan';
-import {
-  UpdateBillingLink,
-  CancelLink,
-  ResumeButton,
-  PauseLink,
-  UnpauseButton
-} from '@/components/manage'
+import { Loader2 } from 'lucide-react';
 
+
+function PortalButton({ subscription }) {
+
+  const [isMutating, setIsMutating] = useState(false)
+
+  const getPortalLink = async (e) => {
+
+    e.preventDefault()
+
+    setIsMutating(true)
+
+    /* Send request */
+    const res = await fetch(`/api/subscriptions/${subscription.id}`)
+    const result = await res.json();
+    if (result.error) {
+      alert(result.message)
+      setIsMutating(false)
+    } else {
+
+      window.location = result.subscription.customer_portal_url
+
+    }
+  }
+
+  return (
+    <a href=""
+      onClick={getPortalLink}
+      className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold"
+    >
+      <Loader2 className={"animate-spin inline-block relative top-[-1px] mr-2" + (!isMutating ? ' hidden' : '')} />
+      Manage subscription
+    </a>
+  )
+}
 
 // Main component
-export const SubscriptionComponent = ({ sub, plans }) => {
-
-  // Make sure Lemon.js is loaded
-  useEffect(() => {
-    window.createLemonSqueezy();
-  }, [])
+export const PortalSubscriptionComponent = ({ sub, plans }) => {
   
   const [subscription, setSubscription] = useState(() => {
     if (sub) {
@@ -44,17 +66,17 @@ export const SubscriptionComponent = ({ sub, plans }) => {
     switch(subscription.status) {
 
       case 'active':
-        return <ActiveSubscription subscription={subscription} setSubscription={setSubscription} />
+        return <ActiveSubscription subscription={subscription} />
       case 'on_trial':
-        return <TrialSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <TrialSubscription subscription={subscription} />;
       case 'past_due':
-        return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <PastDueSubscription subscription={subscription} />;
       case 'cancelled':
-        return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <CancelledSubscription subscription={subscription} />;
       case 'paused':
-        return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <PausedSubscription subscription={subscription} />;
       case 'unpaid':
-        return <UnpaidSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <UnpaidSubscription subscription={subscription} />;
       case 'expired':
         return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
     }
@@ -73,34 +95,22 @@ export const SubscriptionComponent = ({ sub, plans }) => {
 }
 
 
-const ActiveSubscription = ({ subscription, setSubscription }) => {
+const ActiveSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
         You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
       </p>
 
-      <p className="mb-2">Your next renewal will be on {formatDate(subscription.renewalDate)}.</p>
+      <p className="mb-8">Your next renewal will be on {formatDate(subscription.renewalDate)}.</p>
 
-      <hr className="my-8" />
-
-      <p className="mb-4">
-        <Link href="/billing/change-plan" className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold">
-          Change plan &rarr;
-        </Link>
-      </p>
-
-      <p><UpdateBillingLink subscription={subscription} /></p>
-
-      <p><PauseLink subscription={subscription} setSubscription={setSubscription} /></p>
-
-      <p><CancelLink subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
     </>
   )
 }
 
 
-const CancelledSubscription = ({ subscription, setSubscription }) => {
+const CancelledSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -109,13 +119,13 @@ const CancelledSubscription = ({ subscription, setSubscription }) => {
 
       <p className="mb-8">Your subscription has been cancelled and <b>will end on {formatDate(subscription.expiryDate)}</b>. After this date you will no longer have access to the app.</p>
 
-      <p><ResumeButton subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
     </>
   )
 }
 
 
-const PausedSubscription = ({ subscription, setSubscription }) => {
+const PausedSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
@@ -128,38 +138,28 @@ const PausedSubscription = ({ subscription, setSubscription }) => {
         <p className="mb-8">Your subscription payments are currently paused.</p>
       )}
 
-      <p><UnpauseButton subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
     </>
   )
 }
 
 
-const TrialSubscription = ({ subscription, setSubscription }) => {
+const TrialSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
         You are currently on a free trial of the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
       </p>
 
-      <p className="mb-6">Your trial ends on {formatDate(subscription.trialEndDate)}. You can cancel your subscription before this date and you won&apos;t be charged.</p>
+      <p className="mb-8">Your trial ends on {formatDate(subscription.trialEndDate)}. You can cancel your subscription before this date and you won&apos;t be charged.</p>
 
-      <hr className="my-8" />
-
-      <p className="mb-4">
-        <Link href="/billing/change-plan" className="inline-block px-6 py-2 rounded-full bg-amber-200 text-amber-800 font-bold">
-          Change plan &rarr;
-        </Link>
-      </p>
-
-      <p><UpdateBillingLink subscription={subscription} /></p>
-
-      <p><CancelLink subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
     </>
   )
 }
 
 
-const PastDueSubscription = ({ subscription, setSubscription }) => {
+const PastDueSubscription = ({ subscription }) => {
   return (
     <>
       <div className="my-8 p-4 text-sm text-red-800 rounded-md border border-red-200 bg-red-50">
@@ -171,18 +171,14 @@ const PastDueSubscription = ({ subscription, setSubscription }) => {
         You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
       </p>
 
-      <p className="mb-2">We will attempt a payment on {formatDate(subscription.renewalDate)}.</p>
+      <p className="mb-8">We will attempt a payment on {formatDate(subscription.renewalDate)}.</p>
 
-      <hr className="my-8" />
-
-      <p><UpdateBillingLink subscription={subscription} /></p>
-
-      <p><CancelLink subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
     </>
   )
 }
 
-const UnpaidSubscription = ({ subscription, setSubscription }) => {
+const UnpaidSubscription = ({ subscription }) => {
   /*
   Unpaid subscriptions have had four failed recovery payments.
   If you have dunning enabled in your store settings, customers will be sent emails trying to reactivate their subscription.
@@ -192,13 +188,9 @@ const UnpaidSubscription = ({ subscription, setSubscription }) => {
     <>
       <p className="mb-2">We haven&apos;t been able to make a successful payment and your subscription is currently marked as unpaid.</p>
 
-      <p className="mb-6">Please update your billing information to regain access.</p>
+      <p className="mb-8">Please update your billing information to regain access.</p>
 
-      <p><UpdateBillingLink subscription={subscription} elementType="button" /></p>
-
-      <hr className="my-8" />
-
-      <p><CancelLink subscription={subscription} setSubscription={setSubscription} /></p>
+      <p><PortalButton subscription={subscription} /></p>
 
     </>
   )
