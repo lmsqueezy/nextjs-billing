@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from "next-auth/react"
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 
 export default function PlanButton({ plan, subscription, setSubscription }) {
-  const { data: session, status } = useSession()
   
   const [isMutating, setIsMutating] = useState(false)
 
@@ -20,7 +18,8 @@ export default function PlanButton({ plan, subscription, setSubscription }) {
     const res = await fetch('/api/checkouts', {
       method: 'POST',
       body: JSON.stringify({
-        variantId: variantId
+        variantId: variantId,
+        quantity: quantity
       })
     })
     const checkout = await res.json();
@@ -82,7 +81,7 @@ For upgrades you will be charged a prorated amount.`)) {
       {(!subscription || subscription.status == 'expired') ? (
         <a
           href="#"
-          onClick={(e) => createCheckout(e, plan.variantId)}
+          onClick={(e) => createCheckout(e, plan.variantId, 5)}
           className="block text-center py-2 px-5 bg-amber-200 rounded-full font-bold text-amber-800 shadow-md shadow-gray-300/30 select-none"
           disabled={isMutating}
         >

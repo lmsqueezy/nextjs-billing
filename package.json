@@ -1,6 +1,6 @@
 {
-  "name": "lemonsqueezy-demo",
-  "version": "0.1.0",
+  "name": "lemonsqueezy-nextjs-billing",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.0.1",
-    "@lemonsqueezy/lemonsqueezy.js": "^1.0.3",
+    "@lemonsqueezy/lemonsqueezy.js": "^1.2.0",
     "@prisma/client": "^5.2.0",
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
@@ -24,6 +24,7 @@
     "sonner": "^0.6.2"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^13.5.2",
     "@types/node": "^18.14.6",
     "@types/react": "18.2.22",
     "autoprefixer": "^10.4.15",

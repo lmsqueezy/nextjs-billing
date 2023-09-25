@@ -60,7 +60,7 @@ async function processEvent(event) {
         try {
 
           // Create/update subscription
-          const subscription = await prisma.subscription.upsert({
+          await prisma.subscription.upsert({
             where: {
               lemonSqueezyId: lemonSqueezyId
             },

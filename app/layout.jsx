@@ -3,14 +3,10 @@ import { Providers } from "./providers"
 import './globals.css'
 
 export const metadata = {
-  title: 'Lemon Squeezy Demo',
+  title: 'Lemon Squeezy Next.js Billing',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
@@ -29,7 +25,7 @@ export default function RootLayout({
 
           <footer className="p-3 text-sm text-gray-400 md:flex md:justify-between">
             <div>
-              <span className="text-gray-500">Lemonsqueezy Demo App</span> &middot;&nbsp;
+              <span className="text-gray-500">Lemon Squeezy Next.js Billing</span> &middot;&nbsp;
               <a href="https://github.com/lmsqueezy/nextjs-billing" target="_blank">View on GitHub ↗</a> &middot;&nbsp;
               <a href="https://docs.lemonsqueezy.com" target="_blank">Lemon Squeezy Docs ↗</a>
             </div>
