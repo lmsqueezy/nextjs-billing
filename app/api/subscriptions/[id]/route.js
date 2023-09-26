@@ -56,9 +56,7 @@ export async function POST(request, { params }) {
     // Cancel
 
     try {
-      await ls.cancelSubscription({ id: params.id })
-      // TODO get proper result from cancelSubscription()
-      subscription = await ls.getSubscription({ id: params.id })
+      subscription = await ls.cancelSubscription({ id: params.id })
     } catch(e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
