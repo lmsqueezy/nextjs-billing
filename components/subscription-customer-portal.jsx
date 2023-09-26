@@ -55,6 +55,7 @@ export const PortalSubscriptionComponent = ({ sub, plans }) => {
         trialEndDate: sub.trialEndsAt,
         expiryDate: sub.endsAt,
         unpauseDate: sub.resumesAt,
+        price: sub.price / 100,
       }
     } else {
       return {}
@@ -99,7 +100,7 @@ const ActiveSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
-        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan, paying ${subscription.price}/{subscription.planInterval}.
       </p>
 
       <p className="mb-8">Your next renewal will be on {formatDate(subscription.renewalDate)}.</p>
@@ -114,7 +115,7 @@ const CancelledSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
-        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan, paying ${subscription.price}/{subscription.planInterval}.
       </p>
 
       <p className="mb-8">Your subscription has been cancelled and <b>will end on {formatDate(subscription.expiryDate)}</b>. After this date you will no longer have access to the app.</p>
@@ -129,7 +130,7 @@ const PausedSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
-        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan, paying ${subscription.price}/{subscription.planInterval}.
       </p>
 
       {subscription.unpauseDate ? (
@@ -148,7 +149,7 @@ const TrialSubscription = ({ subscription }) => {
   return (
     <>
       <p className="mb-2">
-        You are currently on a free trial of the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+        You are currently on a free trial of the <b>{subscription.planName} {subscription.planInterval}ly</b> plan (${subscription.price}/{subscription.planInterval}).
       </p>
 
       <p className="mb-8">Your trial ends on {formatDate(subscription.trialEndDate)}. You can cancel your subscription before this date and you won&apos;t be charged.</p>
@@ -168,7 +169,7 @@ const PastDueSubscription = ({ subscription }) => {
       </div>
 
       <p className="mb-2">
-        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan.
+        You are currently on the <b>{subscription.planName} {subscription.planInterval}ly</b> plan, paying ${subscription.price}/{subscription.planInterval}.
       </p>
 
       <p className="mb-8">We will attempt a payment on {formatDate(subscription.renewalDate)}.</p>

@@ -1,4 +1,7 @@
 import prisma from "@/lib/prisma";
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
+
+const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
 async function processEvent(event) {
@@ -42,6 +45,11 @@ async function processEvent(event) {
 
         const lemonSqueezyId = parseInt(obj['id'])
 
+        // Get subscription's Price object
+        // We save the Price value to the subscription so we can display it to the user
+        let resp = await ls.getPrice({ id: data['first_subscription_item']['price_id'] })
+        let subItemPrice = resp['data']['attributes']['unit_price']
+
         const updateData = {
           orderId: data['order_id'],
           name: data['user_name'],
@@ -52,7 +60,7 @@ async function processEvent(event) {
           trialEndsAt: data['trial_ends_at'],
           planId: plan['id'],
           userId: customData['user_id'],
-          price: event.eventName == 'subscription_created' ? plan['price'] : null
+          price: subItemPrice
         }
 
         const createData = updateData

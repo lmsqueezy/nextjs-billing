@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
 
-
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
 
@@ -64,6 +63,11 @@ async function getPlans() {
     product = variant['product']
     productId = parseInt(variant['attributes']['product_id'])
 
+    // Get variant's Price objects
+    let prices = await ls.getPrices({ variantId: variantId, perPage: 100 })
+    // The first object is the latest/current price
+    let variant_price = prices['data'][0]['attributes']['unit_price']
+
     variant = variant['attributes']
 
     try {
@@ -79,7 +83,7 @@ async function getPlans() {
           status: variant['status'],
           sort: variant['sort'],
           description: variant['description'],
-          price: variant['price'],
+          price: variant_price, // display price in the app matches current Price object in LS
           interval: variant['interval'],
           intervalCount: variant['interval_count'],
         },
@@ -91,7 +95,7 @@ async function getPlans() {
           status: variant['status'],
           sort: variant['sort'],
           description: variant['description'],
-          price: variant['price'],
+          price: variant_price, // display price in the app matches current Price object in LS
           interval: variant['interval'],
           intervalCount: variant['interval_count'],
         }

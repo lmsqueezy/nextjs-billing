@@ -64,6 +64,7 @@ For upgrades you will be charged a prorated amount.`)) {
           planInterval: result['subscription']['plan']['interval'],
           status: result['subscription']['status'],
           renewalDate: result['subscription']['renews_at'],
+          price: result['subscription']['price']
         })
 
         toast.success('Your subscription plan has changed!')

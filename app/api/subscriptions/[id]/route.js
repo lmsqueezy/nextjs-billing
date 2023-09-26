@@ -94,6 +94,10 @@ export async function POST(request, { params }) {
   // Return values needed to refresh state in UI
   // DB will be updated in the background with webhooks
 
+  // Get price
+  let resp = await ls.getPrice({ id: subscription['data']['attributes']['first_subscription_item']['price_id'] })
+  let subItemPrice = resp['data']['attributes']['unit_price']
+
   // Filtered object
   const sub = {
     product_id: subscription['data']['attributes']['product_id'],
@@ -105,7 +109,8 @@ export async function POST(request, { params }) {
     renews_at: subscription['data']['attributes']['renews_at'],
     ends_at: subscription['data']['attributes']['ends_at'],
     resumes_at: subscription['data']['attributes']['resumes_at'],
-    plan: {}
+    plan: {},
+    price: subItemPrice,
   }
 
   // Get new plan's data
