@@ -14,11 +14,11 @@ Just clone this repo and build your app alongside the ready-made auth and billin
 
 This demo app comes with two versions of Lemon Squeezy billing.
 
-1. The first option uses [Lemon Squeezy's Customer Portal](https://docs.lemonsqueezy.com/help/online-store/customer-portal) for managing subscriptions. It shows a "Manage subscription" button, which links out to the no-code Customer Portal where customers can manage their subscriptions, billing methods and view invoices.
-This option uses the `PortalSubscriptionComponent` component in `billing.page.jsx`.
+1. The first option uses [Lemon Squeezy's Customer Portal](https://docs.lemonsqueezy.com/help/online-store/customer-portal) for managing subscriptions. It shows a "Manage subscription" button, which links out to the no-code Customer Portal where customers can manage their subscriptions, billing methods and view invoices.  
+This option uses the `PortalSubscriptionComponent` component in `billing/page.jsx`.
 
-2. The second option is a more native billing section inside the app, with options for pausing, cancelling, updating plans and updating payment method. This option is more seamless inside your application and uses the Lemon Squeezy SDK/API to make changes to subscriptions.
-This option uses the `SubscriptionComponent` component in `billing.page.jsx`.
+2. The second option is a more native billing section inside the app, with options for pausing, cancelling, updating plans and updating payment method. This option is more seamless inside your application and uses the [Lemon Squeezy SDK](https://github.com/lmsqueezy/lemonsqueezy.js) to make changes to subscriptions.  
+This option uses the `SubscriptionComponent` component in `billing/page.jsx`.
 
 Note that both options require webhooks so that the underlying subscription data in the application is always up-to-date. A way to ingest webhooks is included in the app.
 
