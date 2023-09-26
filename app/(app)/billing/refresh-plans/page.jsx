@@ -8,7 +8,7 @@ const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 async function getPlans() {
   // Fetch data from Lemon Squeezy
 
-  const params = { include: 'product', perPage: 50 }
+  const params = { include: ['product'], perPage: 50 }
 
   let hasNextPage = true;
   let page = 1;
@@ -55,7 +55,7 @@ async function getPlans() {
       continue
     }
 
-    if ( variant['product']['store_id'] !== process.env.LEMONSQUEEZY_STORE_ID ) {
+    if ( String(variant['product']['store_id']) !== process.env.LEMONSQUEEZY_STORE_ID ) {
       console.log(`Store ID ${variant['product']['store_id']} does not match (${process.env.LEMONSQUEEZY_STORE_ID})`)
       continue
     }
