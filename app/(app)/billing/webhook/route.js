@@ -18,6 +18,8 @@ async function processEvent(event) {
     if ( event.eventName.startsWith('subscription_payment_') ) {
       // Save subscription invoices; obj is a "Subscription invoice"
 
+      /* Not implemented */
+
     } else if ( event.eventName.startsWith('subscription_') ) {
       // Save subscriptions; obj is a "Subscription"
 
@@ -99,6 +101,8 @@ async function processEvent(event) {
 
 
 export async function POST(request) {
+
+  // Make sure request is from Lemon Squeezy
   
   const crypto = require('crypto');
 
@@ -110,8 +114,10 @@ export async function POST(request) {
   const signature = Buffer.from(request.headers.get('X-Signature') || '', 'utf8');
 
   if (!crypto.timingSafeEqual(digest, signature)) {
-      throw new Error('Invalid signature.');
+    throw new Error('Invalid signature.');
   }
+
+  // Now save the event
 
   const data = JSON.parse(rawBody)
 
@@ -122,7 +128,9 @@ export async function POST(request) {
     },
   })
 
-  // Process
+  // Process the event
+  // This could be done out of the main thread
+
   processEvent(event)
   
   return new Response('Done');
