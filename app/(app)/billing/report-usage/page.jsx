@@ -8,8 +8,9 @@ async function reportUsage() {
   /**
    * Report usage for all customers to Lemon Squeezy.
    * This example runs through all active usage-based subscriptions and sends the current total usage
-   *  to Lemon Squeezy.
-   * You could run this as a daily background job.
+   *  to Lemon Squeezy using the "set" action. You could run this as a daily background job.
+   * An alternative to this method or reporting is to send usage reports more real-time (eg. after 
+   *  every unit usage) using the "increment" action.
    */
 
   // Get all active usage-based subscriptions
@@ -25,15 +26,14 @@ async function reportUsage() {
 
   for (let i = 0; i < subscriptions.length; i++) {
     let subscription = subscriptions[i];
-    console.log(subscription)
 
-    // Usage from the current billing period. Get this value from your app's data
-    let unitsUsed = 1;
+    // Total usage from the current billing period. Get this value from your app's data
+    let unitsUsed = 10;
 
     let resp = await ls.createUsageRecord({
       subscriptionItemId: subscription.subscriptionItemId,
       quantity: unitsUsed,
-      action: 'set' // or `increment` if you want to add to the existing usage you've reported
+      action: "set"
     })
   }
 
