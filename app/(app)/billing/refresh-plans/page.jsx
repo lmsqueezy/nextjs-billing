@@ -3,9 +3,12 @@ import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
 
 const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
 
+export const dynamic = 'force-dynamic' // Don't cache API results
 
 async function getPlans() {
-  // Fetch data from Lemon Squeezy
+  /**
+   * Fetch variant data from Lemon Squeezy and save it locally
+   */
 
   const params = { include: ['product'], perPage: 50 }
 

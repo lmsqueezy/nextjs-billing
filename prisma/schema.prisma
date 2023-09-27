@@ -14,22 +14,24 @@ datasource db {
 // == Lemon Squeezy data
 
 model Subscription {
-  id             Int       @id @default(autoincrement())
-  lemonSqueezyId Int       @unique
-  orderId        Int       @unique
-  name           String
-  email          String
-  status         String
-  renewsAt       DateTime?
-  endsAt         DateTime?
-  trialEndsAt    DateTime?
-  resumesAt      DateTime?
-  pauseReason    String?
-  price          Int
-  plan           Plan      @relation(fields: [planId], references: [id])
-  planId         Int
-  user           User      @relation(fields: [userId], references: [id])
-  userId         String
+  id                 Int       @id @default(autoincrement())
+  lemonSqueezyId     Int       @unique
+  orderId            Int       @unique
+  name               String
+  email              String
+  status             String
+  renewsAt           DateTime?
+  endsAt             DateTime?
+  trialEndsAt        DateTime?
+  resumesAt          DateTime?
+  pauseReason        String?
+  price              Int
+  plan               Plan      @relation(fields: [planId], references: [id])
+  planId             Int
+  user               User      @relation(fields: [userId], references: [id])
+  userId             String
+  isUsageBased       Boolean   @default(false)
+  subscriptionItemId Int?      @unique
 
   @@index([planId, lemonSqueezyId])
 }

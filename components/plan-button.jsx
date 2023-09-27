@@ -18,8 +18,7 @@ export default function PlanButton({ plan, subscription, setSubscription }) {
     const res = await fetch('/api/checkouts', {
       method: 'POST',
       body: JSON.stringify({
-        variantId: variantId,
-        quantity: quantity
+        variantId: variantId
       })
     })
     const checkout = await res.json();

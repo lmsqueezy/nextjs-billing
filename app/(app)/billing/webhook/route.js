@@ -46,9 +46,8 @@ async function processEvent(event) {
         const lemonSqueezyId = parseInt(obj['id'])
 
         // Get subscription's Price object
-        // We save the Price value to the subscription so we can display it to the user
-        let resp = await ls.getPrice({ id: data['first_subscription_item']['price_id'] })
-        let subItemPrice = resp['data']['attributes']['unit_price']
+        // We save the Price value to the subscription so we can display it in the UI
+        let priceData = await ls.getPrice({ id: data['first_subscription_item']['price_id'] })
 
         const updateData = {
           orderId: data['order_id'],
@@ -60,7 +59,10 @@ async function processEvent(event) {
           trialEndsAt: data['trial_ends_at'],
           planId: plan['id'],
           userId: customData['user_id'],
-          price: subItemPrice
+          price: priceData['data']['attributes']['unit_price'],
+          subscriptionItemId: data['first_subscription_item']['id'],
+          // Save this for usage-based billing reporting; no need to if you use quantity-based billing
+          isUsageBased: data['first_subscription_item']['is_usage_based'],
         }
 
         const createData = updateData
