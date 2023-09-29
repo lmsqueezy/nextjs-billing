@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma";
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
+import prisma from '@/lib/prisma'
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
-const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
+const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY)
 
 
 async function processEvent(event) {
@@ -10,7 +10,7 @@ async function processEvent(event) {
 
   const customData = event.body['meta']['custom_data'] || null
 
-  if (!customData) {
+  if (!customData || !customData['user_id']) {
 
     processingError = 'No user ID, can\'t process'
 
@@ -18,12 +18,12 @@ async function processEvent(event) {
 
     const obj = event.body['data']
 
-    if ( event.eventName.startsWith('subscription_payment_') ) {
+    if (event.eventName.startsWith('subscription_payment_')) {
       // Save subscription invoices; obj is a "Subscription invoice"
 
       /* Not implemented */
 
-    } else if ( event.eventName.startsWith('subscription_') ) {
+    } else if (event.eventName.startsWith('subscription_')) {
       // Save subscriptions; obj is a "Subscription"
 
       const data = obj['attributes']
@@ -70,7 +70,6 @@ async function processEvent(event) {
         createData.price = plan.price
 
         try {
-
           // Create/update subscription
           await prisma.subscription.upsert({
             where: {
@@ -79,7 +78,6 @@ async function processEvent(event) {
             update: updateData,
             create: createData,
           })
-
         } catch (error) {
           processingError = error
           console.log(error)
@@ -87,10 +85,19 @@ async function processEvent(event) {
 
       }
 
+    } else if (event.eventName.startsWith('order_')) {
+      // Save orders; obj is a "Order"
+
+      /* Not implemented */
+
+    } else if (event.eventName.startsWith('license_')) {
+      // Save license keys; obj is a "License key"
+
+      /* Not implemented */
+
     }
 
     try {
-
       // Mark event as processed
       await prisma.webhookEvent.update({
         where: {
@@ -105,7 +112,6 @@ async function processEvent(event) {
       console.log(error)
     }
 
-
   }
 }
 
@@ -114,17 +120,17 @@ export async function POST(request) {
 
   // Make sure request is from Lemon Squeezy
   
-  const crypto = require('crypto');
+  const crypto = require('crypto')
 
   const rawBody = await request.text()
 
-  const secret    = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
-  const hmac      = crypto.createHmac('sha256', secret);
-  const digest    = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
-  const signature = Buffer.from(request.headers.get('X-Signature') || '', 'utf8');
+  const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET
+  const hmac = crypto.createHmac('sha256', secret)
+  const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8')
+  const signature = Buffer.from(request.headers.get('X-Signature') || '', 'utf8')
 
   if (!crypto.timingSafeEqual(digest, signature)) {
-    throw new Error('Invalid signature.');
+    throw new Error('Invalid signature.')
   }
 
   // Now save the event

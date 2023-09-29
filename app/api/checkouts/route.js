@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { getSession } from "@/lib/auth";
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
+import { NextResponse } from 'next/server'
+import { getSession } from '@/lib/auth'
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
-const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
+const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY)
 
 
 export async function POST(request) {
-  const session = await getSession();
+  const session = await getSession()
 
   if (!session) {
     return NextResponse.json({ error: true, message: 'Not logged in.' }, { status: 401 })
@@ -34,8 +34,8 @@ export async function POST(request) {
       },
       'product_options': {
           'enabled_variants': [res.variantId], // Only show the selected variant in the checkout
-          'redirect_url': 'http://localhost:3001/billing/',
-          'receipt_link_url': 'http://localhost:3001/billing/',
+          'redirect_url': `${process.env.NEXT_PUBLIC_APP_URL}/billing/`,
+          'receipt_link_url': `${process.env.NEXT_PUBLIC_APP_URL}/billing/`,
           'receipt_button_text': 'Go to your account',
           'receipt_thank_you_note': 'Thank you for signing up to Lemonstand!'
       }
@@ -49,7 +49,7 @@ export async function POST(request) {
     })
     
     return NextResponse.json({'error': false, 'url': checkout['data']['attributes']['url']}, {status: 200})
-  } catch(e) {
+  } catch (e) {
     return NextResponse.json({'error': true, 'message': e.message}, {status: 400})
   }
   

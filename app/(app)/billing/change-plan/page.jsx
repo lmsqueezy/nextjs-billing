@@ -1,25 +1,25 @@
-import { getSession } from "@/lib/auth";
-import Link from 'next/link';
-import { PlansComponent } from '@/components/manage';
-import { getPlans, getSubscription } from '@/lib/data';
-import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth'
+import Link from 'next/link'
+import { PlansComponent } from '@/components/manage'
+import { getPlans, getSubscription } from '@/lib/data'
+import { redirect } from 'next/navigation'
 
 
 export const metadata = {
-  title: 'Billing'
+  title: 'Change plan'
 }
 
 
-export default async function Billing() {
-  const session = await getSession();
+export default async function Page() {
+  const session = await getSession()
 
-  const plans = await getPlans();
-
-  const sub = await getSubscription(session?.user?.id);
+  const sub = await getSubscription(session?.user?.id)
 
   if (!sub) {
     redirect('/billing')
   }
+
+  const plans = await getPlans()
 
   return (
     <div className="container mx-auto max-w-lg">

@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 
 export default function PlanButton({ plan, subscription, setSubscription }) {
@@ -21,7 +21,7 @@ export default function PlanButton({ plan, subscription, setSubscription }) {
         variantId: variantId
       })
     })
-    const checkout = await res.json();
+    const checkout = await res.json()
     if (checkout.error) {
       alert(checkout.message)
     } else {
@@ -42,19 +42,18 @@ For upgrades you will be charged a prorated amount.`)) {
       setIsMutating(true)
 
       // Send request
-      const res = await fetch('/api/subscriptions/'+subscription.id, {
+      const res = await fetch(`/api/subscriptions/${subscription.id}`, {
         method: 'POST',
         body: JSON.stringify({
           variantId: plan.variantId,
           productId: plan.productId
         })
       })
-      const result = await res.json();
+      const result = await res.json()
       if (result.error) {
-        alert(result.message)
+        toast.error(result.message)
       } else {
-        
-        // Update page's subscription state
+
         setSubscription({
           ...subscription,
           productId: result['subscription']['product_id'],
@@ -81,7 +80,7 @@ For upgrades you will be charged a prorated amount.`)) {
       {(!subscription || subscription.status == 'expired') ? (
         <a
           href="#"
-          onClick={(e) => createCheckout(e, plan.variantId, 5)}
+          onClick={(e) => createCheckout(e, plan.variantId)}
           className="block text-center py-2 px-5 bg-amber-200 rounded-full font-bold text-amber-800 shadow-md shadow-gray-300/30 select-none"
           disabled={isMutating}
         >

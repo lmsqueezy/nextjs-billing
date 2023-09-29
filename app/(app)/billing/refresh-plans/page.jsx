@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma";
-import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js';
+import prisma from '@/lib/prisma'
+import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
-const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
+const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY)
 
 export const dynamic = 'force-dynamic' // Don't cache API results
 
@@ -41,7 +41,6 @@ async function getPlans() {
     variants[i]['product'] = prods[variants[i]['attributes']['product_id']]
   }
 
-
   // Save locally
   let variantId,
       variant,
@@ -73,35 +72,27 @@ async function getPlans() {
 
     variant = variant['attributes']
 
+    const updateData = {
+      productId: productId,
+      name: product['name'],
+      variantName: variant['name'],
+      status: variant['status'],
+      sort: variant['sort'],
+      description: variant['description'],
+      price: variant_price, // display price in the app matches current Price object in LS
+      interval: variant['interval'],
+      intervalCount: variant['interval_count'],
+    }
+    const createData = updateData
+    createData.variantId = variantId
+
     try {
-      console.log('Adding/updating variant ' + variantId)
       await prisma.plan.upsert({
         where: {
           variantId: variantId
         },
-        update: {
-          productId: productId,
-          name: product['name'],
-          variantName: variant['name'],
-          status: variant['status'],
-          sort: variant['sort'],
-          description: variant['description'],
-          price: variant_price, // display price in the app matches current Price object in LS
-          interval: variant['interval'],
-          intervalCount: variant['interval_count'],
-        },
-        create: {
-          variantId: variantId,
-          productId: productId,
-          name: product['name'],
-          variantName: variant['name'],
-          status: variant['status'],
-          sort: variant['sort'],
-          description: variant['description'],
-          price: variant_price, // display price in the app matches current Price object in LS
-          interval: variant['interval'],
-          intervalCount: variant['interval_count'],
-        }
+        update: updateData,
+        create: createData
       })
     } catch (error) {
       console.log(variant)

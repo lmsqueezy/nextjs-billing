@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import Plans from '@/components/plan';
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import Plans from '@/components/plan'
 
 
 export function UpdateBillingLink({ subscription, elementType }) {
@@ -17,8 +17,8 @@ export function UpdateBillingLink({ subscription, elementType }) {
     setIsMutating(true)
 
     /* Send request */
-    const res = await fetch('/api/subscriptions/'+subscription.id)
-    const result = await res.json();
+    const res = await fetch(`/api/subscriptions/${subscription.id}`)
+    const result = await res.json()
     if (result.error) {
       alert(result.message)
       setIsMutating(false)
@@ -61,13 +61,13 @@ export function CancelLink({ subscription, setSubscription }) {
       setIsMutating(true)
 
       /* Send request */
-      const res = await fetch('/api/subscriptions/'+subscription.id, {
+      const res = await fetch(`/api/subscriptions/${subscription.id}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'cancel'
         })
       })
-      const result = await res.json();
+      const result = await res.json()
       if (result.error) {
         alert(result.message)
         setIsMutating(false)
@@ -110,13 +110,13 @@ export function ResumeButton({ subscription, setSubscription }) {
       setIsMutating(true)
 
       /* Send request */
-      const res = await fetch('/api/subscriptions/'+subscription.id, {
+      const res = await fetch(`/api/subscriptions/${subscription.id}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'resume'
         })
       })
-      const result = await res.json();
+      const result = await res.json()
       if (result.error) {
         alert(result.message)
         setIsMutating(false)
@@ -160,13 +160,13 @@ export function PauseLink({ subscription, setSubscription }) {
       setIsMutating(true)
 
       /* Send request */
-      const res = await fetch('/api/subscriptions/'+subscription.id, {
+      const res = await fetch(`/api/subscriptions/${subscription.id}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'pause'
         })
       })
-      const result = await res.json();
+      const result = await res.json()
       if (result.error) {
         alert(result.message)
         setIsMutating(false)
@@ -209,13 +209,13 @@ export function UnpauseButton({ subscription, setSubscription }) {
       setIsMutating(true)
 
       /* Send request */
-      const res = await fetch('/api/subscriptions/'+subscription.id, {
+      const res = await fetch(`/api/subscriptions/${subscription.id}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'unpause'
         })
       })
-      const result = await res.json();
+      const result = await res.json()
       if (result.error) {
         alert(result.message)
         setIsMutating(false)

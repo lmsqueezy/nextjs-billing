@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import { getPlan } from '@/lib/data';
+import { NextResponse } from 'next/server'
+import { getPlan } from '@/lib/data'
 import LemonSqueezy from '@lemonsqueezy/lemonsqueezy.js'
 
-const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY);
+const ls = new LemonSqueezy(process.env.LEMONSQUEEZY_API_KEY)
 
 
 export async function GET(request, { params }) {
@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
       update_billing_url: subscription['data']['attributes']['urls']['update_payment_method'],
       customer_portal_url: subscription['data']['attributes']['urls']['customer_portal']
     } }, { status: 200 })
-  } catch(e) {
+  } catch (e) {
     return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
   }
 }
@@ -25,7 +25,7 @@ export async function POST(request, { params }) {
 
   const res = await request.json()
 
-  let subscription;
+  let subscription
 
   if (res.variantId && res.productId) {
 
@@ -37,7 +37,7 @@ export async function POST(request, { params }) {
         productId: res.productId,
         variantId: res.variantId,
       })
-    } catch(e) {
+    } catch (e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
@@ -47,7 +47,7 @@ export async function POST(request, { params }) {
     
     try {
       subscription = await ls.resumeSubscription({ id: params.id })
-    } catch(e) {
+    } catch (e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
@@ -57,7 +57,7 @@ export async function POST(request, { params }) {
 
     try {
       subscription = await ls.cancelSubscription({ id: params.id })
-    } catch(e) {
+    } catch (e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
@@ -67,7 +67,7 @@ export async function POST(request, { params }) {
 
     try {
       subscription = await ls.pauseSubscription({ id: params.id })
-    } catch(e) {
+    } catch (e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
@@ -77,7 +77,7 @@ export async function POST(request, { params }) {
 
     try {
       subscription = await ls.unpauseSubscription({ id: params.id })
-    } catch(e) {
+    } catch (e) {
       return NextResponse.json({ error: true,  message: e.message }, { status: 400 })
     }
 
@@ -85,7 +85,7 @@ export async function POST(request, { params }) {
 
     // Missing data in request
 
-    return NextResponse.json({ error: true,  message: 'Correct data not found.' }, { status: 400 })
+    return NextResponse.json({ error: true,  message: 'Valid data not found.' }, { status: 400 })
 
   }
 
@@ -96,13 +96,11 @@ export async function POST(request, { params }) {
   let resp = await ls.getPrice({ id: subscription['data']['attributes']['first_subscription_item']['price_id'] })
   let subItemPrice = resp['data']['attributes']['unit_price']
 
-  // Filtered object
+  // Return a filtered subscription object to the UI
   const sub = {
     product_id: subscription['data']['attributes']['product_id'],
     variant_id: subscription['data']['attributes']['variant_id'],
     status: subscription['data']['attributes']['status'],
-    card_brand: subscription['data']['attributes']['card_brand'],
-    card_last_four: subscription['data']['attributes']['card_last_four'],
     trial_ends_at: subscription['data']['attributes']['trial_ends_at'],
     renews_at: subscription['data']['attributes']['renews_at'],
     ends_at: subscription['data']['attributes']['ends_at'],
@@ -111,7 +109,7 @@ export async function POST(request, { params }) {
     price: subItemPrice,
   }
 
-  // Get new plan's data
+  // Get plan's data
   const plan = await getPlan(sub.variant_id)
   sub.plan = {
     interval: plan.interval,

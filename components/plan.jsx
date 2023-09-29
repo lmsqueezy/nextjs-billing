@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import PlanButton from '@/components/plan-button';
+import { useState, useEffect } from 'react'
+import PlanButton from '@/components/plan-button'
 
 
 function createMarkup(html) {
-  return {__html: html};
+  return {__html: html}
 }
 
 function formatPrice(price) {
-  return price / 100;
+  return price / 100
 }
 
 function formatInterval(interval, intervalCount) {
@@ -74,7 +74,7 @@ export default function Plans({ plans, subscription, setSubscription }) {
 
   // Make sure Lemon.js is loaded
   useEffect(() => {
-    window.createLemonSqueezy();
+    window.createLemonSqueezy()
   }, [])
 
   return (
@@ -93,5 +93,5 @@ export default function Plans({ plans, subscription, setSubscription }) {
         Payments are processed securely by Lemon Squeezy.
       </p>
     </>
-  );
+  )
 }

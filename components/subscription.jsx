@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Plans from '@/components/plan';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Plans from '@/components/plan'
 import {
   UpdateBillingLink,
   CancelLink,
@@ -17,7 +17,7 @@ export const SubscriptionComponent = ({ sub, plans }) => {
 
   // Make sure Lemon.js is loaded
   useEffect(() => {
-    window.createLemonSqueezy();
+    window.createLemonSqueezy()
   }, [])
   
   const [subscription, setSubscription] = useState(() => {
@@ -47,17 +47,17 @@ export const SubscriptionComponent = ({ sub, plans }) => {
       case 'active':
         return <ActiveSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'on_trial':
-        return <TrialSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <TrialSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'past_due':
-        return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <PastDueSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'cancelled':
-        return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <CancelledSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'paused':
-        return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <PausedSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'unpaid':
-        return <UnpaidSubscription subscription={subscription} setSubscription={setSubscription} />;
+        return <UnpaidSubscription subscription={subscription} setSubscription={setSubscription} />
       case 'expired':
-        return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />;
+        return <ExpiredSubscription subscription={subscription} plans={plans} setSubscription={setSubscription} />
     }
 
   } else {
@@ -100,7 +100,6 @@ const ActiveSubscription = ({ subscription, setSubscription }) => {
   )
 }
 
-
 const CancelledSubscription = ({ subscription, setSubscription }) => {
   return (
     <>
@@ -114,7 +113,6 @@ const CancelledSubscription = ({ subscription, setSubscription }) => {
     </>
   )
 }
-
 
 const PausedSubscription = ({ subscription, setSubscription }) => {
   return (
@@ -133,7 +131,6 @@ const PausedSubscription = ({ subscription, setSubscription }) => {
     </>
   )
 }
-
 
 const TrialSubscription = ({ subscription, setSubscription }) => {
   return (
@@ -158,7 +155,6 @@ const TrialSubscription = ({ subscription, setSubscription }) => {
     </>
   )
 }
-
 
 const PastDueSubscription = ({ subscription, setSubscription }) => {
   return (
@@ -219,7 +215,6 @@ const ExpiredSubscription = ({ subscription, plans, setSubscription }) => {
     </>
   )
 }
-
 
 function formatDate(date) {
   if (!date) return ''
