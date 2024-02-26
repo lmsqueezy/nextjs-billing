@@ -1,0 +1,52 @@
+{
+  "name": "billing-v2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write --list-different .",
+    "lint": "next lint",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^0.7.0",
+    "@lemonsqueezy/lemonsqueezy.js": "^2.1.0",
+    "@lemonsqueezy/wedges": "^1.2.2",
+    "@neondatabase/serverless": "^0.8.1",
+    "clsx": "^2.1.0",
+    "drizzle-orm": "^0.29.4",
+    "geist": "^1.2.2",
+    "lucide-react": "^0.338.0",
+    "next": "14.1.0",
+    "next-auth": "beta",
+    "pg": "^8.11.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "sonner": "^1.4.1",
+    "tailwind-merge": "^2.2.1"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^14.1.0",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "^20.11.20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vercel/style-guide": "^5.2.0",
+    "autoprefixer": "^10.4.17",
+    "drizzle-kit": "^0.20.14",
+    "eslint": "^8",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-tailwindcss": "^3.14.3",
+    "postcss": "^8",
+    "prettier": "^3.2.5",
+    "prettier-plugin-packagejson": "^2.4.12",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

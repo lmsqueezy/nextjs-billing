@@ -1,0 +1,5 @@
+pnpm-lock.yaml
+yarn.lock
+node_modules
+.next
+**/db/migrations
