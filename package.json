@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "db:push": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "format": "prettier --check .",
     "format:fix": "prettier --write --list-different .",
