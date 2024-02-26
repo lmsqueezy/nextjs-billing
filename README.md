@@ -23,7 +23,7 @@ Compatbile with [Vercel Edge Functions](https://vercel.com/docs/functions/runtim
 
 ## Customer Portal vs Integrated Billing
 
-Keep in mind that Lemon Squeezy has inbuilt [Customer Portal](https://www.lemonsqueezy.com/features/customer-portal) that covers all the features from this app and more.
+Keep in mind that Lemon Squeezy comes with inbuilt [Customer Portal](https://www.lemonsqueezy.com/features/customer-portal) that covers all the features from this app and more.
 
 Nonetheless, should you seek a billing solution more closely integrated with your SaaS platform, this template serves as a foundation for creating a seamless, integrated SaaS billing system.
 
