@@ -12,7 +12,7 @@ Using the following stack:
 - Auth (GitHub OAuth) - [Auth.js v5](https://authjs.dev)
 - ORM - [Drizzle](https://orm.drizzle.team/)
 - Styling - [Tailwind CSS](https://tailwindcss.com)
-- Components -[Wedges](https://www.lemonsqueezy.com/wedges/docs)
+- Components - [Wedges](https://www.lemonsqueezy.com/wedges/docs)
 - Serverless Postgres - [Neon](https://neon.tech/)
 - Linting - [ESLint](https://eslint.org)
 - Formatting - [Prettier](https://prettier.io)
