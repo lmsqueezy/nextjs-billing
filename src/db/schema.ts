@@ -104,11 +104,9 @@ export const subscriptions = pgTable("subscription", {
   isUsageBased: boolean("isUsageBased").default(false),
   isPaused: boolean("isPaused").default(false),
   subscriptionItemId: serial("subscriptionItemId"),
-
   userId: text("userId")
     .notNull()
     .references(() => users.id),
-
   planId: integer("planId")
     .notNull()
     .references(() => plans.id),
