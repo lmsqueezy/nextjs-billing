@@ -8,7 +8,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/",
   },
-  basePath: "/api/auth",
   callbacks: {
     authorized: ({ request: { nextUrl }, auth: midAuth }) => {
       const isLoggedIn = Boolean(midAuth?.user);
