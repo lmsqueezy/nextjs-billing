@@ -22,7 +22,7 @@ export function DashboardContent(
           </PageTitle>
         ) : null}
 
-        <div className="prose prose-sm prose-headings:text-balance prose-headings:font-normal prose-p:max-w-prose prose-p:text-pretty prose-a:font-normal prose-a:text-primary prose-code:rounded prose-code:bg-primary-50 prose-code:px-1 prose-code:text-sm prose-code:font-normal prose-code:text-primary-600 prose-code:before:content-none prose-code:after:content-none max-w-full text-inherit">
+        <div className="prose prose-sm max-w-full text-inherit prose-headings:text-balance prose-headings:font-normal prose-p:max-w-prose prose-p:text-pretty prose-a:font-normal prose-a:text-primary prose-code:rounded prose-code:bg-primary-50 prose-code:px-1 prose-code:text-sm prose-code:font-normal prose-code:text-primary-600 prose-code:before:content-none prose-code:after:content-none">
           {children}
         </div>
       </main>

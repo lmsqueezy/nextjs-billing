@@ -57,7 +57,6 @@ export async function getCheckoutURL(variantId: number, embed = false) {
     {
       checkoutOptions: {
         embed,
-        buttonColor: "#ff6838",
         media: false,
         logo: !embed,
       },
@@ -193,7 +192,7 @@ export async function syncPlans() {
   // Loop through all the variants.
   const allVariants = products.data?.included as Variant["data"][] | undefined;
 
-  // for...of supports asynchroneous operations, unlike forEach.
+  // for...of supports asynchronous operations, unlike forEach.
   if (allVariants) {
     /* eslint-disable no-await-in-loop -- allow */
     for (const v of allVariants) {
@@ -567,6 +566,9 @@ export async function unpauseUserSubscription(id: string) {
   return returnedSub;
 }
 
+/**
+ * This action will change the plan of a subscription on Lemon Squeezy.
+ */
 export async function changePlan(currentPlanId: number, newPlanId: number) {
   configureLemonSqueezy();
 

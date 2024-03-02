@@ -60,53 +60,51 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
     );
 
     return (
-      <>
-        <Button
-          ref={ref}
-          before={before}
-          disabled={loading || isCurrent || props.disabled}
-          onClick={async () => {
-            // If changing plans, call server action.
-            if (isChangingPlans) {
-              if (!currentPlan?.id) {
-                throw new Error("Current plan not found.");
-              }
-
-              if (!plan.id) {
-                throw new Error("New plan not found.");
-              }
-
-              setLoading(true);
-              await changePlan(currentPlan.id, plan.id);
-              setLoading(false);
-
-              return;
+      <Button
+        ref={ref}
+        before={before}
+        disabled={loading || isCurrent || props.disabled}
+        onClick={async () => {
+          // If changing plans, call server action.
+          if (isChangingPlans) {
+            if (!currentPlan?.id) {
+              throw new Error("Current plan not found.");
             }
 
-            // Otherwise, create a checkout and open the Lemon.js modal.
-            let checkoutUrl: string | undefined = "";
-            try {
-              setLoading(true);
-              checkoutUrl = await getCheckoutURL(plan.variantId, embed);
-            } catch (error) {
-              setLoading(false);
-              toast("Error creating a checkout.", {
-                description:
-                  "Please check the server console for more information.",
-              });
-            } finally {
-              embed && setLoading(false);
+            if (!plan.id) {
+              throw new Error("New plan not found.");
             }
 
-            embed
-              ? checkoutUrl && window.LemonSqueezy.Url.Open(checkoutUrl)
-              : router.push(checkoutUrl ?? "/");
-          }}
-          {...otherProps}
-        >
-          {label}
-        </Button>
-      </>
+            setLoading(true);
+            await changePlan(currentPlan.id, plan.id);
+            setLoading(false);
+
+            return;
+          }
+
+          // Otherwise, create a checkout and open the Lemon.js modal.
+          let checkoutUrl: string | undefined = "";
+          try {
+            setLoading(true);
+            checkoutUrl = await getCheckoutURL(plan.variantId, embed);
+          } catch (error) {
+            setLoading(false);
+            toast("Error creating a checkout.", {
+              description:
+                "Please check the server console for more information.",
+            });
+          } finally {
+            embed && setLoading(false);
+          }
+
+          embed
+            ? checkoutUrl && window.LemonSqueezy.Url.Open(checkoutUrl)
+            : router.push(checkoutUrl ?? "/");
+        }}
+        {...otherProps}
+      >
+        {label}
+      </Button>
     );
   },
 );

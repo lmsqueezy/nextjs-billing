@@ -1,7 +1,7 @@
-import { getUserSubscriptions } from "@/app/actions";
-import { db, plans, type NewSubscription } from "@/db/schema";
-import { cn, isValidSubscription } from "@/lib/utils";
 import { type SubscriptionStatusType } from "@/types/types";
+import { cn, isValidSubscription } from "@/lib/utils";
+import { db, plans, type NewSubscription } from "@/db/schema";
+import { getUserSubscriptions } from "@/app/actions";
 import { Section } from "../../section";
 import { ChangePlan } from "../plans/change-plan-button";
 import { SubscriptionActions } from "./actions";

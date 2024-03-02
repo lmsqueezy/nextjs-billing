@@ -14,7 +14,7 @@ export function Plan({
   currentPlan?: NewPlan;
   isChangingPlans?: boolean;
 }) {
-  const { description, interval, name, price } = plan;
+  const { description, productName, interval, name, price } = plan;
   const isCurrent = currentPlan?.id === plan.id;
 
   return (
@@ -23,7 +23,7 @@ export function Plan({
         <header className="flex w-full items-center justify-between">
           {name ? (
             <h2 className="text-lg text-surface-900">
-              {plan.productName} ({plan.name})
+              {productName} ({name})
             </h2>
           ) : null}
         </header>
