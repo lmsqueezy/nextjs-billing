@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { authConfig } from "@/config/auth";
+import GitHub from "next-auth/providers/github";
 import { db } from "@/db/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -26,5 +26,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
   },
-  ...authConfig,
+  providers: [GitHub],
 });
