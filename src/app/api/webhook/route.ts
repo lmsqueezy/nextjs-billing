@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   );
 
   if (!crypto.timingSafeEqual(digest, signature)) {
-    throw new Error("Invalid signature.");
+    return new Response("Invalid signature", { status: 400 });
   }
 
   const data = JSON.parse(rawBody) as unknown;
