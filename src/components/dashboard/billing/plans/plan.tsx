@@ -14,8 +14,8 @@ export function Plan({
   currentPlan?: NewPlan;
   isChangingPlans?: boolean;
 }) {
-  const { description, productName, interval, name, price } = plan;
-  const isCurrent = currentPlan?.id === plan.id;
+  const { description, id, productName, interval, name, price } = plan;
+  const isCurrent = id && currentPlan?.id === id;
 
   return (
     <Section className={cn("not-prose", isCurrent && "bg-surface-50/40")}>
