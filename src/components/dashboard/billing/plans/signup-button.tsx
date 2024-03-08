@@ -53,7 +53,7 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
     // eslint-disable-next-line no-nested-ternary -- disabled
     const before = loading ? (
       <Loading size="sm" className="size-4 dark" color="secondary" />
-    ) : props.before || isCurrent ? (
+    ) : props.before ?? isCurrent ? (
       <CheckIcon className="size-4" />
     ) : (
       <PlusIcon className="size-4" />

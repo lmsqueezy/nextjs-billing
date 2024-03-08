@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const hmac = crypto.createHmac("sha256", secret);
   const digest = Buffer.from(hmac.update(rawBody).digest("hex"), "utf8");
   const signature = Buffer.from(
-    request.headers.get("X-Signature") || "",
+    request.headers.get("X-Signature") ?? "",
     "utf8",
   );
 

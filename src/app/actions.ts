@@ -194,7 +194,6 @@ export async function syncPlans() {
 
   // for...of supports asynchronous operations, unlike forEach.
   if (allVariants) {
-    /* eslint-disable no-await-in-loop -- allow */
     for (const v of allVariants) {
       const variant = v.attributes;
 
