@@ -1,5 +1,5 @@
 import { CitrusIcon } from "lucide-react";
-import { signIn } from "@/app/auth";
+import { signIn } from "@/auth";
 import { GithubIcon } from "@/components/icons/github";
 import { LemonSqueezyIcon } from "@/components/icons/lemonsqueezy";
 import { SubmitButton } from "@/components/submit-button";

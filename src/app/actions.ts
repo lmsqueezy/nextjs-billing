@@ -30,7 +30,7 @@ import {
 import { configureLemonSqueezy } from "@/config/lemonsqueezy";
 import { webhookHasData, webhookHasMeta } from "@/lib/typeguards";
 import { takeUniqueOrThrow } from "@/lib/utils";
-import { auth, signOut } from "./auth";
+import { auth, signOut } from "../auth";
 
 /**
  * This action will log out the current user.

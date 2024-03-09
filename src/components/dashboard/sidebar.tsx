@@ -1,6 +1,6 @@
 import { CitrusIcon, HomeIcon, SettingsIcon } from "lucide-react";
 import Link from "next/link";
-import { auth } from "@/app/auth";
+import { auth } from "@/auth";
 import { SidebarNav } from "./sidebar-nav";
 import { UserMenu } from "./user-menu";
 
