@@ -3,9 +3,6 @@ import GitHub from "next-auth/providers/github";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   //   adapter: DrizzleAdapter(db),
-  pages: {
-    signIn: "/",
-  },
   providers: [GitHub],
   basePath: "/api/auth",
   callbacks: {
