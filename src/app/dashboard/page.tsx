@@ -11,8 +11,8 @@ export default async function Page() {
   return (
     <DashboardContent title="Dashboard" action={<PageTitleAction />}>
       <p>
-        This page is protected by the <code>auth</code> middleware. You can only
-        see this page if you are signed in.
+        This page is protected by the <code>auth</code> middleware. Navigate to
+        the Billing page to get started.
       </p>
 
       {!hasWh && (
