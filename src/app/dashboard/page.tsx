@@ -12,31 +12,35 @@ export default async function Page() {
     <DashboardContent title="Dashboard" action={<PageTitleAction />}>
       <p>
         This page is protected by the <code>auth</code> middleware. You can only
-        see this page if you are signed in. The Webhook Setup section is only
-        for demonstration purposes.
+        see this page if you are signed in.
       </p>
 
-      <h2>Webhook Setup</h2>
+      {!hasWh && (
+        <>
+          <h2>Webhook Setup</h2>
 
-      <p>
-        This app relies on webhooks to listen for changes made on Lemon Squeezy.
-        Make sure that you have entered all the required environment variables
-        (.env).
-      </p>
+          <p>
+            This app relies on webhooks to listen for changes made on Lemon
+            Squeezy. Make sure that you have entered all the required
+            environment variables (.env). This section is an example of how
+            you'd use the Lemon Squeezy API to interact with webhooks.
+          </p>
 
-      <p className="mb-6">
-        Configure the webhook on{" "}
-        <a
-          href="https://app.lemonsqueezy.com/settings/webhooks"
-          target="_blank"
-        >
-          Lemon Squeezy
-        </a>
-        , or simply click the button below to do that automatically with the
-        Lemon Squeezy SDK.
-      </p>
+          <p className="mb-6">
+            Configure the webhook on{" "}
+            <a
+              href="https://app.lemonsqueezy.com/settings/webhooks"
+              target="_blank"
+            >
+              Lemon Squeezy
+            </a>
+            , or simply click the button below to do that automatically with the
+            Lemon Squeezy SDK.
+          </p>
 
-      <SetupWebhookButton disabled={hasWh} />
+          <SetupWebhookButton disabled={hasWh} />
+        </>
+      )}
     </DashboardContent>
   );
 }
