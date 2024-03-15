@@ -1,5 +1,5 @@
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import {
   boolean,
   integer,
@@ -121,5 +121,5 @@ export type NewPlan = typeof plans.$inferInsert;
 export type NewWebhookEvent = typeof webhookEvents.$inferInsert;
 export type NewSubscription = typeof subscriptions.$inferInsert;
 
-export const client = new Pool({ connectionString: process.env.POSTGRES_URL });
-export const db = drizzle(client);
+export const sql = neon<boolean, boolean>(process.env.POSTGRES_URL);
+export const db = drizzle(sql);
