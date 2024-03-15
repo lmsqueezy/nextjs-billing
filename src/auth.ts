@@ -1,13 +1,13 @@
-import NextAuth from "next-auth";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
-import { db } from "@/db/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: DrizzleAdapter(db),
+  //   adapter: DrizzleAdapter(db),
   pages: {
     signIn: "/",
   },
+  providers: [GitHub],
+  basePath: "/api/auth",
   callbacks: {
     authorized: ({ request: { nextUrl }, auth: midAuth }) => {
       const isLoggedIn = Boolean(midAuth?.user);
@@ -25,5 +25,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
   },
-  providers: [GitHub],
-});
+} satisfies NextAuthConfig);
