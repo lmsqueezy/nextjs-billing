@@ -25,16 +25,15 @@ export default function Home() {
           className="pt-2"
           action={async () => {
             "use server";
-            await signIn("github");
+            await signIn("google");
           }}
         >
           <SubmitButton
-            before={<GithubIcon />}
             className="py-2.5 text-base"
             shape="pill"
             variant="primary"
           >
-            Sign in with GitHub
+            Sign in with Google
           </SubmitButton>
         </form>
       </main>
