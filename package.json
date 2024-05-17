@@ -17,9 +17,9 @@
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",
     "@lemonsqueezy/wedges": "^1.2.2",
     "@neondatabase/serverless": "^0.9.0",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.30.2",
-    "geist": "^1.2.2",
     "lucide-react": "^0.358.0",
     "next": "14.1.3",
     "next-auth": "5.0.0-beta.15",
@@ -27,7 +27,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sonner": "^1.4.3",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^14.1.3",
