@@ -64,7 +64,7 @@ export async function Plans({
         })}
       </div>
 
-      <InfoMessage />
+      {/* <InfoMessage /> */}
     </div>
   );
 }

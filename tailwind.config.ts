@@ -1,12 +1,12 @@
-import { wedgesTW } from "@lemonsqueezy/wedges";
-import tailwindTypography from "@tailwindcss/typography";
-import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss"
 
 const config = {
   darkMode: ["class"],
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "node_modules/@lemonsqueezy/wedges/dist/**/*.{js,ts,jsx,tsx}"
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
 	],
   prefix: "",
   theme: {
@@ -74,7 +74,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),wedgesTW(), tailwindTypography()],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config
 
 export default config
