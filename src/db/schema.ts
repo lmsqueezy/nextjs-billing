@@ -112,6 +112,34 @@ export const subscriptions = pgTable("subscription", {
     .references(() => plans.id),
 });
 
+// Add the articles table
+export const articles = pgTable("article", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  tags: text("tags"),
+  css: text("css"),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow(),
+  authorId: text("authorId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+// Add the favorites table
+export const favorites = pgTable("favorite", {
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  articleId: integer("articleId")
+    .notNull()
+    .references(() => articles.id, { onDelete: "cascade" }),
+}, (favorite) => ({
+  compoundKey: primaryKey({
+    columns: [favorite.userId, favorite.articleId],
+  }),
+}));
+
 if (!process.env.POSTGRES_URL) {
   throw new Error("POSTGRES_URL is not set");
 }
@@ -120,6 +148,8 @@ if (!process.env.POSTGRES_URL) {
 export type NewPlan = typeof plans.$inferInsert;
 export type NewWebhookEvent = typeof webhookEvents.$inferInsert;
 export type NewSubscription = typeof subscriptions.$inferInsert;
+export type NewArticle = typeof articles.$inferInsert;
+export type NewFavorite = typeof favorites.$inferInsert;
 
 export const sql = neon<boolean, boolean>(process.env.POSTGRES_URL);
 export const db = drizzle(sql);
