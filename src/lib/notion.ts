@@ -133,7 +133,6 @@ class NotesApi {
         if (!isFullPage(page)) {
           throw new Error('Notion page is not a full page');
         }
-        console.log(page);
         return {
           id: page.id,
           createdAt: page.created_time,
@@ -158,7 +157,7 @@ class NotesApi {
             page.properties.inProgress?.type === 'checkbox' ? page.properties.inProgress.checkbox ?? false : false,
         };
       })
-      .filter((post) => post.isPublished);
+      // .filter((post) => post.isPublished);
   };
   
 
