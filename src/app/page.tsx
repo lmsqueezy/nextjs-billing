@@ -43,7 +43,7 @@ export default function Articles() {
   }, [handleScroll, fetchArticles]);
 
   const handleArticleClick = (id: string) => {
-    router.push(`/slug/${id}`);
+    router.push(`/note/${id}`);
   };
 
   return (
