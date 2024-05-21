@@ -1,9 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    env: {
-        NOTION_API_KEY: process.env.NOTION_API_KEY,
-        NOTION_DATABASE_ID: process.env.NOTION_DATABASE_ID,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '**'
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.zhimg.com',
+        port: '',
+        pathname: '**'
+      }
+    ]
+  }
 };
 
 export default nextConfig;

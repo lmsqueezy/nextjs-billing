@@ -1,10 +1,13 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { Note as NoteType, notesApi } from '@/lib/notion';
+import { NotionBlockRenderer } from '@/components/notionrenderer';
 
 type Props = {
   note: NoteType;
   noteContent: any[];
 };
+
+
 
 export default function Note({
   note: { title, description, createdAt, id },
@@ -13,20 +16,12 @@ export default function Note({
 }: Props & { previousPathname: string }) {
   const url = `${process.env.NEXT_PUBLIC_URL}/notes/${id}`;
   const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}&description=${description}`;
-
+  console.log(noteContent)
   return (
     <>
-      <div className="pb-32">
-        <hr />
-        <a
-          className="group block text-xl font-semibold md:text-3xl no-underline"
-          href={`http://x.com/share?text=${title}&url=${url}`}
-        >
-          <h4 className="max-w-lg flex cursor-pointer flex-col duration-200 ease-in-out group-hover:text-primary group-hover:fill-primary fill-white text-wrap">
-            Click here to share this article with your friends on X if you liked it.
-          </h4>
-        </a>
-      </div>
+    {noteContent.map((block) => (
+            <NotionBlockRenderer key={block.id} block={block} />
+          ))}
     </>
   );
 }
