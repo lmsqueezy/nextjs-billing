@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
+    "pg:push": "drizzle-kit push --config drizzle.config.pg.ts",
+    "pg:studio": "drizzle-kit studio --config drizzle.config.pg.ts",
+    "sqlite:push": "drizzle-kit push --config drizzle.config.sqlite.ts",
+    "sqlite:studio": "drizzle-kit studio --config drizzle.config.sqlite.ts",
     "dev": "next dev",
     "format": "prettier --check .",
     "format:fix": "prettier --write --list-different .",
