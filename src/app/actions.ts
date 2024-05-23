@@ -405,7 +405,7 @@ export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
  */
 export async function getUserSubscriptions() {
   const session = await auth();
-  const userId = session?.user?.id;
+  const userId = session?.user.id;
 
   if (!userId) {
     notFound();

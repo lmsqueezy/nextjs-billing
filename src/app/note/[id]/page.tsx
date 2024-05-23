@@ -1,9 +1,9 @@
 // app/notes/[id]/page.tsx
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Note as NoteType, notesApi } from '@/lib/notion';
-import { NotionBlockRenderer } from '@/components/notionrenderer';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { notesApi } from '@/lib/notion';
+import { NotionBlockRenderer } from '@/components/notionrenderer';
 
 type Props = {
   params: {
@@ -14,7 +14,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = params;
   const allNotes = await notesApi.getNotes();
-  const note = allNotes.find((note) => note.id === id);
+  const note = allNotes.find((onenote) => onenote.id === id);
 
   if (!note) {
     return {
@@ -44,7 +44,7 @@ export default async function NotePage({ params }: Props) {
     notFound();
   }
 
-  const noteContent = await notesApi.getNote(note.id);
+  const noteContent: BlockObjectResponse[] = await notesApi.getNote(note.id);
 
   return (
     <>

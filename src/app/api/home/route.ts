@@ -12,8 +12,8 @@ interface Article {
 export const GET = async (req: Request) => {
   const databaseId = process.env.NOTION_DATABASE_ID;
   const { searchParams } = new URL(req.url);
-  const startCursor = searchParams.get('startCursor') || undefined;
-  const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+  const startCursor = searchParams.get('startCursor') ?? undefined;
+  const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
 
   if (!databaseId) {
     return NextResponse.json({ error: 'Database ID is not defined' }, { status: 500 });
