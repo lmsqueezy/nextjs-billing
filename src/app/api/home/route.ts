@@ -1,44 +1,51 @@
 import { NextResponse } from 'next/server';
-import { Client } from '@notionhq/client';
+import { sqliteDb, note } from '@/db/schema-sqlite';
+import { eq, sql } from 'drizzle-orm';
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
 interface Article {
-  id: string;
+  id: number;
   title: string;
-  createdAt: string;
+  createdAt: number;
 }
 
 export const GET = async (req: Request) => {
-  const databaseId = process.env.NOTION_DATABASE_ID;
   const { searchParams } = new URL(req.url);
-  const startCursor = searchParams.get('startCursor') ?? undefined;
+  const startCursor = parseInt(searchParams.get('startCursor') ?? '0', 10);
   const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
 
-  if (!databaseId) {
-    return NextResponse.json({ error: 'Database ID is not defined' }, { status: 500 });
-  }
-
   try {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      start_cursor: startCursor,
-      page_size: pageSize,
-    });
+    const articlesQuery = await sqliteDb
+      .select({
+        id: note.id,
+        title: note.title,
+        dark: note.dark,
+        css: note.css,
+        createdAt: note.createdAt,
+        useCount: note.usedcount,
+      })
+      .from(note)
+      .orderBy(note.createdAt)
+      .limit(pageSize)
+      .offset(startCursor);
 
-    const articles: Article[] = response.results.map((page: any) => {
-      const title = page.properties.Name.title[0]?.text.content || 'Untitled';
-      return {
-        id: page.id,
-        title,
-        createdAt: page.created_time,
-      };
-    });
+      const articles: Article[] = articlesQuery.map((article: any) => ({
+        id: article.id,
+        title: article.title,
+        createdAt: article.createdAt,
+      }));
+
+    const totalArticlesQuery = await sqliteDb.select({
+      count: sql<number>`COUNT(*)`.as('count'),
+    }).from(note);
+
+    const totalArticles = totalArticlesQuery[0].count;
+    const hasMore = startCursor + pageSize < totalArticles;
 
     return NextResponse.json({
       articles,
-      nextCursor: response.next_cursor,
-      hasMore: response.has_more,
+      nextCursor: hasMore ? startCursor + pageSize : null,
+      hasMore,
     }, { status: 200 });
   } catch (error) {
     console.error(error);
