@@ -1,9 +1,14 @@
 import { type Metadata } from 'next';
 import { Button } from '@/components/ui/button';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
+import FavorButtons from '@/components/favor-button';
 import { sqliteDb, note } from '@/db/schema-sqlite';
 import { eq, lt, gt, sql } from 'drizzle-orm';
 import Link from 'next/link';
+import { auth } from '@/auth';
+import { signIn } from "@/auth";
+import { SubmitButton } from "@/components/submit-button";
+import { ArrowRightIcon, ArrowLeftIcon } from 'lucide-react';
 
 type Props = {
   params: {
@@ -22,7 +27,7 @@ async function getNoteContent(noteId: number) {
 }
 
 // Function to fetch the previous note ID
-async function getPreviousNoteId(noteId: number) {
+async function getNextNoteId(noteId: number) {
   const previousNote = await sqliteDb.select({ id: note.id })
     .from(note)
     .where(lt(note.id, noteId))
@@ -33,7 +38,7 @@ async function getPreviousNoteId(noteId: number) {
 }
 
 // Function to fetch the next note ID
-async function getNextNoteId(noteId: number) {
+async function getPreviousNoteId(noteId: number) {
   const nextNote = await sqliteDb.select({ id: note.id })
     .from(note)
     .where(gt(note.id, noteId))
@@ -47,7 +52,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = params;
   const noteId = parseInt(id, 10);
   const noteContent = await getNoteContent(noteId);
-
   if (!noteContent) {
     return {
       title: 'Not Found',
@@ -61,17 +65,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description: content.substring(0, 150),
-      url: `${process.env.NEXT_PUBLIC_URL}/notes/${id}`,
-      images: [`${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}&description=${content.substring(0, 150)}`],
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/notes/${id}`,
     },
   };
 }
 
 export default async function NotePage({ params }: Props) {
+  const session = await auth();
+  if (!session?.user) {
+    return (
+      <form
+        className="flex items-center h-screen text-center w-full"
+        action={async () => {
+          "use server";
+          await signIn("google");
+        }}
+      >
+        <SubmitButton shape="pill" variant="outline" className="mx-auto">
+          Sign in with Google
+        </SubmitButton>
+      </form>
+    );
+  }
+
   const { id } = params;
   const noteId = parseInt(id, 10);
-  const noteContent = await getNoteContent(noteId);
 
+  const noteContent = await getNoteContent(noteId);
   if (!noteContent) {
     notFound();
   }
@@ -80,22 +100,40 @@ export default async function NotePage({ params }: Props) {
   const nextNoteId = await getNextNoteId(noteId);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100vh' }}>
+    <div className="flex justify-between max-w-3xl items-center h-screen mx-auto">
       <div>
         {previousNoteId && (
           <Link href={`/note/${previousNoteId}`}>
-            <Button>⬅</Button>
+            <Button variant="ghost" size="icon">
+              <ArrowLeftIcon />
+            </Button>
           </Link>
         )}
       </div>
-      <article style={{ flex: 1, padding: '0 2rem' }}>
-        <h1>{noteContent.title}</h1>
-        <div dangerouslySetInnerHTML={{ __html: noteContent.content }} />
+      <article className="md:flex sm:w-full">
+        <div>
+          <div
+            className={`w-[300px] h-[400px] sm:w-full md:w-[300px] p-4 text-2xl ${noteContent.dark ? "text-white" : ""}`}
+            style={{ background: noteContent.css ?? "" }}
+          >
+            <div dangerouslySetInnerHTML={{ __html: noteContent.title.replace('\n', '<br>') }} />
+          </div>
+          {noteContent.authorId === "987654321" && (
+            <div className="mt-4 flex space-x-2">
+              <FavorButtons noteId={noteId} isFavored={true} />
+            </div>
+          )}
+        </div>
+        <div className="w-[300px] h-[400px] sm:w-full md:w-[300px] p-4">
+          <div dangerouslySetInnerHTML={{ __html: noteContent.content.replace('\n', '<br>') }} />
+        </div>
       </article>
       <div>
         {nextNoteId && (
           <Link href={`/note/${nextNoteId}`}>
-            <Button>⮕</Button>
+            <Button variant="ghost" size="icon">
+              <ArrowRightIcon />
+            </Button>
           </Link>
         )}
       </div>

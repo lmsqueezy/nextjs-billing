@@ -7,12 +7,34 @@ import { CardSkeleton } from "@/components/dashboard/skeletons/card";
 import { auth } from '@/auth'
 import { signIn } from "@/auth";
 import { SubmitButton } from "@/components/submit-button";
+import  Navbar from "@/components/navbar";
 export const dynamic = "force-dynamic";
 
 export  default async function Profile() {
   const session = await auth();
+  if(!session?.user) {
+    return <>
+    <Navbar/>
+      <form
+        className="flex items-center h-screen text-center w-full"
+        action={async () => {
+          "use server";
+          await signIn("google");
+        }}
+      >
+        <SubmitButton
+          shape="pill"
+          variant="outline"
+          className="mx-auto"
+        >
+          Sign in with Google
+        </SubmitButton>
+      </form>
+    </>
+  }
   return (
-     session?.user ?
+    <>
+    <Navbar/>
         <DashboardContent
         title="Billing"
         subtitle="View and manage your billing information."
@@ -27,20 +49,6 @@ export  default async function Profile() {
             </Suspense>
         </div>
         </DashboardContent>
-        :<form
-        className="pt-2 w-full text-center mt-80"
-        action={async () => {
-          "use server";
-          await signIn("google");
-        }}
-      >
-        <SubmitButton
-          shape="pill"
-          variant="outline"
-          
-        >
-          Sign in with Google
-        </SubmitButton>
-      </form>
+        </>
   )
 }

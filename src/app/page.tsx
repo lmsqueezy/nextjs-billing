@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Navbar from "@/components/navbar";
 
 interface Article {
   id: string;
   title: string;
-  createdAt: string;
+  createdAt: number;
+  css: string;
+  dark: boolean;
 }
 
 export default function Articles() {
@@ -19,7 +22,6 @@ export default function Articles() {
     const data = await res.json();
     if (res.ok) {
       setArticles(prev => {
-        // 检查并过滤掉重复的id
         const newArticles = data.articles.filter((article: Article) => !prev.some(a => a.id === article.id));
         return [...prev, ...newArticles];
       });
@@ -47,17 +49,21 @@ export default function Articles() {
   };
 
   return (
-    <div className="flex flex-wrap gap-4 justify-center">
-      {articles.map(article => (
-        <div
-          key={article.id}
-          className="w-60 h-80 border border-gray-300 p-4 cursor-pointer rounded-lg"
-          onClick={() => handleArticleClick(article.id)}
-        >
-          <h3 className="text-lg font-semibold">{article.title}</h3>
-          <p className="text-sm text-gray-600">{new Date(article.createdAt).toLocaleDateString()}</p>
-        </div>
-      ))}
-    </div>
+    <>
+      <Navbar />
+      <div className="flex flex-wrap gap-4 justify-center">
+        {articles.map(article => (
+          <div
+            key={article.id}
+            className={`w-40 h-60 sm:w-1/2 md:w-60 p-2 cursor-pointer rounded-lg ${article.dark ? "text-white" : ""}`}
+            onClick={() => handleArticleClick(article.id)}
+            style={{ background: article.css }}
+          >
+            <h3 className="text-md">{article.title}</h3>
+            <p className="text-xs">{new Date(article.createdAt*1000).toLocaleDateString()}</p>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

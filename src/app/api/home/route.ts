@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { sqliteDb, note } from '@/db/schema-sqlite';
-import { eq, sql } from 'drizzle-orm';
-
+import { desc, sql } from 'drizzle-orm';
 
 interface Article {
   id: number;
   title: string;
+  dark: boolean,
+  css: string,
   createdAt: number;
 }
 
@@ -25,15 +26,17 @@ export const GET = async (req: Request) => {
         useCount: note.usedcount,
       })
       .from(note)
-      .orderBy(note.createdAt)
+      .orderBy(desc(note.id))
       .limit(pageSize)
       .offset(startCursor);
 
-      const articles: Article[] = articlesQuery.map((article: any) => ({
-        id: article.id,
-        title: article.title,
-        createdAt: article.createdAt,
-      }));
+    const articles: Article[] = articlesQuery.map((article: any) => ({
+      id: article.id,
+      title: article.title,
+      dark: article.dark,
+      css: article.css,
+      createdAt: article.createdAt,
+    }));
 
     const totalArticlesQuery = await sqliteDb.select({
       count: sql<number>`COUNT(*)`.as('count'),

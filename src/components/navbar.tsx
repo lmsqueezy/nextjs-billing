@@ -1,4 +1,6 @@
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Button } from '@/components/ui/button'
+import { UserIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Navbar() {
@@ -9,8 +11,14 @@ export default function Navbar() {
         <Link href='/'>HOME</Link>
         <Link href='/'>FAVOR</Link>
         <Link href='/'>WORKS</Link>
-        <Link href='/profile'>MY</Link>
     </nav>
+
+        <Link href='/profile'>
+            <Button variant="ghost" size="icon">
+                <UserIcon className='w-6 h-6' />
+            </Button>
+        </Link>
+    
     </div>
     )
 }

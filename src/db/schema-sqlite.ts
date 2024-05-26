@@ -6,6 +6,7 @@ export const note = sqliteTable("note", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   link: text("link").notNull(),
   title: text("title").notNull(),
+  category: text("category"),
   tags: text("tags"),
   dark: integer("dark").default(0),
   css: text("css"),
