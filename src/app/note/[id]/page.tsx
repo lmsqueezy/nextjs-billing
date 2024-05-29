@@ -3,10 +3,9 @@ import { Button } from '@/components/ui/button';
 import { notFound } from 'next/navigation';
 import FavorButtons from '@/components/favor-button';
 import { sqliteDb, note } from '@/db/schema-sqlite';
-import { eq, lt, gt, sql } from 'drizzle-orm';
+import { eq, lt, gt, desc,asc } from 'drizzle-orm';
 import Link from 'next/link';
-import { auth } from '@/auth';
-import { signIn } from "@/auth";
+import { auth,signIn } from '@/auth';
 import { SubmitButton } from "@/components/submit-button";
 import { ArrowRightIcon, ArrowLeftIcon } from 'lucide-react';
 
@@ -26,26 +25,29 @@ async function getNoteContent(noteId: number) {
   return noteContent.length > 0 ? noteContent[0] : null;
 }
 
-// Function to fetch the previous note ID
-async function getNextNoteId(noteId: number) {
-  const previousNote = await sqliteDb.select({ id: note.id })
-    .from(note)
-    .where(lt(note.id, noteId))
-    .orderBy(sql`id DESC`)
-    .limit(1);
-
-  return previousNote.length > 0 ? previousNote[0].id : null;
-}
-
 // Function to fetch the next note ID
-async function getPreviousNoteId(noteId: number) {
+async function getNextNoteId(noteId: number, authorId: string) {
   const nextNote = await sqliteDb.select({ id: note.id })
     .from(note)
-    .where(gt(note.id, noteId))
-    .orderBy(note.id)
+    .where(eq(note.authorId, authorId) && lt(note.id, noteId))
+    .orderBy(desc(note.id)) // Order by ID in descending order to get the next note in the list
     .limit(1);
 
+  console.log(`Next note result: ${JSON.stringify(nextNote)}`);
+
   return nextNote.length > 0 ? nextNote[0].id : null;
+}
+
+// Function to fetch the previous note ID
+async function getPreviousNoteId(noteId: number, authorId: string) {
+  const previousNote = await sqliteDb.select({ id: note.id })
+    .from(note)
+    .where(eq(note.authorId, authorId) && gt(note.id, noteId))
+    .orderBy(asc(note.id)) // Order by ID in ascending order to get the previous note in the list
+    .limit(1);
+  console.log(`Next note result: ${JSON.stringify(previousNote)}`);
+
+  return previousNote.length > 0 ? previousNote[0].id : null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -95,9 +97,9 @@ export default async function NotePage({ params }: Props) {
   if (!noteContent) {
     notFound();
   }
-
-  const previousNoteId = await getPreviousNoteId(noteId);
-  const nextNoteId = await getNextNoteId(noteId);
+  const authorId = noteContent.authorId;
+  const previousNoteId = await getPreviousNoteId(noteId, authorId);
+  const nextNoteId = await getNextNoteId(noteId, authorId);
 
   return (
     <div className="flex justify-between max-w-3xl items-center h-screen mx-auto">

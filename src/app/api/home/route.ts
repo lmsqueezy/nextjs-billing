@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { sqliteDb, note } from '@/db/schema-sqlite';
-import { desc, sql } from 'drizzle-orm';
+import { desc, sql, eq, and } from 'drizzle-orm';
 
 interface Article {
   id: number;
   title: string;
-  dark: boolean,
-  css: string,
+  dark: boolean;
+  css: string;
   createdAt: number;
 }
 
@@ -14,8 +14,18 @@ export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
   const startCursor = parseInt(searchParams.get('startCursor') ?? '0', 10);
   const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
+  const category = searchParams.get('category');
 
   try {
+    // Base conditions
+    let conditions = [eq(note.authorId, "987654321")];
+
+    // Add category condition if category parameter is present
+    if (category) {
+      conditions.push(eq(note.category, category));
+    }
+
+    // Construct the query with conditions
     const articlesQuery = await sqliteDb
       .select({
         id: note.id,
@@ -26,6 +36,7 @@ export const GET = async (req: Request) => {
         useCount: note.usedcount,
       })
       .from(note)
+      .where(and(...conditions))
       .orderBy(desc(note.id))
       .limit(pageSize)
       .offset(startCursor);
@@ -38,9 +49,13 @@ export const GET = async (req: Request) => {
       createdAt: article.createdAt,
     }));
 
-    const totalArticlesQuery = await sqliteDb.select({
-      count: sql<number>`COUNT(*)`.as('count'),
-    }).from(note);
+    // Query to get the total number of articles
+    const totalArticlesQuery = await sqliteDb
+      .select({
+        count: sql<number>`COUNT(*)`.as('count'),
+      })
+      .from(note)
+      .where(and(...conditions));
 
     const totalArticles = totalArticlesQuery[0].count;
     const hasMore = startCursor + pageSize < totalArticles;

@@ -9,6 +9,7 @@ export const note = sqliteTable("note", {
   category: text("category"),
   tags: text("tags"),
   dark: integer("dark").default(0),
+  textalign: integer("textalign").default(0),//0:left,1:middle,2:right
   css: text("css"),
   content: text("content").notNull(),
   createdAt: real("createdAt").notNull().default(Date.now()),
