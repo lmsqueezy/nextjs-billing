@@ -9,8 +9,8 @@ export default function Navbar() {
     <ThemeToggle />
     <nav className='max-w-xs mx-auto flex gap-4'>
         <Link href='/'>HOME</Link>
-        <Link href='/'>FAVOR</Link>
-        <Link href='/'>WORKS</Link>
+        <Link href='/favor'>FAVOR</Link>
+        <Link href='/works'>WORKS</Link>
     </nav>
 
         <Link href='/profile'>

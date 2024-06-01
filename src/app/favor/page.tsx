@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Navbar from "@/components/navbar";
 
 interface Article {
@@ -12,6 +13,9 @@ interface Article {
 }
 
 export default function Articles() {
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(true);
@@ -19,8 +23,8 @@ export default function Articles() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category') || '';
 
-  const fetchArticles = useCallback(async (cursor: string | undefined = undefined, category: string = '') => {
-    const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${category ? `&category=${category}` : ''}`);
+  const fetchArticles = useCallback(async (cursor: string | undefined = undefined, category: string = '', favorById: string | undefined = undefined) => {
+    const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${category ? `&category=${category}` : ''}${favorById ? `&favorById=${favorById}` : ''}`);
     const data = await res.json();
     if (res.ok) {
       setArticles(prev => {
@@ -36,15 +40,15 @@ export default function Articles() {
 
   const handleScroll = useCallback(() => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight && hasMore) {
-      fetchArticles(nextCursor, category);
+      fetchArticles(nextCursor, category, userId);
     }
-  }, [nextCursor, hasMore, fetchArticles, category]);
+  }, [nextCursor, hasMore, fetchArticles, category, userId]);
 
   useEffect(() => {
-    fetchArticles(undefined, category);
+    fetchArticles(undefined, category, userId);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, fetchArticles, category]);
+  }, [handleScroll, fetchArticles, category, userId]);
 
   useEffect(() => {
     // Reset articles and cursor when category changes
@@ -58,7 +62,7 @@ export default function Articles() {
   };
 
   const handleCategoryClick = (category: string) => {
-    router.push(`/?category=${category}`);
+    router.push(`/favor/?category=${category}`);
   };
 
   return (
