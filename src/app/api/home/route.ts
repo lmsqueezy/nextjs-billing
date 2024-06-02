@@ -16,10 +16,11 @@ export const GET = async (req: Request) => {
   const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
   const category = searchParams.get('category');
   const favorById = searchParams.get('favorById');
-
+  const authorId = searchParams.get('authorId') ?? '987654321';
+  console.log(authorId)
   try {
     // Base conditions
-    let conditions = [eq(note.authorId, "987654321")];
+    let conditions = [eq(note.authorId, authorId)];
 
     // Add category condition if category parameter is present
     if (category) {

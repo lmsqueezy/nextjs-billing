@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Navbar from "@/components/navbar";
 
 interface Article {
@@ -12,15 +13,17 @@ interface Article {
 }
 
 export default function Articles() {
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(true);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const category = searchParams.get('category') || '';
 
-  const fetchArticles = useCallback(async (cursor: string | undefined = undefined, category: string = '') => {
-    const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${category ? `&category=${category}` : ''}`);
+  const fetchArticles = useCallback(async (cursor: string | undefined = undefined, authorId: string | undefined = undefined) => {
+    console.log('Fetching articles with cursor:', cursor, 'and authorId:', authorId);
+    const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${authorId ? `&authorId=${authorId}` : ''}`);
     const data = await res.json();
     if (res.ok) {
       setArticles(prev => {
@@ -36,45 +39,23 @@ export default function Articles() {
 
   const handleScroll = useCallback(() => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight && hasMore) {
-      fetchArticles(nextCursor, category);
+      fetchArticles(nextCursor, userId);
     }
-  }, [nextCursor, hasMore, fetchArticles, category]);
+  }, [nextCursor, hasMore, fetchArticles, userId]);
 
   useEffect(() => {
-    fetchArticles(undefined, category);
+    fetchArticles(undefined, userId);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, fetchArticles, category]);
-
-  useEffect(() => {
-    // Reset articles and cursor when category changes
-    setArticles([]);
-    setNextCursor(undefined);
-    setHasMore(true);
-  }, [category]);
+  }, [handleScroll, fetchArticles, userId]);
 
   const handleArticleClick = (id: string) => {
     router.push(`/note/${id}`);
   };
 
-  const handleCategoryClick = (category: string) => {
-    router.push(`/?category=${category}`);
-  };
-
   return (
     <>
       <Navbar />
-      <div className="flex justify-center p-2 gap-2 sticky top-0 bg-background">
-        {['all', 'fashion', 'food', 'digital', 'beauty', 'other'].map(cat => (
-          <button
-            key={cat}
-            className={`px-2 py-1 rounded ${category === cat ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick(cat === 'all' ? '' : cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
       <div className="flex flex-wrap gap-4 justify-center">
         {articles.map(article => (
           <div

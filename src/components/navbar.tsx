@@ -10,7 +10,7 @@ export default function Navbar() {
     <nav className='max-w-xs mx-auto flex gap-4'>
         <Link href='/'>HOME</Link>
         <Link href='/favor'>FAVOR</Link>
-        <Link href='/works'>WORKS</Link>
+        <Link href='/work'>WORKS</Link>
     </nav>
 
         <Link href='/profile'>
