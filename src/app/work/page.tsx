@@ -55,7 +55,7 @@ export default function Articles() {
 
   return (
     <>
-      <Navbar />
+      
       <div className="flex flex-wrap gap-4 justify-center">
         {articles.map(article => (
           <div

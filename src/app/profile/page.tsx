@@ -14,7 +14,6 @@ export  default async function Profile() {
   const session = await auth();
   if(!session?.user) {
     return <>
-    <Navbar/>
       <form
         className="flex items-center h-screen text-center w-full"
         action={async () => {
@@ -34,7 +33,6 @@ export  default async function Profile() {
   }
   return (
     <>
-    <Navbar/>
         <DashboardContent
         title="Billing"
         subtitle="View and manage your billing information."

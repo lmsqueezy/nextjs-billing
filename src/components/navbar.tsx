@@ -11,6 +11,7 @@ export default function Navbar() {
         <Link href='/'>HOME</Link>
         <Link href='/favor'>FAVOR</Link>
         <Link href='/work'>WORKS</Link>
+        <Link href='/pricing'>PRICE</Link>
     </nav>
 
         <Link href='/profile'>

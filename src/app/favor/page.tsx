@@ -67,7 +67,7 @@ export default function Articles() {
 
   return (
     <>
-      <Navbar />
+      
       <div className="flex justify-center p-2 gap-2 sticky top-0 bg-background">
         {['all', 'fashion', 'food', 'digital', 'beauty', 'other'].map(cat => (
           <button

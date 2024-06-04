@@ -17,7 +17,7 @@ export default function Articles() {
   const [hasMore, setHasMore] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const category = searchParams.get('category') || '';
+  const category = searchParams?.get('category') || '';
 
   const fetchArticles = useCallback(async (cursor: string | undefined = undefined, category: string = '') => {
     const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${category ? `&category=${category}` : ''}`);
@@ -63,7 +63,7 @@ export default function Articles() {
 
   return (
     <>
-      <Navbar />
+      
       <div className="flex justify-center p-2 gap-2 sticky top-0 bg-background">
         {['all', 'fashion', 'food', 'digital', 'beauty', 'other'].map(cat => (
           <button
