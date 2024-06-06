@@ -12,11 +12,11 @@ interface Article {
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
-  const startCursor = parseInt(searchParams.get('startCursor') ?? '0', 10);
-  const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
-  const category = searchParams.get('category');
-  const favorById = searchParams.get('favorById');
-  const authorId = searchParams.get('authorId') ?? '987654321';
+  const startCursor = parseInt(searchParams?.get('startCursor') ?? '0', 10);
+  const pageSize = parseInt(searchParams?.get('pageSize') ?? '10', 10);
+  const category = searchParams?.get('category');
+  const favorById = searchParams?.get('favorById');
+  const authorId = searchParams?.get('authorId') ?? '987654321';
   console.log(authorId)
   try {
     // Base conditions
