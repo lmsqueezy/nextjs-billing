@@ -32,7 +32,7 @@ export type NewArticle = typeof note.$inferInsert;
 export type NewFavorite = typeof favorites.$inferInsert;
 
 const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL || '',
+  url: process.env.TURSO_DATABASE_URL ?? '',
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 

@@ -3,16 +3,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {Button} from "@/components/ui/button";
+import type { NewArticle as Article } from '@/db/schema-sqlite';
+import { Suspense } from 'react'
 
-interface Article {
-  id: string;
-  title: string;
-  createdAt: number;
-  css: string;
-  dark: boolean;
-}
 
-export default function Articles() {
+function Articles() {
   const { data: session } = useSession();
   const userId = session?.user.id;
 
@@ -62,12 +57,11 @@ export default function Articles() {
   };
 
   const handleCategoryClick = (category: string) => {
-    router.push(`/favor/?category=${category}`);
+    router.push(`/favor?category=${category}`);
   };
 
   return (
     <>
-      
       <div className="flex justify-center p-2 gap-2 sticky top-0 bg-background">
         {['all', 'fashion', 'food', 'digital', 'beauty', 'other'].map(cat => (
           <Button
@@ -83,15 +77,23 @@ export default function Articles() {
         {articles.map(article => (
           <div
             key={article.id}
-            className={`w-40 h-60 sm:w-1/2 md:w-60 p-2 cursor-pointer rounded-lg ${article.dark ? "text-white" : ""}`}
-            onClick={() => handleArticleClick(article.id)}
-            style={{ background: article.css }}
+            className={`w-40 h-60 sm:w-1/2 md:w-60 p-2 cursor-pointer rounded-lg ${article.dark ? "text-white" : "text-black"}`}
+            onClick={() => handleArticleClick(article.id?.toString() ?? '')}
+            style={{ background: article.css?.toString() ?? '' }}
           >
             <h3 className="text-md">{article.title}</h3>
-            <p className="text-xs">{new Date(article.createdAt * 1000).toLocaleDateString()}</p>
+            <p className="text-xs">{article.createdAt ? new Date(article.createdAt * 1000).toLocaleDateString() : ''}</p>
           </div>
         ))}
       </div>
     </>
   );
+}
+
+export default async  function Favor() {
+  return (
+    <Suspense>
+      <Articles />
+    </Suspense>
+  )
 }

@@ -7,7 +7,6 @@ import { CardSkeleton } from "@/components/dashboard/skeletons/card";
 import { auth } from '@/auth'
 import { signIn } from "@/auth";
 import { SubmitButton } from "@/components/submit-button";
-import  Navbar from "@/components/navbar";
 export const dynamic = "force-dynamic";
 
 export  default async function Profile() {

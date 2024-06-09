@@ -38,9 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
     session: ({ session, token }) => {
-      if (session?.user && token?.id) {
-        session.user.id = String(token.id)
-      }
+      session.user.id = String(token.id)
       return session
     },
     authorized: ({ request: { nextUrl }, auth: midAuth }) => {

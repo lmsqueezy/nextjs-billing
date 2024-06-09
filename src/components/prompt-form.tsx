@@ -27,13 +27,10 @@ export function PromptForm({
 
   return (
     <form
-      onSubmit={async e => {
+      onSubmit={e => {
         e.preventDefault()
-        if (!input?.trim()) {
-          return
-        }
         setInput('')
-        await onSubmit(input)
+        onSubmit(input)
       }}
       ref={formRef}
     >
@@ -44,8 +41,8 @@ export function PromptForm({
           onKeyDown={onKeyDown}
           rows={1}
           value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="input your requirement."
+          onChange={e => { setInput(e.target.value); }}
+          placeholder="Give AI an instruction..."
           spellCheck={false}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
         />

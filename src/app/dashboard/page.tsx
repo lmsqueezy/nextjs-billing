@@ -23,7 +23,7 @@ export default async function Page() {
             This app relies on webhooks to listen for changes made on Lemon
             Squeezy. Make sure that you have entered all the required
             environment variables (.env). This section is an example of how
-            you'd use the Lemon Squeezy API to interact with webhooks.
+            you&apos;d use the Lemon Squeezy API to interact with webhooks.
           </p>
 
           <p className="mb-6">

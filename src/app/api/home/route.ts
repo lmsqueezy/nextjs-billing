@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
-import { sqliteDb, note, favorites } from '@/db/schema-sqlite';
+import { sqliteDb, note, favorites,NewArticle as Article } from '@/db/schema-sqlite';
 import { desc, sql, eq, and, inArray } from 'drizzle-orm';
 
-interface Article {
-  id: number;
-  title: string;
-  dark: boolean;
-  css: string;
-  createdAt: number;
-}
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
-  const startCursor = parseInt(searchParams?.get('startCursor') ?? '0', 10);
-  const pageSize = parseInt(searchParams?.get('pageSize') ?? '10', 10);
-  const category = searchParams?.get('category');
-  const favorById = searchParams?.get('favorById');
-  const authorId = searchParams?.get('authorId') ?? '987654321';
+  const startCursor = parseInt(searchParams.get('startCursor') ?? '0', 10);
+  const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
+  const category = searchParams.get('category');
+  const favorById = searchParams.get('favorById');
+  const authorId = searchParams.get('authorId') ?? '987654321';
   console.log(authorId)
   try {
     // Base conditions
@@ -68,13 +61,6 @@ export const GET = async (req: Request) => {
       .limit(pageSize)
       .offset(startCursor);
 
-    const articles: Article[] = articlesQuery.map((article: any) => ({
-      id: article.id,
-      title: article.title,
-      dark: article.dark,
-      css: article.css,
-      createdAt: article.createdAt,
-    }));
 
     // Query to get the total number of articles
     const totalArticlesQuery = await sqliteDb
@@ -88,7 +74,7 @@ export const GET = async (req: Request) => {
     const hasMore = startCursor + pageSize < totalArticles;
 
     return NextResponse.json({
-      articles,
+      articlesQuery,
       nextCursor: hasMore ? startCursor + pageSize : null,
       hasMore,
     }, { status: 200 });

@@ -3,7 +3,13 @@ import OpenAI from 'openai';
 import { auth } from '@/auth';
 import { sqliteDb, note } from '@/db/schema-sqlite';
 import { eq } from 'drizzle-orm';
-
+import { type Subscription } from "@lemonsqueezy/lemonsqueezy.js";
+import {
+  db,
+  plans,
+  subscriptions,
+  type NewSubscription,
+} from "@/db/schema";
 export const runtime = 'edge';
 
 const openai = new OpenAI({
@@ -22,6 +28,26 @@ export async function POST(req: Request) {
       status: 401
     });
   }
+  const userSubscriptions: NewSubscription[] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId));
+
+  if (!userSubscriptions.length) {
+    return new Response('No subscriptions', {
+      status: 400
+    });
+  }else{
+      // Check if the user has an active subscription
+      const hasValidSubscription = userSubscriptions.some((subscription) => {
+        const status =
+          subscription.status as Subscription["data"]["attributes"]["status"];
+        return new Response('Subscriptions cancelled/expired/unpaid', {
+          status: 400
+        });
+      });
+  }
+
 
   const res = await openai.chat.completions.create({
     model: 'deepseek-chat',

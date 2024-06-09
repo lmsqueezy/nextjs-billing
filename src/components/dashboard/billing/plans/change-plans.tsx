@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-optional-chain -- allow */
 import { redirect } from "next/navigation";
 import { getUserSubscriptions } from "@/app/actions";
 import { db, plans, type NewPlan } from "@/db/schema";

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion -- checked in configureLemonSqueezy() */
 "use server";
 
 import crypto from "node:crypto";

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sqliteDb, note } from '@/db/schema-sqlite';
+import { sqliteDb, note,NewArticle } from '@/db/schema-sqlite';
 import { eq } from "drizzle-orm";
 import { auth } from '@/auth';
 
@@ -29,7 +29,7 @@ export const POST = async (req: Request) => {
     updatedAt: Date.now(),
   };
 
-  delete (newNoteData as any).id; // Ensure TypeScript knows that id can be deleted
+  delete (newNoteData as NewArticle).id; // Ensure TypeScript knows that id can be deleted
 
   const [newNoteId] = await sqliteDb.insert(note).values(newNoteData).returning({id:note.id});
 

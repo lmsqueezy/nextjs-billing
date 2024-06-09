@@ -108,3 +108,5 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
     );
   },
 );
+
+SignupButton.displayName = 'SignupButton';

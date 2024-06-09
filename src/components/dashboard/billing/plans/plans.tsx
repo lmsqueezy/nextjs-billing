@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-optional-chain -- allow */
 import { type Subscription } from "@lemonsqueezy/lemonsqueezy.js";
 import { getUserSubscriptions, syncPlans } from "@/app/actions";
 import { db, plans, type NewPlan } from "@/db/schema";

@@ -1,18 +1,17 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Navbar from "@/components/navbar";
+import type { NewArticle as Article } from '@/db/schema-sqlite';
 
-interface Article {
-  id: string;
-  title: string;
-  createdAt: number;
-  css: string;
-  dark: boolean;
+interface FetchArticlesResponse {
+  articles: Article[];
+  nextCursor?: string;
+  hasMore: boolean;
+  error?: string;
 }
 
-export default function Articles() {
+export default function Work() {
   const { data: session } = useSession();
   const userId = session?.user.id;
 
@@ -24,10 +23,10 @@ export default function Articles() {
   const fetchArticles = useCallback(async (cursor: string | undefined = undefined, authorId: string | undefined = undefined) => {
     console.log('Fetching articles with cursor:', cursor, 'and authorId:', authorId);
     const res = await fetch(`/api/home?${cursor ? `startCursor=${cursor}&` : ''}pageSize=10${authorId ? `&authorId=${authorId}` : ''}`);
-    const data = await res.json();
+    const data: FetchArticlesResponse = await res.json();
     if (res.ok) {
       setArticles(prev => {
-        const newArticles = data.articles.filter((article: Article) => !prev.some(a => a.id === article.id));
+        const newArticles = data.articles.filter(article => !prev.some(a => a.id === article.id));
         return [...prev, ...newArticles];
       });
       setNextCursor(data.nextCursor);
@@ -55,18 +54,17 @@ export default function Articles() {
 
   return (
     <>
-      
       <div className="flex flex-wrap gap-4 justify-center">
         {articles.map(article => (
           <div
             key={article.id}
-            className={`w-40 h-60 sm:w-1/2 md:w-60 p-2 cursor-pointer rounded-lg ${article.dark ? "text-white" : ""}`}
-            onClick={() => handleArticleClick(article.id)}
-            style={{ background: article.css }}
+            className={`w-40 h-60 sm:w-1/2 md:w-60 p-2 cursor-pointer rounded-lg ${article.dark ? "text-white" : "text-black"}`}
+            onClick={() => handleArticleClick(article.id?.toString() ?? '')}
+            style={{ background: article.css?.toString() ?? '' }}
           >
             <h3 className="text-md">{article.title}</h3>
-            <p className="text-xs">{new Date(article.createdAt * 1000).toLocaleDateString()}</p>
-          </div>
+            <p className="text-xs">{article.createdAt ? new Date(article.createdAt * 1000).toLocaleDateString() : ''}</p>
+            </div>
         ))}
       </div>
     </>
