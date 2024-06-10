@@ -8,6 +8,9 @@ import { auth,signIn } from '@/auth';
 import { SubmitButton } from "@/components/submit-button";
 import { ArrowRightIcon, ArrowLeftIcon } from 'lucide-react';
 import { NoteContent } from '@/components/note';
+import { GoogleIcon } from "@/components/icons/google";
+import { LoginButtons } from "@/components/login-buttons";
+
 type Props = {
   params: {
     id: string;
@@ -25,10 +28,10 @@ async function getNoteContent(noteId: number) {
 }
 
 // Function to fetch the next note ID
-async function getNextNoteId(noteId: number, authorId: string) {
+async function getNextNoteId(noteId: number, userId: string) {
   const nextNote = await sqliteDb.select({ id: note.id })
     .from(note)
-    .where(eq(note.authorId, authorId) && lt(note.id, noteId))
+    .where(eq(note.userId, userId) && lt(note.id, noteId))
     .orderBy(desc(note.id)) // Order by ID in descending order to get the next note in the list
     .limit(1);
 
@@ -38,10 +41,10 @@ async function getNextNoteId(noteId: number, authorId: string) {
 }
 
 // Function to fetch the previous note ID
-async function getPreviousNoteId(noteId: number, authorId: string) {
+async function getPreviousNoteId(noteId: number, userId: string) {
   const previousNote = await sqliteDb.select({ id: note.id })
     .from(note)
-    .where(eq(note.authorId, authorId) && gt(note.id, noteId))
+    .where(eq(note.userId, userId) && gt(note.id, noteId))
     .orderBy(asc(note.id)) // Order by ID in ascending order to get the previous note in the list
     .limit(1);
   console.log(`Next note result: ${JSON.stringify(previousNote)}`);
@@ -74,19 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function NotePage({ params }: Props) {
   const session = await auth();
   if (!session?.user) {
-    return (
-      <form
-        className="flex items-center h-screen text-center w-full"
-        action={async () => {
-          "use server";
-          await signIn("google");
-        }}
-      >
-        <SubmitButton shape="pill" variant="outline" className="mx-auto">
-          Sign in with Google
-        </SubmitButton>
-      </form>
-    );
+    return <LoginButtons/>
   }
 
   const { id } = params;
@@ -96,9 +87,9 @@ export default async function NotePage({ params }: Props) {
   if (!noteContent) {
     notFound();
   }
-  const authorId = noteContent.authorId;
-  const previousNoteId = await getPreviousNoteId(noteId, authorId);
-  const nextNoteId = await getNextNoteId(noteId, authorId);
+  const userId = noteContent.userId;
+  const previousNoteId = await getPreviousNoteId(noteId, userId);
+  const nextNoteId = await getNextNoteId(noteId, userId);
 
   return (
     <div className="relative h-screen">

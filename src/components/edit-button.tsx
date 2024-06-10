@@ -79,7 +79,7 @@ export default function EditButtons({ noteContent, noteId }: EditButtonsProps) {
   };
 
   return (
-    <div className="flex space-x-2 ml-auto">
+    <div className="flex gap-2">
       <Button variant="outline" size="icon" onClick={() => { handleDelete(); }} disabled={loading}>
         🗑️
       </Button>

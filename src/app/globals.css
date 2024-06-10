@@ -64,6 +64,13 @@
   .background-image {
     background-image: url('https://cdn.prod.website-files.com/60c8db180183804ef2b45120/60cb6b0a1ffa9d6586ad6292_hero-glow-2.svg');
     background-repeat: no-repeat;
+    background-position: center;
+    z-index: -1;
+  }
+
+  .bg-svg{
+    background-image: url('https://nemo.wickedtemplates.com/images/heroImage.svg');
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     z-index: -1;

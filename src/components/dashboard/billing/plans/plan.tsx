@@ -23,17 +23,16 @@ export function Plan({
         <header className="flex w-full items-center justify-between">
           {name ? (
             <h2 className="text-lg text-surface-900">
-              {productName} ({name})
+              {productName}
             </h2>
           ) : null}
         </header>
         {description ? (
-          <div
-            dangerouslySetInnerHTML={{
-              // Ideally sanitize the description first
-              __html: description,
-            }}
-          />
+          description.split(";").map((line: string, index: number) => (
+            <p className="text-large text-default-500" key={index}>
+              {line}
+            </p>
+          ))
         ) : null}
       </Section.Item>
 

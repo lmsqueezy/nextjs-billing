@@ -21,7 +21,7 @@ export const POST = async (req: Request) => {
   const existingNote = await sqliteDb
     .select()
     .from(note)
-    .where(and(eq(note.id, Number(noteId)), eq(note.authorId, userId)))
+    .where(and(eq(note.id, Number(noteId)), eq(note.userId, userId)))
     .limit(1);
 
   if (existingNote.length === 0) {

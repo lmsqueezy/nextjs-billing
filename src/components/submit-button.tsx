@@ -11,7 +11,7 @@ export const SubmitButton = forwardRef<ButtonElement, ButtonProps>(
   (props, ref) => {
     const { pending } = useFormStatus();
     const before = pending ? (
-      <Loading size="sm" className="dark" color="secondary" />
+      <Loading size="sm" className="size-4 dark"/>
     ) : (
       props.before
     );
@@ -26,4 +26,3 @@ export const SubmitButton = forwardRef<ButtonElement, ButtonProps>(
     );
   },
 );
-SubmitButton.displayName = 'SubmitButton';

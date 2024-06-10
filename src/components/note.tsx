@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { PromptForm } from './prompt-form';
 import { useRouter } from 'next/navigation';
 import { NewArticle } from '@/db/schema-sqlite';
-
+import { Button } from "@/components/ui/button";
 interface NoteContentProps {
   noteContent: NewArticle;
   noteId: number;
@@ -38,8 +38,16 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
     // }
   });
 
+  const handleCopyAndJump = () => {
+    navigator.clipboard.writeText(noteContent.content).then(() => {
+      window.open(noteContent.link, '_blank');
+    }).catch((error) => {
+      toast.error(`Failed to copy: ${error.message}`);
+    });
+  };
+
   return (
-    <article className="md:flex sm:w-full mx-auto max-w-3xl h-screen justify-center mt-10">
+    <article className="md:flex sm:w-full mx-auto max-w-3xl h-screen justify-center md:mt-10">
       <div>
         <div
           className={`h-[400px] sm:w-full md:w-[300px] p-4 text-2xl ${noteContent.dark ? "text-white" : ""}`}
@@ -47,20 +55,33 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
         >
           <div dangerouslySetInnerHTML={{ __html: noteContent.title.replace('\n', '<br>') }} />
         </div>
-        {noteContent.authorId === "987654321" ? (
-          <div className="mt-4 flex space-x-2">
-            <FavorButtons noteId={noteId} isFavored={true} />
-          </div>
-        ) : (
-          <div className="mt-4 flex space-x-2">
-            <EditButtons noteId={noteId} noteContent={noteContent} />
-          </div>
-        )}
       </div>
-      <div className="sm:w-full md:w-[420px] p-4">
-        <div>{messages.slice(-1)[0]?.role === 'user' && messages.slice(-1)[0].content}</div>
-        <div className="h-3/4 overflow-y-auto" dangerouslySetInnerHTML={{ __html: messages.length > 0 ? messages.slice(-1)[0].content.replace('\n', '<br>') : noteContent.content.replace('\n', '<br>') }} />
-        {noteContent.authorId != "987654321" && (
+      <div className="sm:w-full md:w-[420px] h-[400px] sm:h-1/2 p-4">
+      {messages.slice(-2)[0]?.role === 'user' && <div className='w-full flex'>
+          <span className='text-right bg-gray-300 rounded-md mb-2 ml-auto p-2'>
+            {messages.slice(-2)[0].content}
+          </span>
+        </div>
+        }
+       
+        <div className="overflow-y-auto md:h-[400px] sm:h-1/2" dangerouslySetInnerHTML={{ __html: messages.length > 0 ? messages.slice(-1)[0].content.replace('\n', '<br>') : noteContent.content.replace('\n', '<br>') }} />
+        <div className='w-full my-1 flex justify-center'>
+        {noteContent.userId === "987654321" ? (
+            <FavorButtons noteId={noteId} isFavored={true} />
+        ) : (
+            <EditButtons noteId={noteId} noteContent={noteContent} />
+        )}
+          <Button
+            className="mx-auto"
+            variant={'outline'}
+            color='secondary'
+            onClick={handleCopyAndJump}
+          >
+            Copy and Jump to Reply
+          </Button>
+        </div>
+
+        {noteContent.userId != "987654321" && (
           <PromptForm
             onSubmit={async (inputValue) => {
               append({

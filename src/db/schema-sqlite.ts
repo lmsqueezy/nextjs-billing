@@ -12,8 +12,10 @@ export const note = sqliteTable("note", {
   textalign: integer("textalign").default(0),//0:left,1:middle,2:right
   css: text("css"),
   content: text("content").notNull(),
+  inspiration: text("inspiration"),
   createdAt: real("createdAt").notNull().default(Date.now()),
   updatedAt: real("updatedAt").default(Date.now()),
+  userId: text("userId").notNull(),
   authorId: text("authorId").notNull(),
   usedcount: integer("usedcount").default(0),
 });

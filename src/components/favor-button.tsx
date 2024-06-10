@@ -84,7 +84,7 @@ export default function FavorButtons({ noteId, isFavored }: FavorButtonsProps) {
   };
 
   return (
-    <div className="flex space-x-2 ml-auto">
+    <div className="flex gap-2">
       {!favored ? (
         <Button variant="outline" size="icon" onClick={handleFavorite}>♡</Button>
       ) : (

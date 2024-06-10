@@ -15,7 +15,7 @@ export const POST = async (req: Request) => {
   const existingNote = await sqliteDb
     .select()
     .from(note)
-    .where(and(eq(note.id, Number(noteId)), eq(note.authorId, userId)))
+    .where(and(eq(note.id, Number(noteId)), eq(note.userId, userId)))
     .limit(1);
   const nextNoteId = await getNextNoteId(Number(noteId), userId);
 
@@ -30,11 +30,11 @@ export const POST = async (req: Request) => {
   return NextResponse.json({ message: 'Note deleted', nextNoteId }, { status: 200 });
 };
 
-async function getNextNoteId(noteId: number, authorId: string) {
+async function getNextNoteId(noteId: number, userId: string) {
   const nextNote = await sqliteDb
     .select({ id: note.id })
     .from(note)
-    .where(and(eq(note.authorId, authorId), lt(note.id, noteId)))
+    .where(and(eq(note.userId, userId), lt(note.id, noteId)))
     .orderBy(desc(note.id)) // Order by ID in descending order to get the next note in the list
     .limit(1);
 

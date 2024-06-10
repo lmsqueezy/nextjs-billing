@@ -34,7 +34,7 @@ export function DashboardContent(
           }}
         >
           <SubmitButton
-            
+            className="p-2"
             shape="pill"
             variant="outline"
           >
