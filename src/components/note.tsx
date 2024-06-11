@@ -8,6 +8,7 @@ import { PromptForm } from './prompt-form';
 import { useRouter } from 'next/navigation';
 import { NewArticle } from '@/db/schema-sqlite';
 import { Button } from "@/components/ui/button";
+import { CopyIcon } from 'lucide-react';
 interface NoteContentProps {
   noteContent: NewArticle;
   noteId: number;
@@ -37,6 +38,14 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
     //   console.log(response)
     // }
   });
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(noteContent.content).then(() => {
+      toast.success('Copied to clipboard');
+    }).catch((error) => {
+      toast.error(`Failed to copy: ${error.message}`);
+    });
+  };
 
   const handleCopyAndJump = () => {
     navigator.clipboard.writeText(noteContent.content).then(() => {
@@ -71,13 +80,21 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
         ) : (
             <EditButtons noteId={noteId} noteContent={noteContent} />
         )}
-          <Button
+        <Button
             className="mx-auto"
+            variant={'outline'}
+            color='secondary'
+            size='icon'
+            onClick={handleCopy}
+          >
+            <CopyIcon/>
+          </Button>
+          <Button
             variant={'outline'}
             color='secondary'
             onClick={handleCopyAndJump}
           >
-            Copy and Jump to Reply
+            Copy & Jump to Reply
           </Button>
         </div>
 
