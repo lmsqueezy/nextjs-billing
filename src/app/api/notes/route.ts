@@ -4,7 +4,10 @@ import { desc, sql, eq, and, inArray } from 'drizzle-orm';
 
 interface Article {	
   id: number;	
-  title: string;	
+  title: string;
+  useCount: number;
+  authorId:string;
+  content: string;
   dark: boolean;	
   css: string;	
   createdAt: number;	
@@ -54,11 +57,14 @@ export const GET = async (req: Request) => {
     const articlesQuery = await sqliteDb
       .select({
         id: note.id,
+        userId: note.userId,
         title: note.title,
         dark: note.dark,
         css: note.css,
         createdAt: note.createdAt,
         useCount: note.usedcount,
+        content: note.content,
+        authorId: note.authorId
       })
       .from(note)
       .where(and(...conditions))
@@ -70,8 +76,11 @@ export const GET = async (req: Request) => {
         id: article.id,	
         title: article.title,	
         dark: article.dark,	
+        content: article.content,
+        authorId: article.authorId,
         css: article.css,	
         createdAt: article.createdAt,	
+        useCount:article.useCount
       }));
 
     // Query to get the total number of articles
