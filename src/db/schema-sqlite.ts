@@ -30,8 +30,14 @@ export const favorites = sqliteTable("favorite", {
   }),
 }));
 
+export const avatar = sqliteTable("avatars", {
+  twitterId: text("twitterId").primaryKey().notNull(),
+  imgSrc: text("imgSrc").notNull(),
+});
+
 export type NewArticle = typeof note.$inferInsert;
 export type NewFavorite = typeof favorites.$inferInsert;
+export type NewAvatar = typeof avatar.$inferInsert;
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL ?? '',
