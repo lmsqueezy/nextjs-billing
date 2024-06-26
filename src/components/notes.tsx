@@ -86,7 +86,7 @@ function Notes({param}:{param?: string}) {
                 <div className="flex flex-col items-start">
                   <p className="font-bold">{article.userId}</p>
                   <p>
-                    @{article.userId}
+                    @{article.authorId}
                   </p>
                 </div>
               </div>
@@ -99,7 +99,7 @@ function Notes({param}:{param?: string}) {
               </Link>
             </div>
             <p className="text-[14px]">
-            {article.userId}{article.title}{article.content}
+            {article.content}
             </p>
           </div>
         </div>

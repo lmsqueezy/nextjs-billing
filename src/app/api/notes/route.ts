@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server';
-import { sqliteDb, note, favorites,NewArticle} from '@/db/schema-sqlite';
+import { sqliteDb, note, favorites, NewArticle as Article } from '@/db/schema-sqlite';
 import { desc, sql, eq, and, inArray } from 'drizzle-orm';
 
-interface Article {	
-  id: number;	
-  title: string;
-  useCount: number;
-  authorId:string;
-  content: string;
-  dark: boolean;	
-  css: string;	
-  createdAt: number;	
-}
+
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
   const startCursor = parseInt(searchParams.get('startCursor') ?? '0', 10);
@@ -19,6 +10,7 @@ export const GET = async (req: Request) => {
   const category = searchParams.get('category');
   const favorId = searchParams.get('favorId');
   const userId = searchParams.get('userId') ?? '987654321';
+  
   try {
     // Base conditions
     let conditions = [eq(note.userId, userId)];
@@ -59,7 +51,6 @@ export const GET = async (req: Request) => {
         id: note.id,
         userId: note.userId,
         title: note.title,
-        dark: note.dark,
         css: note.css,
         createdAt: note.createdAt,
         useCount: note.usedcount,
@@ -72,16 +63,23 @@ export const GET = async (req: Request) => {
       .limit(pageSize)
       .offset(startCursor);
 
-      const articles: Article[] = articlesQuery.map((article: any) => ({	
-        id: article.id,	
-        title: article.title,	
-        dark: article.dark,	
+      const articles: Article[] = articlesQuery.map((article) => ({
+        id: article.id,
+        title: article.title,
         content: article.content,
         authorId: article.authorId,
-        css: article.css,	
-        createdAt: article.createdAt,	
-        useCount:article.useCount
-      }));
+        css: article.css,
+        createdAt: article.createdAt,
+        useCount: article.useCount ?? 0,
+        link: '', // Add the link property with appropriate value
+        userId: article.userId, // Add the userId property with appropriate value
+        category: category ?? '', // Add the category property with appropriate value
+        tags: '',
+        dark: 0,
+        textalign: 0,//0:left,1:middle,2:right
+        inspiration: '',
+        updatedAt: null,
+    }));
 
     // Query to get the total number of articles
     const totalArticlesQuery = await sqliteDb

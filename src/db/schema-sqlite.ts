@@ -35,7 +35,13 @@ export const avatar = sqliteTable("avatars", {
   imgSrc: text("imgSrc").notNull(),
 });
 
+export const category = sqliteTable("category", {
+  listId: text("listId").primaryKey().notNull(),
+  category: text("category").notNull(),
+});
+
 export type NewArticle = typeof note.$inferInsert;
+export type NewCatetogory = typeof category.$inferInsert;
 export type NewFavorite = typeof favorites.$inferInsert;
 export type NewAvatar = typeof avatar.$inferInsert;
 
