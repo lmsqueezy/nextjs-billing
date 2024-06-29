@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.zhimg.com',
+        hostname: '*.twimg.com',
         port: '',
         pathname: '**'
       }

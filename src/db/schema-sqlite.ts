@@ -23,7 +23,7 @@ export const note = sqliteTable("note", {
 // Add the favorites table
 export const favorites = sqliteTable("favorite", {
   userId: text("userId").notNull(),
-  articleId: integer("articleId").notNull().references(() => note.id),
+  articleId: integer("articleId").notNull()
 }, (favorite) => ({
   compoundKey: primaryKey({
     columns: [favorite.userId, favorite.articleId],

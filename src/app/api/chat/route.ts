@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     async onCompletion(completion) {
       console.log(completion);
       const updatedNoteData = {
-        content: completion,
+        title: completion,
         updatedAt: Date.now()
       };
       // Update the existing note in the database

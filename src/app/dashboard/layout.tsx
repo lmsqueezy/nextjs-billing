@@ -3,9 +3,6 @@ import Script from "next/script";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Toaster } from "@/components/toaster";
 
-export const metadata: Metadata = {
-  title: "Dashboard | Lemon Squeezy Next.js Billing Template",
-};
 
 export default function DashboardLayout({
   children,

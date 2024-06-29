@@ -76,3 +76,12 @@
     z-index: -1;
   }
 }
+
+@layer base {
+.title {
+  background: linear-gradient(to right, rgb(255, 217, 0),#b843df);
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+}

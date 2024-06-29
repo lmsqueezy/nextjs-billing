@@ -7,7 +7,7 @@ import { SessionProvider } from 'next-auth/react';
 import Navbar from '@/components/navbar';
 
 export const metadata: Metadata = {
-  title: "Lemon Squeezy Next.js Billing App Template",
+  title: "Inspilot",
 };
 
 export const viewport = {
@@ -25,8 +25,8 @@ export default function RootLayout({
   children,
 }: RootLayoutProps) {
   return (
-    <html lang="en" className="h-full touch-manipulation">
-      <body className="min-h-screen bg-background">
+    <html lang="en">
+      <body>
         <SessionProvider>
           <Providers
             attribute="class"

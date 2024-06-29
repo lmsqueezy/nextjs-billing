@@ -4,11 +4,9 @@ import { notFound } from 'next/navigation';
 import { sqliteDb, note } from '@/db/schema-sqlite';
 import { eq, lt, gt, desc,asc } from 'drizzle-orm';
 import Link from 'next/link';
-import { auth,signIn } from '@/auth';
-import { SubmitButton } from "@/components/submit-button";
+import { auth } from '@/auth';
 import { ArrowRightIcon, ArrowLeftIcon } from 'lucide-react';
 import { NoteContent } from '@/components/note';
-import { GoogleIcon } from "@/components/icons/google";
 import { LoginButtons } from "@/components/login-buttons";
 
 type Props = {
@@ -92,7 +90,7 @@ export default async function NotePage({ params }: Props) {
   const nextNoteId = await getNextNoteId(noteId, userId);
 
   return (
-    <div className="relative h-screen">
+    <div>
       {previousNoteId && (
         <Link href={`/note/${previousNoteId}`}>
           <Button

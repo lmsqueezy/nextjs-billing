@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { NewArticle } from '@/db/schema-sqlite';
 import { Button } from "@/components/ui/button";
 import { CopyIcon } from 'lucide-react';
+import Tweet from '@/components/tweet';
+
 interface NoteContentProps {
   noteContent: NewArticle;
   noteId: number;
@@ -20,7 +22,7 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
     initialMessages: [{
       id: `${new Date().toISOString().split('.')[0]}`,
       role: 'assistant',
-      content: noteContent.content
+      content: noteContent.title
     }],
     body: {
       id: noteId.toString(),
@@ -34,13 +36,10 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
         router.push('/pricing');
       }
     },
-    // onFinish(response) {
-    //   console.log(response)
-    // }
   });
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(noteContent.content).then(() => {
+    navigator.clipboard.writeText(noteContent.title).then(() => {
       toast.success('Copied to clipboard');
     }).catch((error) => {
       toast.error(`Failed to copy: ${error.message}`);
@@ -48,7 +47,7 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
   };
 
   const handleCopyAndJump = () => {
-    navigator.clipboard.writeText(noteContent.content).then(() => {
+    navigator.clipboard.writeText(noteContent.title).then(() => {
       window.open(noteContent.link, '_blank');
     }).catch((error) => {
       toast.error(`Failed to copy: ${error.message}`);
@@ -56,38 +55,33 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
   };
 
   return (
-    <article className="md:flex sm:w-full mx-auto max-w-3xl h-screen justify-center md:mt-10">
-      <div>
-        <div
-          className={`h-[400px] sm:w-full md:w-[300px] p-4 text-2xl ${noteContent.dark ? "text-white" : ""}`}
-          style={{ background: noteContent.css ?? "" }}
-        >
-          <div dangerouslySetInnerHTML={{ __html: noteContent.title.replace('\n', '<br>') }} />
-        </div>
+    <article className="md:flex sm:w-full mx-auto max-w-3xl justify-center">
+      <div className="md:w-[360px] sm:w-full">
+        <Tweet length={999} css={noteContent.css ?? ''} authorId={noteContent.authorId} content={noteContent.content} createdAt={noteContent.createdAt?.toString() ?? ''} />
       </div>
-      <div className="sm:w-full md:w-[420px] h-[400px] sm:h-1/2 p-4">
-      {messages.slice(-2)[0]?.role === 'user' && <div className='w-full flex'>
-          <span className='text-right bg-gray-300 rounded-md mb-2 ml-auto p-2'>
-            {messages.slice(-2)[0].content}
-          </span>
-        </div>
-        }
-       
-        <div className="overflow-y-auto md:h-[400px] sm:h-1/2" dangerouslySetInnerHTML={{ __html: messages.length > 0 ? messages.slice(-1)[0].content.replace('\n', '<br>') : noteContent.content.replace('\n', '<br>') }} />
+      <div className="sm:w-full md:w-[420px]">
+        <div className='p-4'>
+        {messages.map((message, index) => (
+          <div className='w-full flex'  key={index}>
+          <span className={` ${message.role === 'user' ? 'ml-auto bg-gray-300 rounded-md mb-2 ml-auto p-2' : ''}`}>
+            {message.role === 'assistant' && '🤖: '} {message.content}
+            </span>
+          </div>
+        ))}
         <div className='w-full my-1 flex justify-center'>
-        {noteContent.userId === "987654321" ? (
+          {noteContent.userId === "987654321" ? (
             <FavorButtons noteId={noteId} isFavored={true} />
-        ) : (
+          ) : (
             <EditButtons noteId={noteId} noteContent={noteContent} />
-        )}
-        <Button
+          )}
+          <Button
             className="mx-auto"
             variant={'outline'}
             color='secondary'
             size='icon'
             onClick={handleCopy}
           >
-            <CopyIcon/>
+            <CopyIcon />
           </Button>
           <Button
             variant={'outline'}
@@ -97,8 +91,9 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
             Copy & Jump to Reply
           </Button>
         </div>
-
+        </div>
         {noteContent.userId != "987654321" && (
+          <div className="fixed bottom-16  md:w-[420px] w-full ml-auto">
           <PromptForm
             onSubmit={async (inputValue) => {
               append({
@@ -114,8 +109,11 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
             isLoading={isLoading}
             setInput={setInput}
           />
+        </div>
         )}
       </div>
+
+
     </article>
   );
 };
