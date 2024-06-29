@@ -13,8 +13,8 @@ import {
 export const runtime = 'edge';
 
 const openai = new OpenAI({
-  baseURL: process.env.OPENAI_API_BASE_URL,
-  apiKey: process.env.OPENAI_API_KEY
+  baseURL: process.env.API_BASE_URL,
+  apiKey: process.env.LLM_API_KEY
 });
 
 export async function POST(req: Request) {
@@ -48,9 +48,10 @@ export async function POST(req: Request) {
       });
   }
 
+  const msg = [...messages.slice(0, -1), { role: 'user', content: messages[messages.length - 1].content+'\n\n the final output must be a short reply tweet.' }];
 
   const res = await openai.chat.completions.create({
-    model: 'deepseek-chat',
+    model: process.env.LLM_BAK_MODEL ?? 'gpt-3.5-turbo',
     messages,
     temperature: 0.7,
     stream: true

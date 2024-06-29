@@ -49,10 +49,10 @@ const PlansPage: React.FC = () => {
                                   </CardHeader>
                 <CardContent className='h-[200px]'>
                       <div className="text-large text-default-500 my-4 flex" >
-                        <CircleCheckBigIcon color="blue" className="mr-4" /><span>100 works storage</span>
+                        <CircleCheckBigIcon color="blue" className="mr-4" /><span>Browse only</span>
                       </div>
                       <div className="text-large text-default-500 my-4 flex" >
-                        <CircleCheckBigIcon color="blue" className="mr-4" /><span>100 favorite slots</span>
+                        <CircleCheckBigIcon color="blue" className="mr-4" /><span>No AI rewrite </span>
                       </div>
                 </CardContent>
                 <CardFooter>

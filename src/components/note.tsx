@@ -10,6 +10,7 @@ import { NewArticle } from '@/db/schema-sqlite';
 import { Button } from "@/components/ui/button";
 import { CopyIcon } from 'lucide-react';
 import Tweet from '@/components/tweet';
+import { nanoid } from 'nanoid';
 
 interface NoteContentProps {
   noteContent: NewArticle;
@@ -20,13 +21,16 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
   const router = useRouter();
   const { messages, append, reload, stop, isLoading, input, setInput } = useChat({
     initialMessages: [{
-      id: `${new Date().toISOString().split('.')[0]}`,
+      id: nanoid(),
+      role: 'user',
+      content: `『@${noteContent.authorId}:\n`+noteContent.content+'』\n\n'+'make a short reply on the tweet above'
+    },{
+      id: nanoid(),
       role: 'assistant',
-      content: noteContent.title
+      content:  noteContent.title
     }],
     body: {
       id: noteId.toString(),
-      locale: navigator.language,
     },
     onResponse(response) {
       if (response.status !== 200) {
@@ -60,8 +64,8 @@ export const NoteContent: React.FC<NoteContentProps> = ({ noteContent, noteId })
         <Tweet length={999} css={noteContent.css ?? ''} authorId={noteContent.authorId} content={noteContent.content} createdAt={noteContent.createdAt?.toString() ?? ''} />
       </div>
       <div className="sm:w-full md:w-[420px]">
-        <div className='p-4'>
-        {messages.map((message, index) => (
+        <div className='p-4  mb-16'>
+        {messages.slice(1,messages.length).map((message, index) => (
           <div className='w-full flex'  key={index}>
           <span className={` ${message.role === 'user' ? 'ml-auto bg-gray-300 rounded-md mb-2 ml-auto p-2' : ''}`}>
             {message.role === 'assistant' && '🤖: '} {message.content}
