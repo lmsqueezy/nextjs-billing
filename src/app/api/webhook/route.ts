@@ -9,18 +9,30 @@ export async function POST(request: Request) {
     });
   }
 
-  // First, make sure the request is from Lemon Squeezy.
+  /* -------------------------------------------------------------------------- */
+  /*             First, make sure the request is from Lemon Squeezy.            */
+  /* -------------------------------------------------------------------------- */
+
+  // Get the raw body content.
   const rawBody = await request.text();
+
+  // Get the webhook secret from the environment variables.
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
-  const hmac = crypto.createHmac("sha256", secret);
-  const digest = Buffer.from(hmac.update(rawBody).digest("hex"), "utf8");
+  // Get the signature from the request headers.
   const signature = Buffer.from(
     request.headers.get("X-Signature") ?? "",
-    "utf8",
+    "hex",
   );
 
-  if (!crypto.timingSafeEqual(digest, signature)) {
+  // Create a HMAC-SHA256 hash of the raw body content using the secret and
+  // compare it to the signature.
+  const hmac = Buffer.from(
+    crypto.createHmac("sha256", secret).update(rawBody).digest("hex"),
+    "hex",
+  );
+
+  if (!crypto.timingSafeEqual(hmac, signature)) {
     return new Response("Invalid signature", { status: 400 });
   }
 
