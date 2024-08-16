@@ -15,7 +15,7 @@ export function UserMenu(props: { user?: User }) {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
-        className="group flex w-full items-center justify-between gap-3 rounded-md px-4 py-2 text-surface-700 transition-colors hover:bg-surface-700/5 hover:text-surface-900 focus:outline-none focus-visible:bg-surface-900/5 focus-visible:text-surface-900 disabled:pointer-events-none"
+        className="group flex w-full items-center justify-between gap-3 rounded-md px-4 py-2 text-surface-700 transition-colors hover:bg-surface-700/10 hover:text-surface-900 focus:outline-none focus-visible:bg-surface-900/5 focus-visible:text-surface-900 disabled:pointer-events-none"
         disabled={loading}
       >
         <>
