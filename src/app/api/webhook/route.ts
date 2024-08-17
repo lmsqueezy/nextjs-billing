@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- allow logs */
 import crypto from "node:crypto";
 import { processWebhookEvent, storeWebhookEvent } from "@/app/actions";
 import { webhookHasMeta } from "@/lib/typeguards";
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
   if (!crypto.timingSafeEqual(hmac, signature)) {
     return new Response("Invalid signature", { status: 400 });
   }
+
+  console.log("valid webhook signature");
 
   const data = JSON.parse(rawBody) as unknown;
 

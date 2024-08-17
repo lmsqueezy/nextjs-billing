@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- allow logs */
 /* eslint-disable @typescript-eslint/no-non-null-assertion -- checked in configureLemonSqueezy() */
 "use server";
 
@@ -96,6 +97,8 @@ export async function hasWebhook() {
     filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID },
   });
 
+  console.log({ allWebhooks: allWebhooks.data?.data });
+
   // Check if WEBHOOK_URL ends with a slash. If not, add it.
   let webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl.endsWith("/")) {
@@ -132,7 +135,6 @@ export async function setupWebhook() {
   }
   webhookUrl += "api/webhook";
 
-  // eslint-disable-next-line no-console -- allow
   console.log("Setting up a webhook on Lemon Squeezy (Test Mode)...");
 
   // Do not set a webhook on Lemon Squeezy if it already exists.
@@ -156,7 +158,6 @@ export async function setupWebhook() {
 
   revalidatePath("/");
 
-  // eslint-disable-next-line no-console -- allow
   console.log(`Webhook ${webhook?.id} created on Lemon Squeezy.`);
 }
 
@@ -172,7 +173,6 @@ export async function syncPlans() {
 
   // Helper function to add a variant to the productVariants array and sync it with the database.
   async function _addVariant(variant: NewPlan) {
-    // eslint-disable-next-line no-console -- allow
     console.log(`Syncing variant ${variant.name} with the database...`);
 
     // Sync the variant with the plan in the database.
@@ -181,7 +181,6 @@ export async function syncPlans() {
       .values(variant)
       .onConflictDoUpdate({ target: plans.variantId, set: variant });
 
-    /* eslint-disable no-console -- allow */
     console.log(`${variant.name} synced with the database...`);
 
     productVariants.push(variant);
