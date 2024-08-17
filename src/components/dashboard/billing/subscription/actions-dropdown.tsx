@@ -80,10 +80,10 @@ export function SubscriptionActionsDropdown({
             )}
 
             <DropdownMenu.Item asChild>
-              <a href={urls?.customer_portal}>Customer portal ↗</a>
+              <a href={urls.customer_portal}>Customer portal ↗</a>
             </DropdownMenu.Item>
 
-            <LemonSqueezyModalLink href={urls?.update_payment_method}>
+            <LemonSqueezyModalLink href={urls.update_payment_method}>
               Update payment method
             </LemonSqueezyModalLink>
           </DropdownMenu.Group>
