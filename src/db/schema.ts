@@ -122,4 +122,14 @@ export type NewWebhookEvent = typeof webhookEvents.$inferInsert;
 export type NewSubscription = typeof subscriptions.$inferInsert;
 
 export const sql = neon<boolean, boolean>(process.env.POSTGRES_URL);
-export const db = drizzle(sql);
+export const db = drizzle(sql, {
+  schema: {
+    users,
+    accounts,
+    sessions,
+    verificationTokens,
+    webhookEvents,
+    plans,
+    subscriptions,
+  },
+});
