@@ -107,6 +107,8 @@ export async function hasWebhook() {
     (wh) => wh.attributes.url === webhookUrl && wh.attributes.test_mode,
   );
 
+  revalidatePath("/");
+
   return webhook;
 }
 
@@ -232,7 +234,7 @@ export async function syncPlans() {
         ? currentPriceObj?.attributes.unit_price_decimal
         : currentPriceObj.attributes.unit_price;
 
-      const priceString = price !== null ? price?.toString() ?? "" : "";
+      const priceString = price !== null ? (price?.toString() ?? "") : "";
 
       const isSubscription =
         currentPriceObj?.attributes.category === "subscription";
@@ -416,6 +418,8 @@ export async function getUserSubscriptions() {
     .from(subscriptions)
     .where(eq(subscriptions.userId, userId));
 
+  revalidatePath("/");
+
   return userSubscriptions;
 }
 
@@ -432,7 +436,7 @@ export async function getSubscriptionURLs(id: string) {
     throw new Error(subscription.error.message);
   }
 
-  return subscription.data?.data.attributes.urls;
+  return subscription.data.data.attributes.urls;
 }
 
 /**
@@ -464,9 +468,9 @@ export async function cancelSub(id: string) {
     await db
       .update(subscriptions)
       .set({
-        status: cancelledSub.data?.data.attributes.status,
-        statusFormatted: cancelledSub.data?.data.attributes.status_formatted,
-        endsAt: cancelledSub.data?.data.attributes.ends_at,
+        status: cancelledSub.data.data.attributes.status,
+        statusFormatted: cancelledSub.data.data.attributes.status_formatted,
+        endsAt: cancelledSub.data.data.attributes.ends_at,
       })
       .where(eq(subscriptions.lemonSqueezyId, id));
   } catch (error) {
@@ -540,10 +544,7 @@ export async function unpauseUserSubscription(id: string) {
     throw new Error(`Subscription #${id} not found.`);
   }
 
-  const returnedSub = await updateSubscription(id, {
-    // @ts-expect-error -- null is a valid value for pause
-    pause: null,
-  });
+  const returnedSub = await updateSubscription(id, { pause: null });
 
   // Update the db
   try {
