@@ -154,6 +154,8 @@ export async function setupWebhook() {
     webhook = newWebhook.data?.data;
   }
 
+  revalidatePath("/");
+
   // eslint-disable-next-line no-console -- allow
   console.log(`Webhook ${webhook?.id} created on Lemon Squeezy.`);
 }
@@ -260,6 +262,8 @@ export async function syncPlans() {
       });
     }
   }
+
+  revalidatePath("/");
 
   return productVariants;
 }
@@ -435,6 +439,8 @@ export async function getSubscriptionURLs(id: string) {
   if (subscription.error) {
     throw new Error(subscription.error.message);
   }
+
+  revalidatePath("/");
 
   return subscription.data.data.attributes.urls;
 }
