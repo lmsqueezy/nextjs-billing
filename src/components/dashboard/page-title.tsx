@@ -23,7 +23,9 @@ export const PageTitle = forwardRef<
         {action}
       </div>
 
-      {props.subtitle && <p className="text-surface-500">{props.subtitle}</p>}
+      {props.subtitle && (
+        <p className="text-base leading-8 text-surface-500">{props.subtitle}</p>
+      )}
     </header>
   );
 });

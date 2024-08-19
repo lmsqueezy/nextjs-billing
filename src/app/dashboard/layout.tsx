@@ -20,7 +20,7 @@ export default function DashboardLayout({
         strategy="beforeInteractive"
       />
 
-      <div className="grid h-lvh grid-cols-[270px_1fr] text-sm leading-6 text-surface-500">
+      <div className="h-lvh text-sm leading-6 text-surface-500 md:grid md:grid-cols-[270px_1fr]">
         <Sidebar />
         {children}
       </div>

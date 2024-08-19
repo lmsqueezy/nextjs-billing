@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DashboardContent } from "@/components/dashboard/content";
 import { PageTitleAction } from "@/components/dashboard/page-title-action";
 import { SetupWebhookButton } from "@/components/dashboard/setup-webhook-button";
@@ -13,7 +14,7 @@ export default async function Page() {
     <DashboardContent title="Dashboard" action={<PageTitleAction />}>
       <p>
         This page is protected by the <code>auth</code> middleware. Navigate to
-        the Billing page to get started.
+        the <Link href="/dashboard/billing">Billing page</Link> to get started.
       </p>
 
       {!hasWh && (

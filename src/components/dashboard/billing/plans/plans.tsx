@@ -58,7 +58,7 @@ export async function Plans({
         Plans
       </h2>
 
-      <div className="mb-5 mt-3 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
+      <div className="mb-5 mt-3 grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
         {sortedPlans.map((plan, index) => {
           return <Plan key={`plan-${index}`} plan={plan} />;
         })}
