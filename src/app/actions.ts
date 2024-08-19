@@ -321,6 +321,8 @@ export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
     );
   }
 
+  console.log("Processing webhook event...", webhookEvent.eventName);
+
   let processingError = "";
   const eventBody = webhookEvent.body;
 

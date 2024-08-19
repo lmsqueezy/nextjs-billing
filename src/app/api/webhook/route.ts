@@ -37,6 +37,10 @@ export async function POST(request: Request) {
     return new Response("Invalid signature", { status: 400 });
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                                Valid request                               */
+  /* -------------------------------------------------------------------------- */
+
   console.log("valid webhook signature");
 
   const data = JSON.parse(rawBody) as unknown;
