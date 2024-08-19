@@ -133,8 +133,6 @@ export async function setupWebhook() {
   }
   webhookUrl += "api/webhook";
 
-  console.log("Setting up a webhook on Lemon Squeezy (Test Mode)...");
-
   // Do not set a webhook on Lemon Squeezy if it already exists.
   let webhook = await hasWebhook();
 
@@ -155,8 +153,6 @@ export async function setupWebhook() {
   }
 
   revalidatePath("/");
-
-  console.log(`Webhook ${webhook?.id} created on Lemon Squeezy.`);
 }
 
 /**
@@ -278,8 +274,6 @@ export async function storeWebhookEvent(
     throw new Error("POSTGRES_URL is not set");
   }
 
-  console.log("Storing webhook event in the database...", eventName);
-
   const id = crypto.randomInt(100000000, 1000000000);
 
   const returnedValue = await db
@@ -302,14 +296,10 @@ export async function storeWebhookEvent(
 export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
   configureLemonSqueezy();
 
-  console.log(`Processing webhook event #${webhookEvent.id}...`);
-
   const dbwebhookEvent = await db
     .select()
     .from(webhookEvents)
     .where(eq(webhookEvents.id, webhookEvent.id));
-
-  console.log({ dbwebhookEvent });
 
   if (dbwebhookEvent.length < 1) {
     throw new Error(
@@ -322,8 +312,6 @@ export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
       "Missing required WEBHOOK_URL env variable. Please, set it in your .env file.",
     );
   }
-
-  console.log("Processing webhook event...", webhookEvent.eventName);
 
   let processingError = "";
   const eventBody = webhookEvent.body;

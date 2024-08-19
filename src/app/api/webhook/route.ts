@@ -1,4 +1,3 @@
-/* eslint-disable no-console -- allow logs */
 import crypto from "node:crypto";
 import { processWebhookEvent, storeWebhookEvent } from "@/app/actions";
 import { webhookHasMeta } from "@/lib/typeguards";
@@ -41,18 +40,13 @@ export async function POST(request: Request) {
   /*                                Valid request                               */
   /* -------------------------------------------------------------------------- */
 
-  console.log("valid webhook signature");
-
   const data = JSON.parse(rawBody) as unknown;
 
   // Type guard to check if the object has a 'meta' property.
   if (webhookHasMeta(data)) {
-    console.log("webhook has meta");
-
     const webhookEventId = await storeWebhookEvent(data.meta.event_name, data);
 
-    // Non-blocking call to process the webhook event.
-    void processWebhookEvent(webhookEventId);
+    await processWebhookEvent(webhookEventId);
 
     return new Response("OK", { status: 200 });
   }
