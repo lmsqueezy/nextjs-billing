@@ -278,6 +278,8 @@ export async function storeWebhookEvent(
     throw new Error("POSTGRES_URL is not set");
   }
 
+  console.log("Storing webhook event in the database...", eventName);
+
   const id = crypto.randomInt(100000000, 1000000000);
 
   const returnedValue = await db
