@@ -37,12 +37,18 @@ export async function POST(request: Request) {
     return new Response("Invalid signature", { status: 400 });
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                                Valid request                               */
+  /* -------------------------------------------------------------------------- */
+
   console.log("valid webhook signature");
 
   const data = JSON.parse(rawBody) as unknown;
 
   // Type guard to check if the object has a 'meta' property.
   if (webhookHasMeta(data)) {
+    console.log("webhook has meta");
+
     const webhookEventId = await storeWebhookEvent(data.meta.event_name, data);
 
     // Non-blocking call to process the webhook event.
