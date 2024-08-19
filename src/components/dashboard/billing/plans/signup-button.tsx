@@ -5,7 +5,6 @@ import { CheckIcon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   forwardRef,
-  useEffect,
   useState,
   type ComponentProps,
   type ElementRef,
@@ -18,7 +17,7 @@ type ButtonElement = ElementRef<typeof Button>;
 type ButtonProps = ComponentProps<typeof Button> & {
   embed?: boolean;
   isChangingPlans?: boolean;
-  currentPlan?: NewPlan;
+  currentPlan?: NewPlan | null;
   plan: NewPlan;
 };
 
@@ -34,7 +33,7 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
       ...otherProps
     } = props;
 
-    const isCurrent = plan.id === currentPlan?.id;
+    const isCurrent = currentPlan && plan.id === currentPlan.id;
 
     // eslint-disable-next-line no-nested-ternary -- allow
     const label = isCurrent
@@ -56,7 +55,7 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
       <Button
         ref={ref}
         before={before}
-        disabled={loading || isCurrent || props.disabled}
+        disabled={(loading || isCurrent) ?? props.disabled}
         onClick={async () => {
           // If changing plans, call server action.
           if (isChangingPlans) {
