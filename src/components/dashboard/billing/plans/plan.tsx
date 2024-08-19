@@ -7,11 +7,11 @@ import { SignupButton } from "./signup-button";
 
 export function Plan({
   plan,
-  currentPlan,
+  currentPlan = null,
   isChangingPlans = false,
 }: {
   plan: NewPlan;
-  currentPlan?: NewPlan;
+  currentPlan?: NewPlan | null;
   isChangingPlans?: boolean;
 }) {
   const { description, id, productName, interval, name, price } = plan;

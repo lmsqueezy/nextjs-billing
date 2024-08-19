@@ -112,8 +112,10 @@ export const subscriptions = pgTable("subscription", {
     .references(() => plans.id),
 });
 
-if (!process.env.POSTGRES_URL) {
-  throw new Error("POSTGRES_URL is not set");
+const pgUrl = process.env.POSTGRES_URL;
+
+if (!pgUrl) {
+  throw new Error("POSTGRES_URL not configured in env");
 }
 
 // Export types for the tables.
@@ -121,7 +123,7 @@ export type NewPlan = typeof plans.$inferInsert;
 export type NewWebhookEvent = typeof webhookEvents.$inferInsert;
 export type NewSubscription = typeof subscriptions.$inferInsert;
 
-export const sql = neon<boolean, boolean>(process.env.POSTGRES_URL);
+export const sql = neon<boolean, boolean>(pgUrl);
 export const db = drizzle(sql, {
   schema: {
     users,
