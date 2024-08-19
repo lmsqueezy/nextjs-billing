@@ -300,10 +300,14 @@ export async function storeWebhookEvent(
 export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
   configureLemonSqueezy();
 
+  console.log(`Processing webhook event #${webhookEvent.id}...`);
+
   const dbwebhookEvent = await db
     .select()
     .from(webhookEvents)
     .where(eq(webhookEvents.id, webhookEvent.id));
+
+  console.log({ dbwebhookEvent });
 
   if (dbwebhookEvent.length < 1) {
     throw new Error(
