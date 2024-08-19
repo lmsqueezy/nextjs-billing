@@ -97,12 +97,6 @@ export async function hasWebhook() {
     filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID },
   });
 
-  console.log({ allWebhooks: allWebhooks.data?.data });
-
-  allWebhooks.data?.data.forEach((wh) => {
-    console.log(wh.attributes);
-  });
-
   // Check if WEBHOOK_URL ends with a slash. If not, add it.
   let webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl.endsWith("/")) {
