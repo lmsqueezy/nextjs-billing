@@ -43,17 +43,10 @@ export const SignupButton = forwardRef<ButtonElement, ButtonProps>(
         ? "Switch to this plan"
         : "Sign up";
 
-    // Make sure Lemon.js is loaded
-    useEffect(() => {
-      if (typeof window.createLemonSqueezy === "function") {
-        window.createLemonSqueezy();
-      }
-    }, []);
-
     // eslint-disable-next-line no-nested-ternary -- disabled
     const before = loading ? (
       <Loading size="sm" className="size-4 dark" color="secondary" />
-    ) : props.before ?? isCurrent ? (
+    ) : (props.before ?? isCurrent) ? (
       <CheckIcon className="size-4" />
     ) : (
       <PlusIcon className="size-4" />
