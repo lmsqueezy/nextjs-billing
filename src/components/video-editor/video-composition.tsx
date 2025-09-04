@@ -29,7 +29,7 @@ export const VideoComposition: React.FC<VideoCompositionProps> = ({
       />
       <Audio
         src="https://assets.cursorshorts.com/cursorshorts/assets/backgroundMusic/temporex.mp3"
-        volume={0.08}
+        volume={0.4}
         loop
       />
 

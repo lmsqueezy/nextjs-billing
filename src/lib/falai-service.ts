@@ -22,7 +22,9 @@ export class FalAIService {
     "flux-pro": "https://fal.run/fal-ai/flux-pro",
     "nano-banana": "https://fal.run/fal-ai/nano-banana",
   };
-  private static VIDEO_MODEL = "fal-ai/wan/v2.2-a14b/image-to-video";
+  // private static VIDEO_MODEL = "fal-ai/wan/v2.2-a14b/image-to-video/turbo";
+  private static VIDEO_MODEL =
+    "fal-ai/kling-video/v2.1/standard/image-to-video";
 
   static saveApiKey(apiKey: string): void {
     localStorage.setItem(this.API_KEY_STORAGE_KEY, apiKey);
@@ -169,10 +171,11 @@ export class FalAIService {
 
       const videoInput = {
         image_url: imageUrl,
-        prompt: prompt || "A cinematic scene with subtle movement and natural motion",
+        prompt:
+          prompt || "A cinematic scene with subtle movement and natural motion",
         num_frames: 121,
         fps: 24,
-        resolution: "720p" as const,
+        resolution: "480p" as const,
         aspect_ratio: "9:16" as const,
         safety_checker: true,
       };

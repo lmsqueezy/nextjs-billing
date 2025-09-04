@@ -7,6 +7,7 @@ import { R2Storage } from "@/lib/r2-storage";
 import { parseStructuredOutput } from "@/lib/api-utils";
 import { TranscriptionService } from "@/lib/transcription-service";
 import { SpeechService } from "@/lib/speech-service";
+import { ConcurrencyLimiter } from "@/lib/concurrency-limiter";
 
 // MP3 frame header parsing utilities
 function getMP3Duration(buffer: Buffer): number | null {
@@ -210,9 +211,6 @@ The response will be structured as a JSON object with a "chunks" array containin
     const styleName = style || "dark and eerie";
 
     console.log(`[VideoGen] Using image style: ${imageStyle.name}`);
-    console.log(
-      `[VideoGen] Style system prompt: "${imageStyle.systemPrompt.substring(0, 100)}..."`,
-    );
 
     try {
       console.log(
@@ -284,11 +282,6 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
         `[VideoGen] Image prompt generation completed in ${duration}ms`,
       );
       console.log(`[VideoGen] Generated ${prompts.length} image prompts:`);
-      prompts.forEach((prompt, index) => {
-        console.log(
-          `[VideoGen] Prompt ${index}: "${prompt.substring(0, 80)}..."`,
-        );
-      });
 
       if (prompts.length !== chunks.length) {
         console.warn(
@@ -330,7 +323,7 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
       userId,
       projectId,
       segmentId,
-      index
+      index,
     );
 
     return {
@@ -500,32 +493,50 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
       };
     });
 
-    // Prepare audio generation requests
+    // Prepare audio generation requests with rate limiting for ElevenLabs
     console.log("[VideoGen] Preparing audio generation requests...");
-    const audioPromises = segments.map(async (segment, index) => {
-      console.log(
-        `[VideoGen] Starting audio generation for segment ${index}: "${segment.text}"`,
-      );
-      const result = await this.generateAudio(
-        segment.text,
-        voice,
-        userId,
-        projectId,
-        createdSegments[index].id,
-        index,
-      );
 
-      console.log(
-        `[VideoGen] Audio generation completed for segment ${index}, duration: ${result.duration}s`,
-      );
-      return {
-        index,
-        audioUrl: result.audioUrl,
-        duration: result.duration,
-        segmentId: createdSegments[index].id,
-        wordTimings: result.wordTimings,
+    const isElevenLabsVoice = SpeechService.isElevenLabsVoice(voice);
+    console.log(
+      `[VideoGen] Voice "${voice}" is ${isElevenLabsVoice ? "ElevenLabs" : "OpenAI"} voice`,
+    );
+
+    // Create audio generation tasks
+    const audioTasks = segments.map((segment, index) => {
+      return async () => {
+        console.log(
+          `[VideoGen] Starting audio generation for segment ${index}: "${segment.text}"`,
+        );
+        const result = await this.generateAudio(
+          segment.text,
+          voice,
+          userId,
+          projectId,
+          createdSegments[index].id,
+          index,
+        );
+
+        console.log(
+          `[VideoGen] Audio generation completed for segment ${index}, duration: ${result.duration}s`,
+        );
+        return {
+          index,
+          audioUrl: result.audioUrl,
+          duration: result.duration,
+          segmentId: createdSegments[index].id,
+          wordTimings: result.wordTimings,
+        };
       };
     });
+
+    // Apply rate limiting for ElevenLabs, unlimited for OpenAI
+    const audioGenerationPromise = isElevenLabsVoice
+      ? ConcurrencyLimiter.limitConcurrency(audioTasks, 3)
+      : Promise.all(audioTasks.map((task) => task()));
+
+    console.log(
+      `[VideoGen] Audio generation will use ${isElevenLabsVoice ? "rate-limited (3 concurrent)" : "unlimited concurrent"} execution`,
+    );
 
     // Generate images
     console.log("[VideoGen] Preparing image generation promises...");
@@ -563,7 +574,7 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
     try {
       const [imageResults, audioResults] = await Promise.all([
         Promise.all(imageGenerationPromises),
-        Promise.all(audioPromises),
+        audioGenerationPromise,
       ]);
 
       const parallelDuration = Date.now() - parallelStartTime;
@@ -840,7 +851,7 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
       userId,
       projectId,
       segmentId,
-      index
+      index,
     );
 
     return {

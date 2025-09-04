@@ -190,9 +190,6 @@ export async function POST(request: NextRequest) {
       // Process images sequentially with detailed logging
       for (let i = 0; i < body.prompts.length; i++) {
         const promptData = body.prompts[i];
-        console.log(
-          `[API:GenerateImages] ${requestId} - Processing image ${i + 1}/${body.prompts.length}: "${promptData.prompt.substring(0, 60)}..."`,
-        );
 
         const imageStartTime = Date.now();
         try {
