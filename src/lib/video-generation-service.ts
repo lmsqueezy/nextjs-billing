@@ -932,6 +932,167 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
   }
 
   /**
+   * Generate video from image (for image-to-video conversion use cases)
+   */
+  static async generateVideoFromImage(
+    imageUrl: string,
+    prompt?: string,
+    userId?: string,
+    projectId?: string,
+    segmentId?: string,
+    index: number = 0,
+  ): Promise<{
+    success: boolean;
+    videoUrl?: string;
+    error?: string;
+    imageUrl: string;
+  }> {
+    const startTime = Date.now();
+    console.log(
+      `[VideoGen] Starting image-to-video conversion for segment ${index}`,
+    );
+    console.log(`[VideoGen] Source image URL: ${imageUrl}`);
+    console.log(`[VideoGen] Motion prompt: ${prompt || "default motion"}`);
+
+    try {
+      // Use FalAI service to generate video from image
+      const falAIResult = await FalAIService.generateVideo(imageUrl, prompt);
+
+      if (falAIResult.success && falAIResult.videoUrl) {
+        console.log(
+          `[VideoGen] Video generation successful for segment ${index}`,
+        );
+
+        // If we have the necessary parameters, store the video in R2 and create database record
+        if (userId && projectId && segmentId) {
+          try {
+            console.log(
+              `[VideoGen] Downloading and storing video for segment ${index}...`,
+            );
+
+            // Download the video from FalAI
+            const videoResponse = await fetch(falAIResult.videoUrl);
+            if (!videoResponse.ok) {
+              throw new Error(
+                `Failed to download video: ${videoResponse.statusText}`,
+              );
+            }
+
+            const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
+
+            // Upload to R2 storage
+            const { key, url } = await R2Storage.uploadVideo(
+              videoBuffer,
+              userId,
+              projectId,
+              index,
+              segmentId,
+            );
+
+            console.log(
+              `[VideoGen] Video uploaded to R2 for segment ${index}: ${url}`,
+            );
+
+            // Create file record in database
+            await ProjectService.createFile({
+              projectId: projectId,
+              segmentId: segmentId,
+              fileType: "generated_video",
+              fileName: `video_${segmentId}_${Date.now()}.mp4`,
+              originalName: `segment_${index}_video.mp4`,
+              mimeType: "video/mp4",
+              fileSize: videoBuffer.length,
+              r2Key: key,
+              r2Url: url,
+              uploadStatus: "completed",
+              metadata: {
+                sourceImageUrl: imageUrl,
+                prompt: prompt || "default motion",
+                generatedAt: new Date().toISOString(),
+                model: "fal-ai/wan/v2.2-a14b/image-to-video",
+              },
+            });
+
+            const duration = Date.now() - startTime;
+            console.log(
+              `[VideoGen] Image-to-video conversion completed successfully in ${duration}ms for segment ${index}`,
+            );
+
+            return {
+              success: true,
+              videoUrl: url, // Return R2 URL
+              imageUrl,
+            };
+          } catch (uploadError) {
+            console.error(
+              `[VideoGen] Failed to upload video to R2 for segment ${index}:`,
+              uploadError,
+            );
+            // Fallback to original FalAI result if R2 upload fails
+            const duration = Date.now() - startTime;
+            console.log(
+              `[VideoGen] Falling back to FalAI URL after ${duration}ms for segment ${index}`,
+            );
+
+            return {
+              success: true,
+              videoUrl: falAIResult.videoUrl, // Return original FalAI URL
+              imageUrl,
+            };
+          }
+        } else {
+          // No storage parameters provided, return FalAI result directly
+          const duration = Date.now() - startTime;
+          console.log(
+            `[VideoGen] Image-to-video conversion completed in ${duration}ms (no R2 storage) for segment ${index}`,
+          );
+
+          return {
+            success: true,
+            videoUrl: falAIResult.videoUrl,
+            imageUrl,
+          };
+        }
+      } else {
+        const duration = Date.now() - startTime;
+        console.error(
+          `[VideoGen] Video generation failed after ${duration}ms for segment ${index}: ${falAIResult.error}`,
+        );
+
+        return {
+          success: false,
+          error: falAIResult.error || "Failed to generate video",
+          imageUrl,
+        };
+      }
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error(
+        `[VideoGen] Image-to-video conversion failed after ${duration}ms for segment ${index}:`,
+        error,
+      );
+      console.error(`[VideoGen] Error details:`, {
+        imageUrl,
+        prompt,
+        userId,
+        projectId,
+        segmentId,
+        index,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to convert image to video",
+        imageUrl,
+      };
+    }
+  }
+
+  /**
    * Utility function to determine which service to use based on model
    */
   private static isOpenAIModel(model?: string): boolean {

@@ -1,4 +1,4 @@
-import { Image, RefreshCw } from "lucide-react";
+import { Image, RefreshCw, Video, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageModelSelector } from "../../forms";
@@ -26,6 +26,7 @@ export function ImageEditTab({
   isRegenerating,
 }: ImageEditTabProps) {
   const hasChanges = imagePrompt !== segment.imagePrompt;
+  const hasVideo = !!segment.videoUrl;
 
   // Debug: Track when segment imageUrl changes
   useEffect(() => {
@@ -78,6 +79,19 @@ export function ImageEditTab({
               </div>
             </div>
           )}
+
+          {/* Video Impact Warning */}
+          {hasVideo && (
+            <div className="mt-3 rounded-lg bg-yellow-50 border border-yellow-200 p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-yellow-800">
+                  <div className="font-medium">Video Generated</div>
+                  <div>This image has been converted to video. Regenerating will require re-converting to video.</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -95,6 +109,7 @@ export function ImageEditTab({
           {hasChanges && (
             <div className="mt-1 text-xs text-blue-600">
               ⚡ Prompt modified - click "Regenerate Image" to apply changes
+              {hasVideo && <span className="text-yellow-600"> (will affect video)</span>}
             </div>
           )}
         </div>

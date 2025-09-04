@@ -54,6 +54,7 @@ export function useVideoEditor({
         withBlur: s.withBlur,
         backgroundMinimized: s.backgroundMinimized,
         wordTimings: s.wordTimings,
+        videoUrl: s.videoUrl,
         updatedAt: s.updatedAt,
       })),
     ),
@@ -122,6 +123,10 @@ export function useVideoEditor({
             updates.imageUrl !== undefined
               ? updates.imageUrl
               : currentSegment.imageUrl,
+          videoUrl:
+            updates.videoUrl !== undefined
+              ? updates.videoUrl
+              : currentSegment.videoUrl,
           order:
             updates.order !== undefined ? updates.order : currentSegment.order,
         };

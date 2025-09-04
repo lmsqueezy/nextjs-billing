@@ -208,6 +208,7 @@ export const projectSegments = pgTable("projectSegment", {
   order: integer("order").notNull(),
   text: text("text").notNull(),
   imagePrompt: text("imagePrompt").notNull(),
+  videoPrompt: text("videoPrompt"),
   duration: real("duration"), // in seconds - supports decimal values
   audioVolume: real("audioVolume").default(1.0),
   playBackRate: real("playBackRate").default(1.0),
@@ -217,6 +218,7 @@ export const projectSegments = pgTable("projectSegment", {
   // Direct URL references for easier access
   imageUrl: text("imageUrl"),
   audioUrl: text("audioUrl"),
+  videoUrl: text("videoUrl"),
   // Additional segment properties from mock data
   media: jsonb("media").default([]),
   elements: jsonb("elements").default([]),

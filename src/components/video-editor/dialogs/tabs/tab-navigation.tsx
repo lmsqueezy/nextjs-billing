@@ -1,6 +1,6 @@
-import { Image, Mic } from "lucide-react";
+import { Image, Film, Mic } from "lucide-react";
 
-type EditMode = "image" | "script";
+type EditMode = "image" | "video" | "script";
 
 interface TabNavigationProps {
   activeTab: EditMode;
@@ -20,6 +20,17 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
       >
         <Image className="h-4 w-4" />
         Image
+      </button>
+      <button
+        onClick={() => onTabChange("video")}
+        className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          activeTab === "video"
+            ? "bg-white text-blue-600 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+        }`}
+      >
+        <Film className="h-4 w-4" />
+        Video
       </button>
       <button
         onClick={() => onTabChange("script")}

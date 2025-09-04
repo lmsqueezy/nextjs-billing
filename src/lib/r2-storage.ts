@@ -153,6 +153,39 @@ export class R2Storage {
   }
 
   /**
+   * Upload a video buffer with organized folder structure
+   */
+  static async uploadVideo(
+    buffer: Buffer, 
+    userId: string, 
+    projectId: string, 
+    index: number,
+    segmentId?: string
+  ): Promise<{key: string, url: string}> {
+    try {
+      // Generate unique filename
+      const fileId = uuidv4();
+      const timestamp = Date.now();
+      const filename = `video_${index}_${timestamp}.mp4`;
+      
+      // Create organized folder structure: /{userId}/{projectId}/{segmentId?}/video/
+      const folderPath = segmentId 
+        ? `${userId}/${projectId}/${segmentId}/video`
+        : `${userId}/${projectId}/video`;
+      
+      const key = `${folderPath}/${filename}`;
+      const contentType = 'video/mp4';
+      
+      const url = await this.uploadFile(buffer, key, contentType);
+      
+      return { key, url };
+    } catch (error) {
+      console.error('Error uploading video to R2:', error);
+      throw new Error('Failed to upload video to R2 storage');
+    }
+  }
+
+  /**
    * Delete a file from R2 storage
    */
   static async deleteFile(key: string): Promise<void> {

@@ -76,8 +76,10 @@ interface VideoSegment {
   _id?: string; // Legacy format - keep for backward compatibility
   text: string;
   imagePrompt: string;
+  videoPrompt?: string;
   imageUrl?: string; // Made optional since it might come from files array
   audioUrl?: string; // Made optional since it might come from files array
+  videoUrl?: string; // URL for generated video from image-to-video conversion
   audioVolume: number;
   playBackRate: number;
   duration: number;

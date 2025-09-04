@@ -7,9 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { TabNavigation, ImageEditTab, ScriptEditTab } from "./tabs";
+import { TabNavigation, ImageEditTab, VideoEditTab, ScriptEditTab } from "./tabs";
 
-type EditMode = "image" | "script";
+type EditMode = "image" | "video" | "script";
 
 interface EditSegmentDialogProps {
   isOpen: boolean;
@@ -28,6 +28,8 @@ interface EditSegmentDialogProps {
   ) => Promise<void>;
   onSegmentUpdate?: (index: number, updatedSegment: VideoSegment) => void;
   isRegenerating: boolean;
+  onConvertToVideo?: (index: number, prompt: string) => Promise<void>;
+  isConverting?: boolean;
   asContent?: boolean; // When true, returns only DialogContent without Dialog wrapper
 }
 
@@ -40,6 +42,8 @@ export function EditSegmentDialog({
   onRegenerateAudio,
   onSegmentUpdate,
   isRegenerating,
+  onConvertToVideo,
+  isConverting = false,
   asContent = false,
 }: EditSegmentDialogProps) {
   const [activeTab, setActiveTab] = useState<EditMode>("image");
@@ -47,6 +51,7 @@ export function EditSegmentDialog({
   const [imageModel, setImageModel] = useState("flux-schnell");
   const [script, setScript] = useState("");
   const [voice, setVoice] = useState("echo");
+  const [videoPrompt, setVideoPrompt] = useState("A cinematic scene with subtle movement and natural motion");
 
   // Debug: Log the props - this will show if the component is re-rendering
 
@@ -70,6 +75,8 @@ export function EditSegmentDialog({
       setScript(segment.text);
       setImageModel("flux-schnell");
       setVoice("echo");
+      // Use stored video prompt or default
+      setVideoPrompt(segment.videoPrompt || "A cinematic scene with subtle movement and natural motion");
     }
   }, [segment]);
 
@@ -79,6 +86,12 @@ export function EditSegmentDialog({
 
   const handleRegenerateAudio = () => {
     void onRegenerateAudio(segmentIndex, script, voice);
+  };
+
+  const handleConvertToVideo = () => {
+    if (onConvertToVideo) {
+      void onConvertToVideo(segmentIndex, videoPrompt);
+    }
   };
 
   const handleImagePromptChange = (newPrompt: string) => {
@@ -109,6 +122,7 @@ export function EditSegmentDialog({
         ...segment,
         text: script,
         imagePrompt: imagePrompt,
+        videoPrompt: videoPrompt,
       };
       onSegmentUpdate(segmentIndex, updatedSegment);
     }
@@ -132,6 +146,16 @@ export function EditSegmentDialog({
             onModelChange={setImageModel}
             onRegenerate={handleRegenerateImage}
             isRegenerating={isRegenerating}
+          />
+        )}
+
+        {activeTab === "video" && segment && (
+          <VideoEditTab
+            segment={segment}
+            videoPrompt={videoPrompt}
+            onPromptChange={setVideoPrompt}
+            onConvertToVideo={handleConvertToVideo}
+            isConverting={isConverting}
           />
         )}
 

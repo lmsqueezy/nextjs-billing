@@ -85,6 +85,7 @@ export class VideoProjectAdapter {
       const segmentFiles = segment.files || [];
       const imageFile = segmentFiles.find((file) => file.fileType === "image");
       const audioFile = segmentFiles.find((file) => file.fileType === "audio");
+      const videoFile = segmentFiles.find((file) => file.fileType === "generated_video");
 
       return {
         id: segment.id,
@@ -95,6 +96,8 @@ export class VideoProjectAdapter {
           imageFile?.r2Url || imageFile?.tempUrl || segment.imageUrl || "",
         audioUrl:
           audioFile?.r2Url || audioFile?.tempUrl || segment.audioUrl || "",
+        videoUrl:
+          videoFile?.r2Url || videoFile?.tempUrl || segment.videoUrl || "",
         audioVolume: segment.audioVolume,
         playBackRate: segment.playBackRate,
         duration: Math.max(1, segment.duration || 5), // Default to 5 seconds minimum
@@ -122,6 +125,7 @@ export class VideoProjectAdapter {
       );
       const imageFile = segmentFiles.find((file) => file.fileType === "image");
       const audioFile = segmentFiles.find((file) => file.fileType === "audio");
+      const videoFile = segmentFiles.find((file) => file.fileType === "generated_video");
 
       return {
         id: segment.id,
@@ -130,6 +134,7 @@ export class VideoProjectAdapter {
         imagePrompt: segment.imagePrompt,
         imageUrl: imageFile?.r2Url || imageFile?.tempUrl || "",
         audioUrl: audioFile?.r2Url || audioFile?.tempUrl || "",
+        videoUrl: videoFile?.r2Url || videoFile?.tempUrl || segment.videoUrl || "",
         audioVolume: segment.audioVolume,
         playBackRate: segment.playBackRate,
         duration: Math.max(1, segment.duration || 5), // Default to 5 seconds minimum

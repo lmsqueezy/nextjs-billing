@@ -15,6 +15,7 @@ const CreateSegmentSchema = z.object({
   order: z.number().int().nonnegative(),
   text: z.string().min(1, 'Text is required'),
   imagePrompt: z.string().min(1, 'Image prompt is required'),
+  videoPrompt: z.string().optional(),
   duration: z.number().positive().optional(),
   audioVolume: z.number().min(0).max(2).optional(),
   playBackRate: z.number().min(0.5).max(2).optional(),

@@ -44,6 +44,7 @@ interface VideoEditorState {
   operations: {
     isRegenerating: number | null;
     isGeneratingSegment: boolean;
+    isConverting: number | null;
     isExporting: boolean;
     exportProgress: string;
   };
@@ -108,6 +109,7 @@ interface VideoEditorActions {
     voice: string,
     imageModel: string,
   ) => Promise<void>;
+  convertToVideo: (index: number, prompt?: string) => Promise<void>;
 
   // Sidebar Actions (from useSegmentOperations)
   openEditSidebar: (segment: VideoSegment, index: number) => void;
@@ -221,6 +223,7 @@ export function VideoEditorProvider({
 
   // Operation states
   const [isGeneratingSegment, setIsGeneratingSegment] = useState(false);
+  const [isConverting, setIsConverting] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState("");
 
@@ -340,6 +343,62 @@ export function VideoEditorProvider({
     [segmentOperations.handleGenerateNewFrame],
   );
 
+  // Image-to-video conversion action
+  const convertToVideo = useCallback(
+    async (index: number, prompt?: string) => {
+      const segment = videoEditor.video?.segments?.[index];
+      if (!segment?.imageUrl || isConverting !== null) return;
+
+      setIsConverting(index);
+      console.log(`[VideoEditorProvider] Starting image-to-video conversion for segment ${index}`);
+
+      try {
+        const response = await fetch("/api/image-to-video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageUrl: segment.imageUrl,
+            prompt: prompt || "A cinematic scene with subtle movement and natural motion",
+            projectId,
+            segmentId: segment.id,
+            index,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Video conversion failed");
+        }
+
+        const result = await response.json();
+        console.log(`[VideoEditorProvider] Video conversion successful for segment ${index}:`, result.videoUrl);
+
+        // Update the segment with the generated video URL and prompt
+        await updateSegment(index, { 
+          videoUrl: result.videoUrl,
+          videoPrompt: prompt || "A cinematic scene with subtle movement and natural motion"
+        });
+
+        console.log(`[VideoEditorProvider] Segment ${index} updated with video URL`);
+        
+        // Show success notification
+        const { toast } = await import("sonner");
+        toast.success("Image converted to video successfully!");
+      } catch (error) {
+        console.error(`[VideoEditorProvider] Video conversion failed for segment ${index}:`, error);
+        
+        // Show error notification
+        const { toast } = await import("sonner");
+        toast.error("Failed to convert image to video. Please try again.");
+        
+        throw error;
+      } finally {
+        setIsConverting(null);
+      }
+    },
+    [videoEditor.video?.segments, isConverting, projectId, updateSegment],
+  );
+
   // Segment insertion wrapper
   const insertSegment = useCallback(
     async (afterIndex: number, segment: VideoSegment) => {
@@ -380,6 +439,7 @@ export function VideoEditorProvider({
     operations: {
       isRegenerating: segmentOperations.isRegenerating,
       isGeneratingSegment,
+      isConverting,
       isExporting,
       exportProgress,
     },
@@ -415,6 +475,7 @@ export function VideoEditorProvider({
       regenerateImage: segmentOperations.handleRegenerateImage,
       regenerateAudio: segmentOperations.handleRegenerateAudio,
       generateNewSegment,
+      convertToVideo,
 
       // Sidebar Actions
       openEditSidebar: (segment: VideoSegment, index: number) =>
@@ -502,6 +563,7 @@ export function useVideoEditorOperations() {
     regenerateImage: actions.regenerateImage,
     regenerateAudio: actions.regenerateAudio,
     generateNewSegment: actions.generateNewSegment,
+    convertToVideo: actions.convertToVideo,
     uploadSegmentFile: actions.uploadSegmentFile,
     uploadBase64File: actions.uploadBase64File,
     refreshVideo: actions.refreshVideo,

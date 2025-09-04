@@ -88,16 +88,18 @@ const SegmentComponent: React.FC<SegmentComponentProps> = ({
   return (
     <Sequence from={startFrame} durationInFrames={segmentFrames}>
       <AbsoluteFill>
-        {/* Background Video/Image */}
-        {segment.imageUrl && (
+        {/* Background Video/Image - prioritize generated video over image */}
+        {segment.videoUrl ? (
+          <MediaElement src={segment.videoUrl} scaleEffect={scaleEffect} />
+        ) : segment.imageUrl ? (
           <MediaElement src={segment.imageUrl} scaleEffect={scaleEffect} />
-        )}
+        ) : null}
         {segment.audioUrl && (
           <Audio src={segment.audioUrl} volume={segment.audioVolume} />
         )}
 
-        {/* Media from files array if no imageUrl */}
-        {!segment.imageUrl && segment.files && segment.files.length > 0 && (
+        {/* Media from files array if no videoUrl or imageUrl */}
+        {!segment.videoUrl && !segment.imageUrl && segment.files && segment.files.length > 0 && (
           <MediaElement
             src={
               segment.files.find(
@@ -128,7 +130,8 @@ const SegmentComponent: React.FC<SegmentComponentProps> = ({
         )}
 
         {/* Fallback gradient background if no media */}
-        {!segment.imageUrl &&
+        {!segment.videoUrl &&
+          !segment.imageUrl &&
           (!segment.files ||
             segment.files.length === 0 ||
             !segment.files.find(

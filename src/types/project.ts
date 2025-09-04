@@ -41,6 +41,7 @@ export interface ProjectSegment {
   order: number;
   text: string;
   imagePrompt: string;
+  videoPrompt?: string;
   duration?: number; // in seconds
   audioVolume: number;
   playBackRate: number;
@@ -50,6 +51,7 @@ export interface ProjectSegment {
   // Direct URL references for easier access
   imageUrl?: string;
   audioUrl?: string;
+  videoUrl?: string;
   // Additional segment properties
   media?: any[];
   elements?: any[];
@@ -65,7 +67,7 @@ export interface ProjectFile {
   id: string;
   projectId: string;
   segmentId?: string;
-  fileType: "image" | "video" | "audio" | "overlay";
+  fileType: 'image' | 'video' | 'audio' | 'overlay' | 'generated_video';
   fileName: string;
   originalName: string;
   mimeType: string;
@@ -170,6 +172,7 @@ export interface CreateSegmentData {
   order: number;
   text: string;
   imagePrompt: string;
+  videoPrompt?: string;
   duration?: number;
   audioVolume?: number;
   playBackRate?: number;
@@ -182,6 +185,7 @@ export interface UpdateSegmentData {
   order?: number;
   text?: string;
   imagePrompt?: string;
+  videoPrompt?: string;
   duration?: number;
   audioVolume?: number;
   playBackRate?: number;

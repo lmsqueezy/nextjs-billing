@@ -22,6 +22,7 @@ const UpdateSegmentSchema = z.object({
   order: z.number().int().nonnegative().optional(),
   text: z.string().min(1, "Text is required").optional(),
   imagePrompt: z.string().min(1, "Image prompt is required").optional(),
+  videoPrompt: z.string().optional(),
   duration: z.number().positive().optional(),
   audioVolume: z.number().min(0).max(2).optional(),
   playBackRate: z.number().min(0.5).max(2).optional(),
@@ -30,6 +31,7 @@ const UpdateSegmentSchema = z.object({
   wordTimings: z.array(WordTimingSchema).optional(),
   imageUrl: z.string().optional(),
   audioUrl: z.string().optional(),
+  videoUrl: z.string().optional(),
 });
 
 type UpdateSegmentRequest = z.infer<typeof UpdateSegmentSchema>;

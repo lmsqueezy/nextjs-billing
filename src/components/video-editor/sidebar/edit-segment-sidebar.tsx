@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import type { VideoSegment } from "@/types/video";
 import { Button } from "@/components/ui/button";
-import { TabNavigation, ImageEditTab, ScriptEditTab } from "../dialogs/tabs";
+import { TabNavigation, ImageEditTab, VideoEditTab, ScriptEditTab } from "../dialogs/tabs";
 
-type EditMode = "image" | "script";
+type EditMode = "image" | "video" | "script";
 
 interface EditSegmentSidebarProps {
   segment: VideoSegment;
@@ -18,8 +18,10 @@ interface EditSegmentSidebarProps {
     script: string,
     voice: string,
   ) => Promise<void>;
+  onConvertToVideo?: (index: number, prompt?: string) => Promise<void>;
   onSegmentUpdate?: (index: number, updatedSegment: VideoSegment) => void;
   isRegenerating: boolean;
+  isConverting?: boolean;
   onClose: () => void;
 }
 
@@ -28,8 +30,10 @@ export function EditSegmentSidebar({
   segmentIndex,
   onRegenerateImage,
   onRegenerateAudio,
+  onConvertToVideo,
   onSegmentUpdate,
   isRegenerating,
+  isConverting = false,
   onClose,
 }: EditSegmentSidebarProps) {
   const [activeTab, setActiveTab] = useState<EditMode>("image");
@@ -37,6 +41,7 @@ export function EditSegmentSidebar({
   const [imageModel, setImageModel] = useState("flux-schnell");
   const [script, setScript] = useState("");
   const [voice, setVoice] = useState("echo");
+  const [videoPrompt, setVideoPrompt] = useState("A cinematic scene with subtle movement and natural motion");
 
   // Debug: Log the props - this will show if the component is re-rendering
   useEffect(() => {
@@ -59,6 +64,8 @@ export function EditSegmentSidebar({
       setScript(segment.text);
       setImageModel("flux-schnell");
       setVoice("echo");
+      // Use stored video prompt or default
+      setVideoPrompt(segment.videoPrompt || "A cinematic scene with subtle movement and natural motion");
     }
   }, [segment]);
 
@@ -68,6 +75,12 @@ export function EditSegmentSidebar({
 
   const handleRegenerateAudio = () => {
     void onRegenerateAudio(segmentIndex, script, voice);
+  };
+
+  const handleConvertToVideo = () => {
+    if (onConvertToVideo) {
+      void onConvertToVideo(segmentIndex, videoPrompt);
+    }
   };
 
   const handleImagePromptChange = (newPrompt: string) => {
@@ -98,6 +111,7 @@ export function EditSegmentSidebar({
         ...segment,
         text: script,
         imagePrompt: imagePrompt,
+        videoPrompt: videoPrompt,
       };
       onSegmentUpdate(segmentIndex, updatedSegment);
     }
@@ -119,6 +133,16 @@ export function EditSegmentSidebar({
             onModelChange={setImageModel}
             onRegenerate={handleRegenerateImage}
             isRegenerating={isRegenerating}
+          />
+        )}
+
+        {activeTab === "video" && (
+          <VideoEditTab
+            segment={segment}
+            videoPrompt={videoPrompt}
+            onPromptChange={setVideoPrompt}
+            onConvertToVideo={handleConvertToVideo}
+            isConverting={isConverting}
           />
         )}
 

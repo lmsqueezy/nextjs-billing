@@ -31,9 +31,11 @@ export function VideoEditorSidebar({
   const {
     isRegenerating,
     isGeneratingSegment,
+    isConverting,
     regenerateImage,
     regenerateAudio,
     generateNewSegment,
+    convertToVideo,
     updateSegment,
   } = useVideoEditorOperations();
   if (!isOpen) return null;
@@ -72,8 +74,10 @@ export function VideoEditorSidebar({
               segmentIndex={selectedSegmentIndex}
               onRegenerateImage={regenerateImage}
               onRegenerateAudio={regenerateAudio}
+              onConvertToVideo={convertToVideo}
               onSegmentUpdate={updateSegment}
               isRegenerating={isRegenerating !== null}
+              isConverting={isConverting === selectedSegmentIndex}
               onClose={closeSidebar}
             />
           )}
