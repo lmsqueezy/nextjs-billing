@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       serveUrl,
       composition: "VideoComposition",
       inputProps: {
-        video: videoData,
+        project: videoData,
       },
       codec: "h264",
       imageFormat: "jpeg",
