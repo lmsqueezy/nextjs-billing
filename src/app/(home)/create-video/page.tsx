@@ -331,9 +331,7 @@ const CreateVideoPage = () => {
 
             {/* Choose Image Model */}
             <div className="space-y-4">
-              <label className="text-sm font-medium">
-                Choose image model
-              </label>
+              <label className="text-sm font-medium">Choose image model</label>
               <div className="text-sm text-muted-foreground">
                 Select the AI model that will generate your images
               </div>
@@ -400,7 +398,7 @@ const CreateVideoPage = () => {
                 <Sparkles className="mr-2 h-4 w-4" />
                 {isGenerating ? "Generating..." : "Generate Video"}
                 <span className="ml-auto text-sm opacity-80">
-                  Estimated cost: 0 credits
+                  Estimated cost: 100 credits
                 </span>
               </Button>
             </div>

@@ -8,6 +8,7 @@ import { parseStructuredOutput } from "@/lib/api-utils";
 import { TranscriptionService } from "@/lib/transcription-service";
 import { SpeechService } from "@/lib/speech-service";
 import { ConcurrencyLimiter } from "@/lib/concurrency-limiter";
+import { logger, createProjectContext, withTiming } from "@/lib/logger";
 
 // MP3 frame header parsing utilities
 function getMP3Duration(buffer: Buffer): number | null {
@@ -628,24 +629,32 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
     const pipelineStartTime = Date.now();
     const { script, styleId, imageModel, voice } = params;
 
-    console.log(`[VideoGen] Starting complete video generation pipeline`);
-    console.log(`[VideoGen] Project: ${projectId}, User: ${userId}`);
-    console.log(`[VideoGen] Parameters:`, {
+    const context = createProjectContext(userId, projectId, {
       styleId,
       imageModel,
       voice,
+      scriptLength: script.length
+    });
+
+    logger.videoGeneration('pipeline-start', projectId, undefined, {
+      ...context,
       scriptLength: script.length,
+      styleId,
+      imageModel,
+      voice
     });
 
     try {
       // Step 1: Break script into chunks
-      console.log("[VideoGen] === STEP 1: Script Segmentation ===");
+      logger.videoGeneration('script-segmentation-start', projectId, undefined, context);
       const step1Start = Date.now();
       const chunks = await this.breakScriptIntoChunks(script);
       const step1Duration = Date.now() - step1Start;
-      console.log(
-        `[VideoGen] Step 1 completed in ${step1Duration}ms - Generated ${chunks.length} segments`,
-      );
+      logger.videoGeneration('script-segmentation-complete', projectId, undefined, {
+        ...context,
+        segmentCount: chunks.length,
+        duration: step1Duration
+      });
 
       // Step 2: Generate image prompts
       console.log("[VideoGen] === STEP 2: Image Prompt Generation ===");
@@ -798,16 +807,11 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
       console.log(`[VideoGen]   - Project finalization: ${step6Duration}ms`);
     } catch (error) {
       const pipelineDuration = Date.now() - pipelineStartTime;
-      console.error(`[VideoGen] === PIPELINE FAILED ===`);
-      console.error(
-        `[VideoGen] Pipeline failed after ${pipelineDuration}ms:`,
-        error,
-      );
-      console.error(`[VideoGen] Error details:`, {
-        projectId,
-        userId,
+      logger.videoGenerationError('pipeline-failed', projectId, error as Error, {
+        ...context,
+        pipelineDuration,
         params,
-        error: error instanceof Error ? error.message : "Unknown error",
+        errorMessage: error instanceof Error ? error.message : "Unknown error"
       });
 
       // Update project status to failed
@@ -815,12 +819,9 @@ Return a JSON object with "prompts" array containing one detailed prompt for eac
         await ProjectService.updateProject(projectId, userId, {
           status: "failed",
         });
-        console.log(`[VideoGen] Project status updated to 'failed'`);
+        logger.info('Project status updated to failed', { ...context, status: 'failed' });
       } catch (updateError) {
-        console.error(
-          `[VideoGen] Failed to update project status to 'failed':`,
-          updateError,
-        );
+        logger.error('Failed to update project status to failed', updateError as Error, context);
       }
 
       throw error;

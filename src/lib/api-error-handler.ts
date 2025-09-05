@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
 import { AuthError, ProjectAccessError, FileUploadError, ValidationError } from './auth-utils';
+import { logger, createContext } from './logger';
 
 /**
  * Centralized API error handler
  * Converts various error types to appropriate HTTP responses
  */
-export function handleApiError(error: unknown, context?: string): NextResponse {
-  // Log the error for debugging
-  if (context) {
-    console.error(`${context} error:`, error);
+export function handleApiError(error: unknown, context?: string, logContext?: Record<string, any>): NextResponse {
+  // Enhanced error logging
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  const contextMessage = context ? `${context}` : 'API operation';
+  
+  if (error instanceof Error) {
+    logger.error(`${contextMessage} failed: ${errorMessage}`, error, createContext(logContext));
   } else {
-    console.error('API error:', error);
+    logger.error(`${contextMessage} failed with unknown error`, undefined, createContext({ 
+      ...logContext, 
+      errorType: typeof error,
+      errorValue: String(error)
+    }));
   }
 
   // Handle specific error types
@@ -140,16 +148,26 @@ export function handleApiError(error: unknown, context?: string): NextResponse {
 }
 
 /**
- * Async wrapper for API route handlers with built-in error handling
+ * Async wrapper for API route handlers with built-in error handling and logging
  */
 export function withErrorHandler<T extends any[], R>(
-  handler: (...args: T) => Promise<NextResponse>
+  handler: (...args: T) => Promise<NextResponse>,
+  operationName?: string
 ) {
   return async (...args: T): Promise<NextResponse> => {
+    const startTime = Date.now();
+    const operation = operationName || handler.name || 'API Handler';
+    
     try {
-      return await handler(...args);
+      logger.serviceCall('API', operation);
+      const response = await handler(...args);
+      const duration = Date.now() - startTime;
+      logger.serviceSuccess('API', operation, duration);
+      return response;
     } catch (error) {
-      return handleApiError(error);
+      const duration = Date.now() - startTime;
+      logger.serviceError('API', operation, error as Error, { duration });
+      return handleApiError(error, operation);
     }
   };
 }
@@ -197,8 +215,14 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
 export function createSuccessResponse<T>(
   data: T,
   message?: string,
-  status: number = 200
+  status: number = 200,
+  logContext?: Record<string, any>
 ): NextResponse {
+  // Log successful response
+  if (logContext?.operation) {
+    logger.info(`API ${logContext.operation} successful`, createContext(logContext));
+  }
+
   const response = NextResponse.json(
     {
       success: true,

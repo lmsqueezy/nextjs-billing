@@ -5,6 +5,7 @@ import { getScriptStyle } from "@/lib/script-config";
 import { R2Storage } from "@/lib/r2-storage";
 import { ProjectService } from "@/lib/project-service";
 import { FileUtils } from "@/lib/file-utils";
+import { logger, createContext, withTiming } from "@/lib/logger";
 
 interface OpenAIScriptResponse {
   script: string;
@@ -60,54 +61,82 @@ export class OpenAIService {
     script?: string;
     error?: string;
   }> {
-    try {
-      const provider = this.getOpenAIProvider();
-      const style = getScriptStyle(scriptStyleId);
+    const context = createContext({
+      service: 'OpenAI',
+      operation: 'generateScript',
+      scriptStyleId,
+      duration,
+      promptLength: userPrompt.length
+    });
 
-      if (!style) {
-        return { success: false, error: "Invalid script style" };
-      }
+    return withTiming('OpenAI.generateScript', async () => {
+      try {
+        logger.aiRequest('OpenAI', 'text-generation', 'script-generation', context);
+        
+        const provider = this.getOpenAIProvider();
+        const style = getScriptStyle(scriptStyleId);
 
-      // Build the system prompt using the style's system prompt and duration guidance
-      const systemPrompt = this.buildSystemPromptFromConfig(
-        style.systemPrompt,
-        duration,
-      );
+        if (!style) {
+          logger.warn('Invalid script style requested', { ...context, scriptStyleId });
+          return { success: false, error: "Invalid script style" };
+        }
 
-      // Build the user prompt with context
-      const contextualPrompt = this.buildUserPrompt(
-        userPrompt,
-        style.name,
-        duration,
-      );
+        logger.debug('Building prompts for script generation', {
+          ...context,
+          styleName: style.name,
+          model: style.model
+        });
 
-      const { text: script } = await generateText({
-        model: provider(style.model),
-        system: systemPrompt,
-        prompt: contextualPrompt,
-        maxOutputTokens: 1000,
-        temperature: 0.8,
-      });
+        // Build the system prompt using the style's system prompt and duration guidance
+        const systemPrompt = this.buildSystemPromptFromConfig(
+          style.systemPrompt,
+          duration,
+        );
 
-      if (!script) {
+        // Build the user prompt with context
+        const contextualPrompt = this.buildUserPrompt(
+          userPrompt,
+          style.name,
+          duration,
+        );
+
+        const startTime = Date.now();
+        const { text: script } = await generateText({
+          model: provider(style.model),
+          system: systemPrompt,
+          prompt: contextualPrompt,
+          maxOutputTokens: 1000,
+          temperature: 0.8,
+        });
+        const aiDuration = Date.now() - startTime;
+
+        if (!script) {
+          logger.error('OpenAI returned empty script', undefined, context);
+          return {
+            success: false,
+            error: "No script generated from OpenAI",
+          };
+        }
+
+        logger.aiResponse('OpenAI', style.model, 'script-generation', aiDuration, {
+          ...context,
+          scriptLength: script.length,
+          success: true
+        });
+
+        return {
+          success: true,
+          script,
+        };
+      } catch (error) {
+        const aiError = error as Error;
+        logger.aiError('OpenAI', 'text-generation', 'script-generation', aiError, context);
         return {
           success: false,
-          error: "No script generated from OpenAI",
+          error: aiError.message || "Failed to generate script",
         };
       }
-
-      return {
-        success: true,
-        script,
-      };
-    } catch (error) {
-      console.error("Error generating script with OpenAI:", error);
-      return {
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to generate script",
-      };
-    }
+    }, context);
   }
 
   private static buildSystemPromptFromConfig(
@@ -160,8 +189,22 @@ Make it viral-worthy, engaging, and perfectly timed for the specified duration. 
     fileRecord?: any;
     error?: string;
   }> {
-    try {
-      const client = this.getClient();
+    const context = createContext({
+      service: 'OpenAI',
+      operation: 'generateImage',
+      userId,
+      projectId,
+      segmentId,
+      promptLength: prompt.length,
+      aspectRatio,
+      storeInR2
+    });
+
+    return withTiming('OpenAI.generateImage', async () => {
+      try {
+        logger.aiRequest('OpenAI', 'gpt-image-1', 'image-generation', context);
+        
+        const client = this.getClient();
 
       // Build the enhanced prompt with style if provided
       const enhancedPrompt = style
@@ -206,21 +249,36 @@ Make it viral-worthy, engaging, and perfectly timed for the specified duration. 
         }
       }
 
+      logger.debug('Generating image with OpenAI', {
+        ...context,
+        enhancedPromptLength: enhancedPrompt.length,
+        size: size
+      });
+
+      const startTime = Date.now();
       const response = await client.images.generate({
         model: "gpt-image-1",
         prompt: enhancedPrompt,
-        size: "1024x1024", // Use the calculated size variable
+        size: size, // Use the calculated size variable
         quality: "low",
       });
+      const aiDuration = Date.now() - startTime;
 
       const imageData = response.data?.[0];
 
       if (!imageData) {
+        logger.error('OpenAI returned no image data', undefined, context);
         return {
           success: false,
           error: "No image generated from OpenAI",
         };
       }
+
+      logger.aiResponse('OpenAI', 'gpt-image-1', 'image-generation', aiDuration, {
+        ...context,
+        hasUrl: !!imageData.url,
+        hasB64: !!imageData.b64_json
+      });
 
       // Handle both URL and base64 response formats
       let imageUrl: string;
@@ -238,6 +296,7 @@ Make it viral-worthy, engaging, and perfectly timed for the specified duration. 
 
       // Store in R2 if requested
       if (storeInR2 && userId && projectId) {
+        logger.debug('Storing generated image in R2', { ...context, imageUrl: !!imageUrl });
         try {
           let r2Key: string;
           let r2Url: string;
@@ -308,7 +367,10 @@ Make it viral-worthy, engaging, and perfectly timed for the specified duration. 
             fileRecord,
           };
         } catch (r2Error) {
-          console.error("Error storing image in R2:", r2Error);
+          logger.error("Error storing image in R2", r2Error as Error, {
+            ...context,
+            operation: 'r2-storage'
+          });
           // Return original image URL if R2 storage fails
           return {
             success: true,
@@ -322,14 +384,15 @@ Make it viral-worthy, engaging, and perfectly timed for the specified duration. 
         success: true,
         imageUrl,
       };
-    } catch (error) {
-      console.error("Error generating image with OpenAI:", error);
-      return {
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to generate image",
-      };
-    }
+      } catch (error) {
+        const aiError = error as Error;
+        logger.aiError('OpenAI', 'gpt-image-1', 'image-generation', aiError, context);
+        return {
+          success: false,
+          error: aiError.message || "Failed to generate image",
+        };
+      }
+    }, context);
   }
 
   static async editImage({

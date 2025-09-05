@@ -15,7 +15,7 @@ export const imageStyles: ImageStyle[] = [
       "Photorealistic POV images with dark, eerie atmosphere with direct flashlight",
     model: "fal-ai/flux/schnell", // Cheapest Flux model - Schnell is fastest/cheapest
     systemPrompt:
-      "A photorealistic POV image where the camera is looking into the dark room, camera direct flash light. The scene should be dark and atmospheric with dramatic shadows created by the harsh camera flash. The lighting creates stark contrasts between illuminated and dark areas, giving an eerie, unsettling mood. The image should not be overly dark; maintain enough illumination so that all aspects of the scene remain clearly visible.",
+      "A photorealistic POV image where the camera is looking into zone,  camera direct flash light. The scene should be dark and atmospheric with dramatic shadows created by the harsh camera flash. The lighting creates stark contrasts between illuminated and dark areas, giving an eerie, unsettling mood. The image should not be overly dark; maintain enough illumination so that all aspects of the scene remain clearly visible.",
     aspectRatio: "9:16", // Vertical aspect ratio for short videos
   },
   {
