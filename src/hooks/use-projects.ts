@@ -221,11 +221,13 @@ export function useUpdateSegment() {
       data: UpdateSegmentData;
     }) => ProjectClient.updateSegment(projectId, segmentId, data),
     onSuccess: (updatedSegment, { projectId, segmentId }) => {
-      // Update the project cache
+      // Update the project cache with a completely new object to ensure React re-renders
       queryClient.setQueryData<ProjectWithDetails | null>(
         projectQueryKeys.detail(projectId),
         (old) => {
           if (!old) return null;
+          
+          // Create a new segments array with updated segment
           const segments = old.segments?.map((segment) =>
             segment.id === segmentId
               ? {
@@ -234,14 +236,20 @@ export function useUpdateSegment() {
                   // Ensure updatedAt is always updated to trigger re-renders
                   updatedAt:
                     updatedSegment.updatedAt || new Date().toISOString(),
+                  // Force a new object reference to trigger React re-renders
+                  id: segment.id,
                 }
               : segment,
-          );
+          ) || [];
+          
+          // Return a completely new project object with new timestamp
           return {
             ...old,
             segments,
-            // Also update the project's updatedAt to ensure all dependencies are triggered
+            // Update the project's updatedAt to ensure all dependencies are triggered
             updatedAt: new Date().toISOString(),
+            // Force a new object reference to guarantee React re-renders
+            id: old.id,
           };
         },
       );

@@ -8,36 +8,37 @@ import {
   useCurrentFrame,
   Audio,
 } from "remotion";
-import type { VideoSegment, Video as VideoType } from "@/types/video";
+import type { ProjectSegment, ProjectWithDetails } from "@/types/project";
+import { ProjectFileUtils } from "@/lib/file-utils";
 import { SegmentCaption } from "./segment-caption";
 import { getCaptionStyle, shouldRenderCaptions } from "../../lib/caption-utils";
 
 interface VideoSegmentRendererProps {
   segmentsToRender: Array<{
-    segment: VideoSegment;
+    segment: ProjectSegment;
     originalIndex: number;
   }>;
   fps: number;
-  segments: VideoSegment[];
-  video: VideoType;
+  segments: ProjectSegment[];
+  project: ProjectWithDetails;
 }
 
 export const VideoSegmentRenderer: React.FC<VideoSegmentRendererProps> = ({
   segmentsToRender,
   fps,
   segments,
-  video,
+  project,
 }) => {
   return (
     <>
       {segmentsToRender?.map(({ segment, originalIndex }) => (
         <SegmentComponent
-          key={segment.id || segment._id}
+          key={segment.id}
           segment={segment}
           originalIndex={originalIndex}
           fps={fps}
           segments={segments}
-          video={video}
+          project={project}
         />
       ))}
     </>
@@ -45,11 +46,11 @@ export const VideoSegmentRenderer: React.FC<VideoSegmentRendererProps> = ({
 };
 
 interface SegmentComponentProps {
-  segment: VideoSegment;
+  segment: ProjectSegment;
   originalIndex: number;
   fps: number;
-  segments: VideoSegment[];
-  video: VideoType;
+  segments: ProjectSegment[];
+  project: ProjectWithDetails;
 }
 
 const SegmentComponent: React.FC<SegmentComponentProps> = ({
@@ -57,57 +58,63 @@ const SegmentComponent: React.FC<SegmentComponentProps> = ({
   originalIndex,
   fps,
   segments,
-  video,
+  project,
 }) => {
   const frame = useCurrentFrame();
 
   // Calculate frames for this segment
-  const segmentFrames = Math.round(segment.duration * fps);
+  const segmentFrames = Math.round((segment.duration || 5) * fps);
 
   const startFrame = segments
     .slice(0, originalIndex)
-    .reduce((acc, seg) => acc + Math.round(seg.duration * fps), 0);
+    .reduce((acc, seg) => acc + Math.round((seg.duration || 5) * fps), 0);
 
   // Create a smooth zoom-in transition over the segment duration
   const localFrame = frame - startFrame;
-  const scaleEffect = interpolate(
-    localFrame,
-    [0, segmentFrames],
-    [1, 1.1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      easing: (t) => t * t * (3 - 2 * t), // Smooth ease-in-out (smoothstep)
-    }
-  );
+  const scaleEffect = interpolate(localFrame, [0, segmentFrames], [1, 1.1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: (t) => t * t * (3 - 2 * t), // Smooth ease-in-out (smoothstep)
+  });
 
   // Get caption style and check if captions should be rendered
-  const captionStyle = getCaptionStyle(video);
-  const renderCaptions = shouldRenderCaptions(video);
+  const captionStyle = getCaptionStyle(project);
+  const renderCaptions = shouldRenderCaptions(project);
+
+  // Use file-based URL resolution
+  const videoUrl = ProjectFileUtils.getFileUrl(
+    ProjectFileUtils.getSegmentVideo(segment),
+  );
+  const imageUrl = ProjectFileUtils.getFileUrl(
+    ProjectFileUtils.getSegmentImage(segment),
+  );
+  const audioUrl = ProjectFileUtils.getFileUrl(
+    ProjectFileUtils.getSegmentAudio(segment),
+  );
+  console.log("thoufic ", { project, videoUrl, imageUrl, audioUrl });
 
   return (
     <Sequence from={startFrame} durationInFrames={segmentFrames}>
       <AbsoluteFill>
         {/* Background Video/Image - prioritize generated video over image */}
-        {segment.videoUrl ? (
+        {videoUrl ? (
+          <MediaElement src={videoUrl} scaleEffect={scaleEffect} />
+        ) : imageUrl ? (
+          <MediaElement src={imageUrl} scaleEffect={scaleEffect} />
+        ) : // Fallback to segment URLs if file-based resolution fails
+        segment.videoUrl ? (
           <MediaElement src={segment.videoUrl} scaleEffect={scaleEffect} />
         ) : segment.imageUrl ? (
           <MediaElement src={segment.imageUrl} scaleEffect={scaleEffect} />
-        ) : null}
-        {segment.audioUrl && (
-          <Audio src={segment.audioUrl} volume={segment.audioVolume} />
+        ) : (
+          <FallbackBackground />
         )}
 
-        {/* Media from files array if no videoUrl or imageUrl */}
-        {!segment.videoUrl && !segment.imageUrl && segment.files && segment.files.length > 0 && (
-          <MediaElement
-            src={
-              segment.files.find(
-                (file) =>
-                  file.fileType === "image" || file.fileType === "video",
-              )?.r2Url || ""
-            }
-            scaleEffect={scaleEffect}
+        {/* Audio - prioritize file-based URL */}
+        {(audioUrl || segment.audioUrl) && (
+          <Audio
+            src={audioUrl || segment.audioUrl}
+            volume={segment.audioVolume}
           />
         )}
 
@@ -129,17 +136,7 @@ const SegmentComponent: React.FC<SegmentComponentProps> = ({
           />
         )}
 
-        {/* Fallback gradient background if no media */}
-        {!segment.videoUrl &&
-          !segment.imageUrl &&
-          (!segment.files ||
-            segment.files.length === 0 ||
-            !segment.files.find(
-              (file) => file.fileType === "image" || file.fileType === "video",
-            )) && <FallbackBackground />}
-
         {/* Segment-specific captions */}
-
         <SegmentCaption
           segment={segment}
           captionStyle={captionStyle}

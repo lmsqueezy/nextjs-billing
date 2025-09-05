@@ -168,15 +168,15 @@ export function VideoPlayerPanel({ className }: VideoPlayerPanelProps) {
               ref={playerRef}
               component={VideoComposition}
               durationInFrames={totalFrames}
-              compositionWidth={video.format.width}
-              compositionHeight={video.format.height}
+              compositionWidth={video.format?.width || 1080}
+              compositionHeight={video.format?.height || 1920}
               fps={fps}
               style={{
                 width: "100%",
                 height: "100%",
               }}
               inputProps={{
-                video: video,
+                project: video,
               }}
               autoPlay={false}
               controls={true}

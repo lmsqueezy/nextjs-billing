@@ -2,7 +2,8 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "WebFetch(domain:docs.fal.ai)"
+      "WebFetch(domain:docs.fal.ai)",
+      "Bash(pnpm typecheck:*)"
     ],
     "deny": [],
     "ask": []

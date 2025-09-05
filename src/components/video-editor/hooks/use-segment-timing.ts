@@ -1,15 +1,15 @@
 import { useCurrentFrame, useVideoConfig } from "remotion";
-import type { Video } from "@/types/video";
+import type { ProjectWithDetails } from "@/types/project";
 
-export const useSegmentTiming = (video: Video) => {
+export const useSegmentTiming = (project: ProjectWithDetails) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const getCurrentSegmentAndTime = () => {
     let cumulativeFrames = 0;
 
-    for (const segment of video.segments) {
-      const segmentFrames = Math.round(segment.duration * fps);
+    for (const segment of project.segments) {
+      const segmentFrames = Math.round((segment.duration || 5) * fps);
       const segmentEndFrame = cumulativeFrames + segmentFrames;
 
       if (frame >= cumulativeFrames && frame < segmentEndFrame) {
@@ -22,11 +22,11 @@ export const useSegmentTiming = (video: Video) => {
     }
 
     // If frame is past all segments, return the last segment
-    const lastSegment = video.segments[video.segments.length - 1];
-    const lastSegmentFrames = Math.round(lastSegment?.duration * fps);
+    const lastSegment = project.segments[project.segments.length - 1];
+    const lastSegmentFrames = Math.round((lastSegment?.duration || 5) * fps);
     return {
       segment: lastSegment,
-      relativeTime: lastSegment?.duration,
+      relativeTime: lastSegment?.duration || 5,
       cumulativeFrames: cumulativeFrames - lastSegmentFrames,
       segmentFrames: lastSegmentFrames,
     };
@@ -35,26 +35,26 @@ export const useSegmentTiming = (video: Video) => {
   const getSegmentsToRender = () => {
     const currentSegmentIndex = (() => {
       let cumulativeFrames = 0;
-      for (let i = 0; i < video?.segments.length; i++) {
-        const segmentFrames = Math.round(video.segments[i].duration * fps);
+      for (let i = 0; i < project?.segments.length; i++) {
+        const segmentFrames = Math.round((project.segments[i].duration || 5) * fps);
         const segmentEndFrame = cumulativeFrames + segmentFrames;
         if (frame >= cumulativeFrames && frame < segmentEndFrame) {
           return i;
         }
         cumulativeFrames = segmentEndFrame;
       }
-      return video?.segments.length - 1;
+      return project?.segments.length - 1;
     })();
 
     // Render current segment and ±1 adjacent segments
     const windowSize = 1;
     const startIndex = Math.max(0, currentSegmentIndex - windowSize);
     const endIndex = Math.min(
-      video?.segments.length - 1,
+      project?.segments.length - 1,
       currentSegmentIndex + windowSize,
     );
 
-    return video?.segments
+    return project?.segments
       .slice(startIndex, endIndex + 1)
       .map((segment, relativeIndex) => ({
         segment,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useImageGeneration } from "@/hooks/use-image-generation";
 import { getAudioDuration, estimateAudioDuration } from "@/lib/audio-utils";
-import type { VideoSegment } from "@/types/video";
+import type { ProjectSegment } from "@/types/project";
 import type { SidebarMode } from "../sidebar/video-editor-sidebar";
 
 type EditMode = "image" | "script" | null;
@@ -24,10 +24,10 @@ interface NewFrameState {
 }
 
 interface UseSegmentOperationsProps {
-  segments: VideoSegment[];
+  segments: ProjectSegment[];
   projectId?: string;
-  onSegmentUpdate?: (index: number, updatedSegment: VideoSegment) => void;
-  onSegmentInsert?: (index: number, newSegment: VideoSegment) => void;
+  onSegmentUpdate?: (index: number, updatedSegment: ProjectSegment) => void;
+  onSegmentInsert?: (index: number, newSegment: ProjectSegment) => void;
 }
 
 export function useSegmentOperations({
@@ -41,7 +41,7 @@ export function useSegmentOperations({
   
   // Sidebar state management
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>(null);
-  const [sidebarSegment, setSidebarSegment] = useState<VideoSegment | null>(null);
+  const [sidebarSegment, setSidebarSegment] = useState<ProjectSegment | null>(null);
   const [sidebarSegmentIndex, setSidebarSegmentIndex] = useState<number>(-1);
   const [sidebarInsertAfterIndex, setSidebarInsertAfterIndex] = useState<number>(-1);
   
@@ -50,7 +50,7 @@ export function useSegmentOperations({
   // Legacy dialog functions removed
 
   // Sidebar handlers
-  const handleEditSegmentSidebar = (index: number, segment: VideoSegment) => {
+  const handleEditSegmentSidebar = (index: number, segment: ProjectSegment) => {
     setSidebarMode("edit");
     setSidebarSegment(segment);
     setSidebarSegmentIndex(index);
@@ -88,7 +88,7 @@ export function useSegmentOperations({
 
       if (result.success && result.imageUrl) {
         const segment = segments[index];
-        const segmentId = segment.id || segment._id;
+        const segmentId = segment.id;
 
         if (segmentId) {
           // Step 2: Create file record in database
@@ -130,7 +130,7 @@ export function useSegmentOperations({
         }
 
         // Step 3: Update the segment
-        const updatedSegment: VideoSegment = {
+        const updatedSegment: ProjectSegment = {
           ...segments[index],
           imagePrompt: newPrompt,
           imageUrl: result.imageUrl,
@@ -192,7 +192,7 @@ export function useSegmentOperations({
         }
 
         const segment = segments[index];
-        const segmentId = segment.id || segment._id;
+        const segmentId = segment.id;
 
         if (segmentId) {
           // Step 2: Create file record in database
@@ -235,7 +235,7 @@ export function useSegmentOperations({
         }
 
         // Step 3: Update the segment
-        const updatedSegment: VideoSegment = {
+        const updatedSegment: ProjectSegment = {
           ...segments[index],
           text: newScript,
           audioUrl: audioUrl,
@@ -356,8 +356,9 @@ export function useSegmentOperations({
       }
 
       // Step 4: Create new segment
-      const newSegment: VideoSegment = {
-        _id: `segment_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      const newSegment: ProjectSegment = {
+        id: `segment_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+        projectId: projectId || "",
         text: script,
         imagePrompt: imagePrompt,
         imageUrl: imageResult.imageUrl!,
@@ -371,6 +372,8 @@ export function useSegmentOperations({
         media: [],
         wordTimings: [],
         elements: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       // Step 5: Insert new segment

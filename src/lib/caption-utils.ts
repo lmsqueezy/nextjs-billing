@@ -1,13 +1,29 @@
-import type { Video, CaptionStyle } from "@/types/video";
+import type { ProjectWithDetails, ProjectLayer } from "@/types/project";
+
+// Caption style type from Video types - kept for compatibility
+export interface CaptionStyle {
+  fontSize: number;
+  fontFamily: string;
+  activeWordColor: string;
+  inactiveWordColor: string;
+  backgroundColor: string;
+  fontWeight: string;
+  textTransform: string;
+  textShadow: string;
+  wordAnimation: string[];
+  showEmojis: boolean;
+  fromBottom: number;
+  wordsPerBatch: number;
+}
 
 /**
- * Utility function to get caption style from video configuration
+ * Utility function to get caption style from project configuration
  * Extracted from use-caption-data hook for reuse in segment-level captions
  */
-export const getCaptionStyle = (video: Video): CaptionStyle => {
-  const captionLayer = video.layers.find((layer) => layer.type === "captions");
+export const getCaptionStyle = (project: ProjectWithDetails): CaptionStyle => {
+  const captionLayer = project.layers?.find((layer) => layer.type === "captions");
 
-  if (captionLayer) {
+  if (captionLayer?.captionStyle) {
     return captionLayer.captionStyle;
   }
 
@@ -39,9 +55,9 @@ export interface WordData {
 }
 
 /**
- * Checks if captions should be rendered for a video
+ * Checks if captions should be rendered for a project
  * Based on the presence of a captions layer
  */
-export const shouldRenderCaptions = (video: Video): boolean => {
-  return video.layers.some((layer) => layer.type === "captions");
+export const shouldRenderCaptions = (project: ProjectWithDetails): boolean => {
+  return project.layers?.some((layer) => layer.type === "captions") || false;
 };

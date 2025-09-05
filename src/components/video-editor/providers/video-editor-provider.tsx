@@ -5,22 +5,22 @@ import React, {
   useContext,
   useState,
   useCallback,
-  useEffect,
 } from "react";
-import { useVideoEditor, useVideoPlayer } from "@/hooks/use-video-editor";
+import { useProjectEditor } from "@/hooks/use-video-editor";
 import { useUpdateProject } from "@/hooks/use-projects";
 import { useSegmentOperations } from "../hooks/use-segment-operations";
-import type { Video, VideoSegment } from "@/types/video";
-import type { Project } from "@/types/project";
+import type { ProjectWithDetails, ProjectSegment } from "@/types/project";
 import type { SidebarMode } from "../sidebar/video-editor-sidebar";
+import { toast } from "sonner";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface VideoEditorState {
-  // Video Data (from useVideoEditor)
-  video: Video | null;
+  // Project Data (from useVideoEditor)
+  project: ProjectWithDetails | null;
+  video?: ProjectWithDetails | null; // Alias for backward compatibility
   isLoading: boolean;
   error: Error | null;
 
@@ -35,7 +35,7 @@ interface VideoEditorState {
   sidebar: {
     isOpen: boolean;
     mode: SidebarMode;
-    selectedSegment: VideoSegment | null;
+    selectedSegment: ProjectSegment | null;
     selectedSegmentIndex: number;
     insertAfterIndex: number;
   };
@@ -74,12 +74,13 @@ interface VideoEditorActions {
   setVolume: (volume: number) => void;
   toggleMute: () => void;
 
-  // Video Operations (from useVideoEditor + useSegmentOperations)
+  // Project Operations (from useVideoEditor + useSegmentOperations)
   updateSegment: (
     index: number,
-    updates: Partial<VideoSegment>,
+    updates: Partial<ProjectSegment>,
   ) => Promise<void>;
-  updateVideo: (updates: Partial<Video>) => Promise<void>;
+  updateProject: (updates: Partial<ProjectWithDetails>) => Promise<void>;
+  updateVideo: (updates: Partial<ProjectWithDetails>) => Promise<void>; // Alias for backward compatibility
   uploadSegmentFile: (
     segmentId: string,
     file: File,
@@ -91,7 +92,8 @@ interface VideoEditorActions {
     fileName: string,
     type: "image" | "audio",
   ) => Promise<void>;
-  refreshVideo: () => void;
+  refreshProject: () => void;
+  refreshVideo: () => void; // Alias for backward compatibility
 
   // Regeneration Operations (from useSegmentOperations)
   regenerateImage: (
@@ -112,7 +114,7 @@ interface VideoEditorActions {
   convertToVideo: (index: number, prompt?: string) => Promise<void>;
 
   // Sidebar Actions (from useSegmentOperations)
-  openEditSidebar: (segment: VideoSegment, index: number) => void;
+  openEditSidebar: (segment: ProjectSegment, index: number) => void;
   openNewSegmentSidebar: (afterIndex: number) => void;
   closeSidebar: () => void;
 
@@ -126,7 +128,7 @@ interface VideoEditorActions {
   hideFileUploadModal: () => void;
 
   // Segment Insert Action (handled by parent page currently)
-  insertSegment: (afterIndex: number, segment: VideoSegment) => Promise<void>;
+  insertSegment: (afterIndex: number, segment: ProjectSegment) => Promise<void>;
 }
 
 interface VideoEditorContextValue extends VideoEditorState {
@@ -149,7 +151,7 @@ interface VideoEditorProviderProps {
   // Optional callback for segment insertion (handled by parent page)
   onSegmentInsert?: (
     afterIndex: number,
-    segment: VideoSegment,
+    segment: ProjectSegment,
   ) => Promise<void>;
 }
 
@@ -162,52 +164,55 @@ export function VideoEditorProvider({
   // Core Hooks Integration
   // ========================================================================
 
-  // Use existing video editor hook
-  const videoEditor = useVideoEditor({ projectId });
+  // Use consolidated project editor hook
+  const projectEditor = useProjectEditor({ projectId });
   
   // Use project update mutation
   const updateProjectMutation = useUpdateProject();
 
-  // Use existing video player hook
-  const videoPlayer = useVideoPlayer(videoEditor.video);
-
-  // Enhanced segment update that ensures UI state is updated
+  // Enhanced segment update with proper React Query cache management
   const updateSegment = useCallback(
-    async (index: number, updates: Partial<VideoSegment>) => {
-      // Call the original update function which handles:
-      // 1. API call to update the segment
-      // 2. File uploads if needed
-      // 3. Cache invalidation through React Query
-      await videoEditor.updateSegment(index, updates);
+    async (index: number, updates: Partial<ProjectSegment>) => {
+      if (!projectEditor.project || !projectEditor.project.segments[index]) {
+        toast.error("Segment not found");
+        return;
+      }
 
-      // The useUpdateSegment mutation should automatically update the project cache,
-      // which will trigger a re-render of the video state through the useMemo dependency
-      // on project?.updatedAt in useVideoEditor
+      try {
+        console.log(`[VideoEditorProvider] Updating segment ${index}:`, updates);
+        
+        // Call the consolidated update function which handles:
+        // 1. API call to update the segment
+        // 2. File uploads if needed
+        // 3. React Query cache updates through onSuccess mutations
+        // 4. Automatic re-renders for all consuming components via React Query
+        await projectEditor.updateSegment(index, updates);
+        
+        console.log(`[VideoEditorProvider] Segment ${index} update completed successfully`);
+        
+      } catch (error) {
+        console.error(`[VideoEditorProvider] Failed to update segment ${index}:`, error);
+        toast.error("Failed to update segment");
+        throw error;
+      }
     },
-    [videoEditor.updateSegment],
+    [projectEditor],
   );
 
-  // Update video-level properties
-  const updateVideo = useCallback(
-    async (updates: Partial<Video>) => {
-      // Map video properties to project properties
-      const projectUpdates: Partial<Project> = {};
-      
-      if (updates.watermark !== undefined) {
-        projectUpdates.watermark = updates.watermark;
-      }
-      
+  // Update project-level properties
+  const updateProject = useCallback(
+    async (updates: Partial<ProjectWithDetails>) => {
       await updateProjectMutation.mutateAsync({
         projectId,
-        data: projectUpdates,
+        data: updates,
       });
     },
     [projectId, updateProjectMutation],
   );
 
-  // Use existing segment operations hook
+  // Use existing segment operations hook with enhanced update function
   const segmentOperations = useSegmentOperations({
-    segments: videoEditor.video?.segments || [],
+    segments: projectEditor.project?.segments || [],
     projectId,
     onSegmentUpdate: updateSegment,
     onSegmentInsert: onSegmentInsert,
@@ -235,6 +240,7 @@ export function VideoEditorProvider({
     uploadSegmentId: null as string | null,
   });
 
+
   // ========================================================================
   // Action Implementations
   // ========================================================================
@@ -247,7 +253,7 @@ export function VideoEditorProvider({
   // Export action
   const exportVideo = useCallback(
     async (quality: string) => {
-      if (!videoEditor.video || isExporting) return;
+      if (!projectEditor.project || isExporting) return;
 
       setIsExporting(true);
       setExportProgress("Preparing export...");
@@ -257,7 +263,7 @@ export function VideoEditorProvider({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            videoData: videoEditor.video,
+            videoData: projectEditor.project,
             quality,
           }),
         });
@@ -287,7 +293,7 @@ export function VideoEditorProvider({
         setExportProgress("");
       }
     },
-    [videoEditor.video, isExporting],
+    [projectEditor.project, isExporting],
   );
 
   // Modal actions
@@ -343,10 +349,10 @@ export function VideoEditorProvider({
     [segmentOperations.handleGenerateNewFrame],
   );
 
-  // Image-to-video conversion action
+  // Image-to-video conversion action with enhanced state sync
   const convertToVideo = useCallback(
     async (index: number, prompt?: string) => {
-      const segment = videoEditor.video?.segments?.[index];
+      const segment = projectEditor.project?.segments?.[index];
       if (!segment?.imageUrl || isConverting !== null) return;
 
       setIsConverting(index);
@@ -374,6 +380,7 @@ export function VideoEditorProvider({
         console.log(`[VideoEditorProvider] Video conversion successful for segment ${index}:`, result.videoUrl);
 
         // Update the segment with the generated video URL and prompt
+        // This will automatically trigger fresh data for all consuming components
         await updateSegment(index, { 
           videoUrl: result.videoUrl,
           videoPrompt: prompt || "A cinematic scene with subtle movement and natural motion"
@@ -382,13 +389,11 @@ export function VideoEditorProvider({
         console.log(`[VideoEditorProvider] Segment ${index} updated with video URL`);
         
         // Show success notification
-        const { toast } = await import("sonner");
         toast.success("Image converted to video successfully!");
       } catch (error) {
         console.error(`[VideoEditorProvider] Video conversion failed for segment ${index}:`, error);
         
         // Show error notification
-        const { toast } = await import("sonner");
         toast.error("Failed to convert image to video. Please try again.");
         
         throw error;
@@ -396,12 +401,12 @@ export function VideoEditorProvider({
         setIsConverting(null);
       }
     },
-    [videoEditor.video?.segments, isConverting, projectId, updateSegment],
+    [projectEditor.project?.segments, isConverting, projectId, updateSegment],
   );
 
   // Segment insertion wrapper
   const insertSegment = useCallback(
-    async (afterIndex: number, segment: VideoSegment) => {
+    async (afterIndex: number, segment: ProjectSegment) => {
       if (onSegmentInsert) {
         await onSegmentInsert(afterIndex, segment);
       }
@@ -414,17 +419,18 @@ export function VideoEditorProvider({
   // ========================================================================
 
   const contextValue: VideoEditorContextValue = {
-    // Video Data State
-    video: videoEditor.video,
-    isLoading: videoEditor.isLoading,
-    error: videoEditor.error,
+    // Project Data State - now from consolidated hook
+    project: projectEditor.project,
+    video: projectEditor.project, // Alias for backward compatibility
+    isLoading: projectEditor.isLoading,
+    error: projectEditor.error,
 
-    // Player State
-    isPlaying: videoPlayer.isPlaying,
-    currentTime: videoPlayer.currentTime,
-    selectedFrameIndex: videoPlayer.selectedFrameIndex,
-    totalDuration: videoPlayer.totalDuration,
-    currentSegmentInfo: videoPlayer.currentSegmentInfo,
+    // Player State - now from consolidated hook
+    isPlaying: projectEditor.isPlaying,
+    currentTime: projectEditor.currentTime,
+    selectedFrameIndex: projectEditor.selectedFrameIndex,
+    totalDuration: projectEditor.totalDuration,
+    currentSegmentInfo: projectEditor.currentSegmentInfo,
 
     // UI State
     sidebar: {
@@ -455,21 +461,23 @@ export function VideoEditorProvider({
 
     // Actions
     actions: {
-      // Player Actions
-      togglePlayPause: videoPlayer.togglePlayPause,
-      updateCurrentTime: videoPlayer.updateCurrentTime,
-      selectFrame: videoPlayer.selectFrame,
+      // Player Actions - now from consolidated hook
+      togglePlayPause: projectEditor.togglePlayPause,
+      updateCurrentTime: projectEditor.updateCurrentTime,
+      selectFrame: projectEditor.selectFrame,
 
       // Audio Actions
       setVolume,
       toggleMute,
 
-      // Video Operations
+      // Project Operations - enhanced with guaranteed state sync
       updateSegment,
-      updateVideo,
-      uploadSegmentFile: videoEditor.uploadSegmentFile,
-      uploadBase64File: videoEditor.uploadBase64File,
-      refreshVideo: videoEditor.refreshVideo,
+      updateProject,
+      updateVideo: updateProject, // Alias for backward compatibility
+      uploadSegmentFile: projectEditor.uploadSegmentFile,
+      uploadBase64File: projectEditor.uploadBase64File,
+      refreshProject: projectEditor.refreshProject,
+      refreshVideo: projectEditor.refreshProject, // Alias for backward compatibility
 
       // Regeneration Operations
       regenerateImage: segmentOperations.handleRegenerateImage,
@@ -478,7 +486,7 @@ export function VideoEditorProvider({
       convertToVideo,
 
       // Sidebar Actions
-      openEditSidebar: (segment: VideoSegment, index: number) =>
+      openEditSidebar: (segment: ProjectSegment, index: number) =>
         segmentOperations.handleEditSegmentSidebar(index, segment),
       openNewSegmentSidebar: segmentOperations.handleCreateNewFrameSidebar,
       closeSidebar: segmentOperations.closeSidebar,

@@ -2,21 +2,21 @@
 
 import React from "react";
 import { Composition, AbsoluteFill, Audio } from "remotion";
-import type { Video as VideoType } from "@/types/video";
+import type { ProjectWithDetails } from "@/types/project";
 import { useSegmentTiming } from "./hooks/use-segment-timing";
 import { VideoSegmentRenderer } from "./video-segment-renderer";
 import { VideoWatermark } from "./video-watermark";
 
 export interface VideoCompositionProps {
-  video: VideoType;
+  project: ProjectWithDetails;
 }
 
 export const VideoComposition: React.FC<VideoCompositionProps> = ({
-  video,
+  project,
 }) => {
-  const { getSegmentsToRender, fps } = useSegmentTiming(video);
+  const { getSegmentsToRender, fps } = useSegmentTiming(project);
   const segmentsToRender = getSegmentsToRender();
-  // console.log("thoufic video in videocomposition", video);
+  console.log("thoufic project in videocomposition", project);
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#1a1a1a" }}>
@@ -24,8 +24,8 @@ export const VideoComposition: React.FC<VideoCompositionProps> = ({
       <VideoSegmentRenderer
         segmentsToRender={segmentsToRender}
         fps={fps}
-        segments={video?.segments}
-        video={video}
+        segments={project?.segments}
+        project={project}
       />
       <Audio
         src="https://assets.cursorshorts.com/cursorshorts/assets/backgroundMusic/temporex.mp3"
@@ -34,7 +34,7 @@ export const VideoComposition: React.FC<VideoCompositionProps> = ({
       />
 
       {/* Watermark */}
-      <VideoWatermark show={video.watermark} />
+      <VideoWatermark show={project?.watermark || false} />
     </AbsoluteFill>
   );
 };
@@ -44,14 +44,19 @@ const VideoCompositionWrapper: React.FC<any> = (props) => {
   return <VideoComposition {...props} />;
 };
 
-// Define the composition for Remotion with proper video data
-export const RemotionVideo: React.FC<{ video: VideoType }> = ({ video }) => {
+// Define the composition for Remotion with proper project data
+export const RemotionVideo: React.FC<{ project: ProjectWithDetails }> = ({
+  project,
+}) => {
   // Calculate total duration in frames from all segments (ensuring voice is not cut)
-  const totalDurationInSeconds = video.segments.reduce(
+  const totalDurationInSeconds = project.segments.reduce(
     (acc, segment) => acc + (segment.duration || 5), // Use actual duration or fallback to 5 seconds
     0,
   );
   const totalFrames = Math.round(totalDurationInSeconds * 30); // 30 fps
+
+  // Use default format if not specified
+  const format = project.format || { width: 1080, height: 1920 };
 
   return (
     <Composition
@@ -59,10 +64,10 @@ export const RemotionVideo: React.FC<{ video: VideoType }> = ({ video }) => {
       component={VideoCompositionWrapper}
       durationInFrames={totalFrames}
       fps={30}
-      width={video.format.width}
-      height={video.format.height}
+      width={format.width}
+      height={format.height}
       defaultProps={{
-        video,
+        project,
       }}
     />
   );

@@ -1,90 +1,79 @@
 /**
- * Hook for video editor that works with database-backed projects
+ * Consolidated hook for video editor that combines project data and player functionality
+ * Works with database-backed projects and provides unified state management
  */
 
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useProject, useUpdateSegment } from "./use-projects";
 import { useUploadFile, useUploadBase64File } from "./use-files";
-import {
-  VideoProjectAdapter,
-  UseVideoEditorReturn,
-  UseVideoEditorProps,
-} from "@/types/video-compatibility";
-import { Video, VideoSegment } from "@/types/video";
-import { ProjectSegment } from "@/types/project";
+import { ProjectWithDetails, ProjectSegment } from "@/types/project";
 import { toast } from "sonner";
 
-export function useVideoEditor({
+// Consolidated hook interface for project editor
+export interface UseProjectEditorProps {
+  projectId: string;
+}
+
+export interface UseProjectEditorReturn {
+  // Project Data
+  project: ProjectWithDetails | null;
+  isLoading: boolean;
+  error: Error | null;
+  
+  // Player State
+  isPlaying: boolean;
+  currentTime: number;
+  selectedFrameIndex: number;
+  totalDuration: number;
+  currentSegmentInfo: {
+    segment: ProjectSegment;
+    index: number;
+    segmentStartTime: number;
+  } | null;
+  
+  // Project Operations
+  updateSegment: (
+    segmentIndex: number,
+    updates: Partial<ProjectSegment>,
+  ) => Promise<void>;
+  uploadSegmentFile: (
+    segmentId: string,
+    file: File,
+    type: "image" | "audio",
+  ) => Promise<void>;
+  uploadBase64File: (
+    segmentId: string,
+    base64Data: string,
+    fileName: string,
+    type: "image" | "audio",
+  ) => Promise<void>;
+  refreshProject: () => void;
+  
+  // Player Controls
+  togglePlayPause: () => void;
+  updateCurrentTime: (time: number) => void;
+  selectFrame: (frameIndex: number) => void;
+}
+
+export function useProjectEditor({
   projectId,
-}: UseVideoEditorProps): UseVideoEditorReturn {
+}: UseProjectEditorProps): UseProjectEditorReturn {
   // Core hooks
   const { data: project, isLoading, error, refetch } = useProject(projectId);
-  // Project files are now included in the project data when using ?include=details
-  // No need for separate projectFiles query since API returns nested files
   const updateSegmentMutation = useUpdateSegment();
   const uploadFile = useUploadFile();
   const uploadBase64File = useUploadBase64File();
 
-  // Convert project to video format whenever data meaningfully changes
-  const video = useMemo(() => {
-    console.log("useVideoEditor: project changed", project);
-    if (!project) {
-      return null;
-    }
-
-    // Pass empty array for projectFiles since files are nested in segments
-    return VideoProjectAdapter.projectToVideo(project, []);
-  }, [
-    // Only depend on values that meaningfully affect the conversion
-    project?.id,
-    project?.title,
-    project?.script,
-    project?.status,
-    project?.format,
-    project?.updatedAt,
-    JSON.stringify(
-      project?.segments?.map((s) => ({
-        id: s.id,
-        text: s.text,
-        imagePrompt: s.imagePrompt,
-        order: s.order,
-        duration: s.duration,
-        audioVolume: s.audioVolume,
-        playBackRate: s.playBackRate,
-        withBlur: s.withBlur,
-        backgroundMinimized: s.backgroundMinimized,
-        wordTimings: s.wordTimings,
-        videoUrl: s.videoUrl,
-        updatedAt: s.updatedAt,
-      })),
-    ),
-    // Files are now included in segments, so include them in dependency check
-    JSON.stringify(
-      project?.segments
-        ?.flatMap((s) => s.files || [])
-        .map((f) => ({
-          id: f.id,
-          segmentId: f.segmentId,
-          fileType: f.fileType,
-          r2Url: f.r2Url,
-          tempUrl: f.tempUrl,
-          uploadStatus: f.uploadStatus,
-          createdAt: f.createdAt,
-        })),
-    ),
-  ]);
-  // console.log("thoufic video", video);
-
-  // Update a video segment
+  // Update a project segment
   const updateSegment = useCallback(
-    async (segmentIndex: number, updates: Partial<VideoSegment>) => {
-      if (!video || !video.segments[segmentIndex]) {
+    async (segmentIndex: number, updates: Partial<ProjectSegment>) => {
+      if (!project || !project.segments[segmentIndex]) {
         toast.error("Segment not found");
         return;
       }
 
-      const currentSegment = video.segments[segmentIndex];
-      const segmentId = currentSegment._id;
+      const currentSegment = project.segments[segmentIndex];
+      const segmentId = currentSegment.id;
 
       if (!segmentId) {
         toast.error("Invalid segment ID");
@@ -92,13 +81,17 @@ export function useVideoEditor({
       }
 
       try {
-        // Convert video segment updates to project segment format
+        // Apply updates directly to the segment
         const segmentUpdates: Partial<ProjectSegment> = {
           text: updates.text !== undefined ? updates.text : currentSegment.text,
           imagePrompt:
             updates.imagePrompt !== undefined
               ? updates.imagePrompt
               : currentSegment.imagePrompt,
+          videoPrompt:
+            updates.videoPrompt !== undefined
+              ? (updates.videoPrompt ?? "")
+              : (currentSegment.videoPrompt ?? ""),
           duration:
             updates.duration !== undefined
               ? updates.duration
@@ -123,6 +116,10 @@ export function useVideoEditor({
             updates.imageUrl !== undefined
               ? updates.imageUrl
               : currentSegment.imageUrl,
+          audioUrl:
+            updates.audioUrl !== undefined
+              ? updates.audioUrl
+              : currentSegment.audioUrl,
           videoUrl:
             updates.videoUrl !== undefined
               ? updates.videoUrl
@@ -131,8 +128,8 @@ export function useVideoEditor({
             updates.order !== undefined ? updates.order : currentSegment.order,
         };
 
-        // Handle word timings conversion
-        if (updates.wordTimings && updates.wordTimings.length > 0) {
+        // Handle word timings
+        if (updates.wordTimings !== undefined) {
           segmentUpdates.wordTimings = updates.wordTimings;
         }
 
@@ -157,30 +154,10 @@ export function useVideoEditor({
           );
         }
 
-        if (
-          updates.audioUrl &&
-          (updates.audioUrl.startsWith("data:") ||
-            updates.audioUrl.startsWith("blob:"))
-        ) {
-          // Convert blob URL to base64 if needed
-          let audioData = updates.audioUrl;
-          if (updates.audioUrl.startsWith("blob:")) {
-            try {
-              const response = await fetch(updates.audioUrl);
-              const blob = await response.blob();
-              const reader = new FileReader();
-              audioData = await new Promise((resolve) => {
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-              });
-            } catch (error) {
-              console.error("Failed to convert blob URL:", error);
-            }
-          }
-
+        if (updates.audioUrl && updates.audioUrl.startsWith("data:")) {
           uploadPromises.push(
             uploadBase64File.mutateAsync({
-              base64Data: audioData,
+              base64Data: updates.audioUrl,
               fileName: `segment_${segmentIndex}_audio.mp3`,
               fileType: "audio",
               projectId,
@@ -189,18 +166,46 @@ export function useVideoEditor({
           );
         }
 
+        if (updates.audioUrl && updates.audioUrl.startsWith("blob:")) {
+          // Convert blob URL to base64
+          try {
+            const response = await fetch(updates.audioUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            const audioData = await new Promise<string>((resolve) => {
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(blob);
+            });
+
+            uploadPromises.push(
+              uploadBase64File.mutateAsync({
+                base64Data: audioData,
+                fileName: `segment_${segmentIndex}_audio.mp3`,
+                fileType: "audio",
+                projectId,
+                segmentId,
+              }),
+            );
+          } catch (error) {
+            console.error("Failed to convert blob URL:", error);
+          }
+        }
+
         // Wait for all uploads to complete
         if (uploadPromises.length > 0) {
           await Promise.all(uploadPromises);
         }
 
         toast.success("Segment updated successfully");
+        
+        // Note: No manual refresh needed - React Query will automatically update 
+        // all consuming components via the cache update in the mutation's onSuccess
       } catch (error) {
         console.error("Failed to update segment:", error);
         toast.error("Failed to update segment");
       }
     },
-    [video, projectId, updateSegmentMutation, uploadBase64File],
+    [project, projectId, updateSegmentMutation, uploadBase64File],
   );
 
   // Upload file for a specific segment
@@ -252,43 +257,54 @@ export function useVideoEditor({
     [projectId, uploadBase64File],
   );
 
-  const refreshVideo = useCallback(() => {
+  const refreshProject = useCallback(() => {
     refetch();
   }, [refetch]);
 
-  return {
-    video,
-    isLoading,
-    error: error as Error | null,
-    updateSegment,
-    uploadSegmentFile,
-    uploadBase64File: uploadSegmentBase64File,
-    refreshVideo,
-  };
-}
-
-// Additional utility hook for video player state management
-export function useVideoPlayer(video: Video | null) {
+  // Player state management (consolidated from useVideoPlayer)
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
 
-  // Calculate total duration
-  const totalDuration = video
-    ? VideoProjectAdapter.calculateTotalDuration(video.segments)
+  // Calculate total duration from project segments
+  const totalDuration = project
+    ? project.segments.reduce(
+        (total, segment) => total + (segment.duration || 0),
+        0,
+      )
     : 0;
 
   // Get current segment info
-  const currentSegmentInfo = video
-    ? VideoProjectAdapter.getSegmentAtTime(video.segments, currentTime)
-    : null;
+  const currentSegmentInfo = useMemo(() => {
+    if (!project || !project.segments.length) return null;
 
-  // Play/pause toggle
+    let accumulatedTime = 0;
+    for (let i = 0; i < project.segments.length; i++) {
+      const segment = project.segments[i];
+      const segmentDuration = segment.duration || 0;
+
+      if (
+        currentTime >= accumulatedTime &&
+        currentTime < accumulatedTime + segmentDuration
+      ) {
+        return {
+          segment,
+          index: i,
+          segmentStartTime: accumulatedTime,
+        };
+      }
+
+      accumulatedTime += segmentDuration;
+    }
+
+    return null;
+  }, [project, currentTime]);
+
+  // Player controls
   const togglePlayPause = useCallback(() => {
     setIsPlaying((prev) => !prev);
   }, []);
 
-  // Update current time
   const updateCurrentTime = useCallback(
     (time: number) => {
       setCurrentTime(Math.max(0, Math.min(time, totalDuration)));
@@ -296,32 +312,139 @@ export function useVideoPlayer(video: Video | null) {
     [totalDuration],
   );
 
-  // Select frame by index
   const selectFrame = useCallback(
     (frameIndex: number) => {
-      if (!video) return;
+      if (!project) return;
 
       setSelectedFrameIndex(frameIndex);
 
-      // Calculate time for this frame (assuming segments are played in order)
+      // Calculate time for this frame
       let accumulatedTime = 0;
-      for (let i = 0; i < Math.min(frameIndex, video.segments.length); i++) {
-        accumulatedTime += video.segments[i].duration || 0;
+      for (let i = 0; i < Math.min(frameIndex, project.segments.length); i++) {
+        accumulatedTime += project.segments[i].duration || 0;
       }
 
       updateCurrentTime(accumulatedTime);
     },
-    [video, updateCurrentTime],
+    [project, updateCurrentTime],
   );
 
-  // Reset player state when video changes
+  // Reset player state when project changes
   useEffect(() => {
-    if (video) {
+    if (project) {
       setCurrentTime(0);
       setSelectedFrameIndex(0);
       setIsPlaying(false);
     }
-  }, [video?.status, video?._id]);
+  }, [project?.status, project?.id]);
+
+  return {
+    // Project Data
+    project: project || null,
+    isLoading,
+    error: error as Error | null,
+    
+    // Player State
+    isPlaying,
+    currentTime,
+    selectedFrameIndex,
+    totalDuration,
+    currentSegmentInfo,
+    
+    // Project Operations
+    updateSegment,
+    uploadSegmentFile,
+    uploadBase64File: uploadSegmentBase64File,
+    refreshProject,
+    
+    // Player Controls
+    togglePlayPause,
+    updateCurrentTime,
+    selectFrame,
+  };
+}
+
+// Legacy hook for backward compatibility - delegates to useProjectEditor
+export function useVideoEditor({
+  projectId,
+}: UseProjectEditorProps): UseProjectEditorReturn {
+  return useProjectEditor({ projectId });
+}
+
+// Legacy hook for backward compatibility - now part of useProjectEditor
+export function useVideoPlayer(project: ProjectWithDetails | null) {
+  // This is now handled internally by useProjectEditor
+  // Keeping this for any existing components that might still use it
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
+
+  const totalDuration = project
+    ? project.segments.reduce(
+        (total, segment) => total + (segment.duration || 0),
+        0,
+      )
+    : 0;
+
+  const currentSegmentInfo = useMemo(() => {
+    if (!project || !project.segments.length) return null;
+
+    let accumulatedTime = 0;
+    for (let i = 0; i < project.segments.length; i++) {
+      const segment = project.segments[i];
+      const segmentDuration = segment.duration || 0;
+
+      if (
+        currentTime >= accumulatedTime &&
+        currentTime < accumulatedTime + segmentDuration
+      ) {
+        return {
+          segment,
+          index: i,
+          segmentStartTime: accumulatedTime,
+        };
+      }
+
+      accumulatedTime += segmentDuration;
+    }
+
+    return null;
+  }, [project, currentTime]);
+
+  const togglePlayPause = useCallback(() => {
+    setIsPlaying((prev) => !prev);
+  }, []);
+
+  const updateCurrentTime = useCallback(
+    (time: number) => {
+      setCurrentTime(Math.max(0, Math.min(time, totalDuration)));
+    },
+    [totalDuration],
+  );
+
+  const selectFrame = useCallback(
+    (frameIndex: number) => {
+      if (!project) return;
+
+      setSelectedFrameIndex(frameIndex);
+
+      let accumulatedTime = 0;
+      for (let i = 0; i < Math.min(frameIndex, project.segments.length); i++) {
+        accumulatedTime += project.segments[i].duration || 0;
+      }
+
+      updateCurrentTime(accumulatedTime);
+    },
+    [project, updateCurrentTime],
+  );
+
+  useEffect(() => {
+    if (project) {
+      setCurrentTime(0);
+      setSelectedFrameIndex(0);
+      setIsPlaying(false);
+    }
+  }, [project?.status, project?.id]);
 
   return {
     isPlaying,

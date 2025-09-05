@@ -1,5 +1,6 @@
 import { lookup } from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
+import { ProjectFile, ProjectSegment } from "@/types/project";
 
 export class FileUtils {
   /**
@@ -243,5 +244,126 @@ export class FileUtils {
       uploadedAt: new Date().toISOString(),
       ...additionalData,
     };
+  }
+}
+
+// Project File Utilities for Video Editor
+export class ProjectFileUtils {
+  /**
+   * Get the image file for a segment
+   */
+  static getSegmentImage(segment: ProjectSegment): ProjectFile | null {
+    if (!segment.files) return null;
+    
+    const imageFiles = segment.files.filter(file => file.fileType === 'image');
+    return this.getLatestFile(imageFiles);
+  }
+
+  /**
+   * Get the audio file for a segment
+   */
+  static getSegmentAudio(segment: ProjectSegment): ProjectFile | null {
+    if (!segment.files) return null;
+    
+    const audioFiles = segment.files.filter(file => file.fileType === 'audio');
+    return this.getLatestFile(audioFiles);
+  }
+
+  /**
+   * Get the video file for a segment (generated video)
+   */
+  static getSegmentVideo(segment: ProjectSegment): ProjectFile | null {
+    if (!segment.files) return null;
+    
+    const videoFiles = segment.files.filter(file => file.fileType === 'generated_video');
+    return this.getLatestFile(videoFiles);
+  }
+
+  /**
+   * Get the URL for a file, prioritizing r2Url over tempUrl
+   */
+  static getFileUrl(file: ProjectFile | null): string {
+    if (!file) return '';
+    
+    // Prioritize r2Url (permanent storage) over tempUrl
+    return file.r2Url || file.tempUrl || '';
+  }
+
+  /**
+   * Get the latest file from an array of files (by createdAt timestamp)
+   */
+  static getLatestFile(files: ProjectFile[]): ProjectFile | null {
+    if (files.length === 0) return null;
+    if (files.length === 1) return files[0];
+    
+    // Sort by createdAt descending and return the most recent
+    return files.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
+  }
+
+  /**
+   * Get file by specific type, with fallback to latest
+   */
+  static getFileByType(
+    files: ProjectFile[], 
+    fileType: ProjectFile['fileType']
+  ): ProjectFile | null {
+    const filteredFiles = files.filter(file => file.fileType === fileType);
+    return this.getLatestFile(filteredFiles);
+  }
+
+  /**
+   * Check if a file is ready for use (upload completed)
+   */
+  static isFileReady(file: ProjectFile | null): boolean {
+    if (!file) return false;
+    return file.uploadStatus === 'completed' && !!(file.r2Url || file.tempUrl);
+  }
+
+  /**
+   * Get segment URLs in a convenient object format
+   */
+  static getSegmentUrls(segment: ProjectSegment): {
+    imageUrl: string;
+    audioUrl: string;
+    videoUrl: string;
+  } {
+    return {
+      imageUrl: this.getFileUrl(this.getSegmentImage(segment)),
+      audioUrl: this.getFileUrl(this.getSegmentAudio(segment)),
+      videoUrl: this.getFileUrl(this.getSegmentVideo(segment)),
+    };
+  }
+
+  /**
+   * Get segment files organized by type
+   */
+  static getSegmentFiles(segment: ProjectSegment): {
+    images: ProjectFile[];
+    audio: ProjectFile[];
+    videos: ProjectFile[];
+    all: ProjectFile[];
+  } {
+    if (!segment.files) {
+      return { images: [], audio: [], videos: [], all: [] };
+    }
+
+    return {
+      images: segment.files.filter(file => file.fileType === 'image'),
+      audio: segment.files.filter(file => file.fileType === 'audio'),
+      videos: segment.files.filter(file => file.fileType === 'generated_video'),
+      all: segment.files,
+    };
+  }
+
+  /**
+   * Check if segment has all required files for rendering
+   */
+  static isSegmentReady(segment: ProjectSegment): boolean {
+    const image = this.getSegmentImage(segment);
+    const audio = this.getSegmentAudio(segment);
+    
+    return this.isFileReady(image) && this.isFileReady(audio);
   }
 }
