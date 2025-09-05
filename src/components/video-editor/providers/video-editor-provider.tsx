@@ -1,15 +1,11 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-} from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { useProjectEditor } from "@/hooks/use-video-editor";
 import { useUpdateProject } from "@/hooks/use-projects";
 import { useSegmentOperations } from "../hooks/use-segment-operations";
 import type { ProjectWithDetails, ProjectSegment } from "@/types/project";
+import type { ProjectFile } from "@/types/video";
 import type { SidebarMode } from "../sidebar/video-editor-sidebar";
 import { toast } from "sonner";
 
@@ -77,7 +73,7 @@ interface VideoEditorActions {
   // Project Operations (from useVideoEditor + useSegmentOperations)
   updateSegment: (
     index: number,
-    updates: Partial<ProjectSegment>,
+    updates: Partial<ProjectSegment> & { files?: ProjectFile[] },
   ) => Promise<void>;
   updateProject: (updates: Partial<ProjectWithDetails>) => Promise<void>;
   updateVideo: (updates: Partial<ProjectWithDetails>) => Promise<void>; // Alias for backward compatibility
@@ -166,32 +162,42 @@ export function VideoEditorProvider({
 
   // Use consolidated project editor hook
   const projectEditor = useProjectEditor({ projectId });
-  
+
   // Use project update mutation
   const updateProjectMutation = useUpdateProject();
 
   // Enhanced segment update with proper React Query cache management
   const updateSegment = useCallback(
-    async (index: number, updates: Partial<ProjectSegment>) => {
+    async (
+      index: number,
+      updates: Partial<ProjectSegment> & { files?: ProjectFile[] },
+    ) => {
       if (!projectEditor.project || !projectEditor.project.segments[index]) {
         toast.error("Segment not found");
         return;
       }
 
       try {
-        console.log(`[VideoEditorProvider] Updating segment ${index}:`, updates);
-        
+        console.log(
+          `[VideoEditorProvider] Updating segment ${index}:`,
+          updates,
+        );
+
         // Call the consolidated update function which handles:
         // 1. API call to update the segment
         // 2. File uploads if needed
         // 3. React Query cache updates through onSuccess mutations
         // 4. Automatic re-renders for all consuming components via React Query
         await projectEditor.updateSegment(index, updates);
-        
-        console.log(`[VideoEditorProvider] Segment ${index} update completed successfully`);
-        
+
+        console.log(
+          `[VideoEditorProvider] Segment ${index} update completed successfully`,
+        );
       } catch (error) {
-        console.error(`[VideoEditorProvider] Failed to update segment ${index}:`, error);
+        console.error(
+          `[VideoEditorProvider] Failed to update segment ${index}:`,
+          error,
+        );
         toast.error("Failed to update segment");
         throw error;
       }
@@ -239,7 +245,6 @@ export function VideoEditorProvider({
     exportedVideo: null as { url: string; filename: string } | null,
     uploadSegmentId: null as string | null,
   });
-
 
   // ========================================================================
   // Action Implementations
@@ -356,7 +361,9 @@ export function VideoEditorProvider({
       if (!segment?.imageUrl || isConverting !== null) return;
 
       setIsConverting(index);
-      console.log(`[VideoEditorProvider] Starting image-to-video conversion for segment ${index}`);
+      console.log(
+        `[VideoEditorProvider] Starting image-to-video conversion for segment ${index}`,
+      );
 
       try {
         const response = await fetch("/api/image-to-video", {
@@ -364,7 +371,9 @@ export function VideoEditorProvider({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             imageUrl: segment.imageUrl,
-            prompt: prompt || "A cinematic scene with subtle movement and natural motion",
+            prompt:
+              prompt ||
+              "A cinematic scene with subtle movement and natural motion",
             projectId,
             segmentId: segment.id,
             index,
@@ -377,25 +386,35 @@ export function VideoEditorProvider({
         }
 
         const result = await response.json();
-        console.log(`[VideoEditorProvider] Video conversion successful for segment ${index}:`, result.videoUrl);
+        console.log(
+          `[VideoEditorProvider] Video conversion successful for segment ${index}:`,
+          result.videoUrl,
+        );
 
         // Update the segment with the generated video URL and prompt
         // This will automatically trigger fresh data for all consuming components
-        await updateSegment(index, { 
+        await updateSegment(index, {
           videoUrl: result.videoUrl,
-          videoPrompt: prompt || "A cinematic scene with subtle movement and natural motion"
+          videoPrompt:
+            prompt ||
+            "A cinematic scene with subtle movement and natural motion",
         });
 
-        console.log(`[VideoEditorProvider] Segment ${index} updated with video URL`);
-        
+        console.log(
+          `[VideoEditorProvider] Segment ${index} updated with video URL`,
+        );
+
         // Show success notification
         toast.success("Image converted to video successfully!");
       } catch (error) {
-        console.error(`[VideoEditorProvider] Video conversion failed for segment ${index}:`, error);
-        
+        console.error(
+          `[VideoEditorProvider] Video conversion failed for segment ${index}:`,
+          error,
+        );
+
         // Show error notification
         toast.error("Failed to convert image to video. Please try again.");
-        
+
         throw error;
       } finally {
         setIsConverting(null);
@@ -480,7 +499,15 @@ export function VideoEditorProvider({
       refreshVideo: projectEditor.refreshProject, // Alias for backward compatibility
 
       // Regeneration Operations
-      regenerateImage: segmentOperations.handleRegenerateImage,
+      regenerateImage: async (index: number, prompt: string, model: string) => {
+        try {
+          await segmentOperations.handleRegenerateImage(index, prompt, model);
+          toast.success("Image regenerated successfully!");
+        } catch (error) {
+          console.error("Image regeneration failed:", error);
+          toast.error("Failed to regenerate image. Please try again.");
+        }
+      },
       regenerateAudio: segmentOperations.handleRegenerateAudio,
       generateNewSegment,
       convertToVideo,

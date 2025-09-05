@@ -6,8 +6,41 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useProject, useUpdateSegment } from "./use-projects";
 import { useUploadFile, useUploadBase64File } from "./use-files";
+import { useQueryClient } from "@tanstack/react-query";
+import { projectQueryKeys } from "./use-projects";
 import { ProjectWithDetails, ProjectSegment } from "@/types/project";
+import { ProjectFile } from "@/types/video";
 import { toast } from "sonner";
+
+// File array management utilities
+const addFileToSegment = (
+  files: ProjectFile[],
+  newFile: ProjectFile,
+): ProjectFile[] => {
+  // Remove any existing files of the same type to avoid duplicates
+  const filteredFiles = files.filter((f) => f.fileType !== newFile.fileType);
+  return [...filteredFiles, newFile];
+};
+
+const removeFilesByType = (
+  files: ProjectFile[],
+  fileType: string,
+): ProjectFile[] => {
+  return files.filter((f) => f.fileType !== fileType);
+};
+
+const updateFileInSegment = (
+  files: ProjectFile[],
+  updatedFile: ProjectFile,
+): ProjectFile[] => {
+  const index = files.findIndex((f) => f.id === updatedFile.id);
+  if (index >= 0) {
+    const newFiles = [...files];
+    newFiles[index] = updatedFile;
+    return newFiles;
+  }
+  return [...files, updatedFile];
+};
 
 // Consolidated hook interface for project editor
 export interface UseProjectEditorProps {
@@ -19,7 +52,7 @@ export interface UseProjectEditorReturn {
   project: ProjectWithDetails | null;
   isLoading: boolean;
   error: Error | null;
-  
+
   // Player State
   isPlaying: boolean;
   currentTime: number;
@@ -30,11 +63,11 @@ export interface UseProjectEditorReturn {
     index: number;
     segmentStartTime: number;
   } | null;
-  
+
   // Project Operations
   updateSegment: (
     segmentIndex: number,
-    updates: Partial<ProjectSegment>,
+    updates: Partial<ProjectSegment> & { files?: ProjectFile[] },
   ) => Promise<void>;
   uploadSegmentFile: (
     segmentId: string,
@@ -48,7 +81,7 @@ export interface UseProjectEditorReturn {
     type: "image" | "audio",
   ) => Promise<void>;
   refreshProject: () => void;
-  
+
   // Player Controls
   togglePlayPause: () => void;
   updateCurrentTime: (time: number) => void;
@@ -63,10 +96,14 @@ export function useProjectEditor({
   const updateSegmentMutation = useUpdateSegment();
   const uploadFile = useUploadFile();
   const uploadBase64File = useUploadBase64File();
+  const queryClient = useQueryClient();
 
   // Update a project segment
   const updateSegment = useCallback(
-    async (segmentIndex: number, updates: Partial<ProjectSegment>) => {
+    async (
+      segmentIndex: number,
+      updates: Partial<ProjectSegment> & { files?: ProjectFile[] },
+    ) => {
       if (!project || !project.segments[segmentIndex]) {
         toast.error("Segment not found");
         return;
@@ -81,6 +118,11 @@ export function useProjectEditor({
       }
 
       try {
+        console.log(
+          `[useProjectEditor] Updating segment ${segmentIndex}:`,
+          updates,
+        );
+
         // Apply updates directly to the segment
         const segmentUpdates: Partial<ProjectSegment> = {
           text: updates.text !== undefined ? updates.text : currentSegment.text,
@@ -133,11 +175,48 @@ export function useProjectEditor({
           segmentUpdates.wordTimings = updates.wordTimings;
         }
 
+        // First, update the segment in the database
         await updateSegmentMutation.mutateAsync({
           projectId,
           segmentId,
           data: segmentUpdates,
         });
+
+        // Handle files array updates if provided - update cache directly
+        if (updates.files !== undefined) {
+          console.log(
+            `[useProjectEditor] Updating files array for segment ${segmentIndex}:`,
+            updates.files,
+          );
+
+          // Update the React Query cache directly to include the files array changes
+          queryClient.setQueryData<ProjectWithDetails | null>(
+            projectQueryKeys.detail(projectId),
+            (old) => {
+              if (!old) return null;
+
+              // Create a new segments array with updated files
+              const segments =
+                old.segments?.map((segment, index) =>
+                  index === segmentIndex
+                    ? {
+                        ...segment,
+                        files: updates.files || [], // Update the files array with fallback
+                        // Ensure updatedAt is updated to trigger re-renders
+                        updatedAt: new Date().toISOString(),
+                      }
+                    : segment,
+                ) || [];
+
+              // Return a completely new project object
+              return {
+                ...old,
+                segments,
+                updatedAt: new Date().toISOString(),
+              };
+            },
+          );
+        }
 
         // Handle file uploads if there are new data URLs
         const uploadPromises: Promise<any>[] = [];
@@ -197,15 +276,20 @@ export function useProjectEditor({
         }
 
         toast.success("Segment updated successfully");
-        
-        // Note: No manual refresh needed - React Query will automatically update 
+
+        console.log(
+          `[useProjectEditor] Segment ${segmentIndex} update completed successfully`,
+        );
+
+        // Note: No manual refresh needed - React Query will automatically update
         // all consuming components via the cache update in the mutation's onSuccess
       } catch (error) {
         console.error("Failed to update segment:", error);
         toast.error("Failed to update segment");
+        throw error;
       }
     },
-    [project, projectId, updateSegmentMutation, uploadBase64File],
+    [project, projectId, updateSegmentMutation, uploadBase64File, queryClient],
   );
 
   // Upload file for a specific segment
@@ -343,20 +427,20 @@ export function useProjectEditor({
     project: project || null,
     isLoading,
     error: error as Error | null,
-    
+
     // Player State
     isPlaying,
     currentTime,
     selectedFrameIndex,
     totalDuration,
     currentSegmentInfo,
-    
+
     // Project Operations
     updateSegment,
     uploadSegmentFile,
     uploadBase64File: uploadSegmentBase64File,
     refreshProject,
-    
+
     // Player Controls
     togglePlayPause,
     updateCurrentTime,
@@ -457,3 +541,6 @@ export function useVideoPlayer(project: ProjectWithDetails | null) {
     selectFrame,
   };
 }
+
+// Export file management utilities for use in other hooks
+export { addFileToSegment, removeFilesByType, updateFileInSegment };

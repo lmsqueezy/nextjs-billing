@@ -1,11 +1,11 @@
 import { Film, RefreshCw, Video, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import type { VideoSegment } from "@/types/video";
+import type { ProjectSegment } from "@/types/project";
 import { useEffect } from "react";
 
 interface VideoEditTabProps {
-  segment: VideoSegment;
+  segment: ProjectSegment;
   videoPrompt: string;
   onPromptChange: (prompt: string) => void;
   onConvertToVideo: () => void;
@@ -20,7 +20,8 @@ export function VideoEditTab({
   isConverting = false,
 }: VideoEditTabProps) {
   const hasVideo = !!segment.videoUrl;
-  const defaultPrompt = "A cinematic scene with subtle movement and natural motion";
+  const defaultPrompt =
+    "A cinematic scene with subtle movement and natural motion";
   const originalPrompt = segment.videoPrompt || defaultPrompt;
   const hasChanges = videoPrompt !== originalPrompt;
 
@@ -101,7 +102,7 @@ export function VideoEditTab({
         <div>
           <label className="text-sm font-medium">Model</label>
           <div className="mt-2 rounded-lg bg-gray-50 p-3">
-            <div className="text-sm font-mono text-gray-700">
+            <div className="font-mono text-sm text-gray-700">
               fal-ai/wan/v2.2-a14b/image-to-video
             </div>
             <div className="mt-1 text-xs text-gray-500">
@@ -121,25 +122,28 @@ export function VideoEditTab({
             rows={3}
           />
           <div className="mt-1 text-xs text-gray-500">
-            Describe how you want the image to animate (camera movement, object motion, etc.)
+            Describe how you want the image to animate (camera movement, object
+            motion, etc.)
           </div>
           {hasChanges && (
             <div className="mt-1 text-xs text-blue-600">
-              ⚡ Prompt modified - click "{hasVideo ? 'Regenerate Video' : 'Convert to Video'}" to apply changes
+              ⚡ Prompt modified - click "
+              {hasVideo ? "Regenerate Video" : "Convert to Video"}" to apply
+              changes
             </div>
           )}
         </div>
 
         {/* Convert Button */}
         <div className="flex justify-end pt-4">
-          <Button 
-            onClick={onConvertToVideo} 
+          <Button
+            onClick={onConvertToVideo}
             disabled={isConverting || !segment.imageUrl}
           >
             {isConverting ? (
               <>
                 <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                {hasVideo ? 'Regenerating...' : 'Converting...'}
+                {hasVideo ? "Regenerating..." : "Converting..."}
               </>
             ) : hasVideo ? (
               <>

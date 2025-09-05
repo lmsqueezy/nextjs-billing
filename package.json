@@ -47,6 +47,7 @@
     "next": "14.2.5",
     "next-auth": "5.0.0-beta.19",
     "openai": "^5.12.2",
+    "path-browserify": "^1.0.1",
     "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

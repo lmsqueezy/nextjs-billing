@@ -1,7 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { VideoSegment } from "@/types/video";
 import { EditSegmentSidebar } from "./edit-segment-sidebar";
 import { NewFrameSidebar } from "./new-frame-sidebar";
 import {

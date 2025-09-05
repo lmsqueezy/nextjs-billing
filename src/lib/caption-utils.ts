@@ -21,7 +21,9 @@ export interface CaptionStyle {
  * Extracted from use-caption-data hook for reuse in segment-level captions
  */
 export const getCaptionStyle = (project: ProjectWithDetails): CaptionStyle => {
-  const captionLayer = project.layers?.find((layer) => layer.type === "captions");
+  const captionLayer = project.layers?.find(
+    (layer) => layer.type === "captions",
+  );
 
   if (captionLayer?.captionStyle) {
     return captionLayer.captionStyle;

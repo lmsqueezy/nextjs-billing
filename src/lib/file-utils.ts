@@ -1,5 +1,5 @@
-import { lookup } from 'mime-types';
-import { v4 as uuidv4 } from 'uuid';
+import { lookup } from "mime-types";
+import { v4 as uuidv4 } from "uuid";
 import { ProjectFile, ProjectSegment } from "@/types/project";
 
 export class FileUtils {
@@ -8,8 +8,8 @@ export class FileUtils {
    */
   static base64ToBuffer(base64: string): Buffer {
     // Remove data URL prefix if present
-    const cleanBase64 = base64.replace(/^data:image\/[a-z]+;base64,/, '');
-    return Buffer.from(cleanBase64, 'base64');
+    const cleanBase64 = base64.replace(/^data:image\/[a-z]+;base64,/, "");
+    return Buffer.from(cleanBase64, "base64");
   }
 
   /**
@@ -22,7 +22,11 @@ export class FileUtils {
   /**
    * Generate a unique file name
    */
-  static generateFileName(originalName: string, userId: string, projectId: string): string {
+  static generateFileName(
+    originalName: string,
+    userId: string,
+    projectId: string,
+  ): string {
     const fileId = uuidv4();
     const extension = this.getFileExtension(originalName);
     const timestamp = Date.now();
@@ -32,14 +36,16 @@ export class FileUtils {
   /**
    * Extract image metadata from buffer
    */
-  static async extractImageMetadata(buffer: Buffer): Promise<{width: number, height: number}> {
+  static async extractImageMetadata(
+    buffer: Buffer,
+  ): Promise<{ width: number; height: number }> {
     try {
       // This is a basic implementation. For production, consider using a library like 'sharp'
       // For now, we'll return default dimensions
       return { width: 1024, height: 768 };
     } catch (error) {
-      console.error('Error extracting image metadata:', error);
-      throw new Error('Failed to extract image metadata');
+      console.error("Error extracting image metadata:", error);
+      throw new Error("Failed to extract image metadata");
     }
   }
 
@@ -47,8 +53,8 @@ export class FileUtils {
    * Get file extension from filename
    */
   static getFileExtension(filename: string): string {
-    const parts = filename.split('.');
-    return parts.length > 1 ? parts.pop()!.toLowerCase() : 'bin';
+    const parts = filename.split(".");
+    return parts.length > 1 ? parts.pop()!.toLowerCase() : "bin";
   }
 
   /**
@@ -56,7 +62,7 @@ export class FileUtils {
    */
   static getMimeType(filename: string): string {
     const mimeType = lookup(filename);
-    return mimeType || 'application/octet-stream';
+    return mimeType || "application/octet-stream";
   }
 
   /**
@@ -70,7 +76,7 @@ export class FileUtils {
    * Convert bytes to human-readable format
    */
   static formatFileSize(bytes: number): string {
-    const units = ['B', 'KB', 'MB', 'GB'];
+    const units = ["B", "KB", "MB", "GB"];
     let size = bytes;
     let unitIndex = 0;
 
@@ -86,10 +92,10 @@ export class FileUtils {
    * Validate image dimensions
    */
   static validateImageDimensions(
-    width: number, 
-    height: number, 
-    maxWidth: number, 
-    maxHeight: number
+    width: number,
+    height: number,
+    maxWidth: number,
+    maxHeight: number,
   ): boolean {
     return width <= maxWidth && height <= maxHeight;
   }
@@ -100,9 +106,9 @@ export class FileUtils {
   static sanitizeFilename(filename: string): string {
     // Remove or replace special characters
     return filename
-      .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace special chars with underscore
-      .replace(/_{2,}/g, '_') // Replace multiple underscores with single
-      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+      .replace(/[^a-zA-Z0-9.-]/g, "_") // Replace special chars with underscore
+      .replace(/_{2,}/g, "_") // Replace multiple underscores with single
+      .replace(/^_+|_+$/g, "") // Remove leading/trailing underscores
       .toLowerCase();
   }
 
@@ -110,32 +116,35 @@ export class FileUtils {
    * Check if file is an image
    */
   static isImage(mimeType: string): boolean {
-    return mimeType.startsWith('image/');
+    return mimeType.startsWith("image/");
   }
 
   /**
    * Check if file is a video
    */
   static isVideo(mimeType: string): boolean {
-    return mimeType.startsWith('video/');
+    return mimeType.startsWith("video/");
   }
 
   /**
    * Check if file is audio
    */
   static isAudio(mimeType: string): boolean {
-    return mimeType.startsWith('audio/');
+    return mimeType.startsWith("audio/");
   }
 
   /**
    * Get file type category
    */
-  static getFileTypeCategory(mimeType: string): 'image' | 'video' | 'audio' | 'document' | 'other' {
-    if (this.isImage(mimeType)) return 'image';
-    if (this.isVideo(mimeType)) return 'video';
-    if (this.isAudio(mimeType)) return 'audio';
-    if (mimeType === 'application/pdf' || mimeType.includes('document')) return 'document';
-    return 'other';
+  static getFileTypeCategory(
+    mimeType: string,
+  ): "image" | "video" | "audio" | "document" | "other" {
+    if (this.isImage(mimeType)) return "image";
+    if (this.isVideo(mimeType)) return "video";
+    if (this.isAudio(mimeType)) return "audio";
+    if (mimeType === "application/pdf" || mimeType.includes("document"))
+      return "document";
+    return "other";
   }
 
   /**
@@ -148,7 +157,7 @@ export class FileUtils {
   } {
     const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
     if (!match) {
-      throw new Error('Invalid data URL format');
+      throw new Error("Invalid data URL format");
     }
 
     const mimeType = match[1];
@@ -163,62 +172,84 @@ export class FileUtils {
    */
   static getExtensionFromMimeType(mimeType: string): string {
     const typeMap: Record<string, string> = {
-      'image/jpeg': 'jpg',
-      'image/jpg': 'jpg',
-      'image/png': 'png',
-      'image/gif': 'gif',
-      'image/webp': 'webp',
-      'image/svg+xml': 'svg',
-      'video/mp4': 'mp4',
-      'video/webm': 'webm',
-      'video/quicktime': 'mov',
-      'audio/mp3': 'mp3',
-      'audio/mpeg': 'mp3',
-      'audio/wav': 'wav',
-      'audio/webm': 'webm',
-      'application/pdf': 'pdf',
-      'text/plain': 'txt',
+      "image/jpeg": "jpg",
+      "image/jpg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "image/webp": "webp",
+      "image/svg+xml": "svg",
+      "video/mp4": "mp4",
+      "video/webm": "webm",
+      "video/quicktime": "mov",
+      "audio/mp3": "mp3",
+      "audio/mpeg": "mp3",
+      "audio/wav": "wav",
+      "audio/webm": "webm",
+      "application/pdf": "pdf",
+      "text/plain": "txt",
     };
-    
-    return typeMap[mimeType] || 'bin';
+
+    return typeMap[mimeType] || "bin";
   }
 
   /**
    * Validate file against security constraints
    */
   static validateFileSecurity(
-    mimeType: string, 
-    filename: string, 
-    size: number
+    mimeType: string,
+    filename: string,
+    size: number,
   ): { valid: boolean; error?: string } {
     // Dangerous file types
     const dangerousTypes = [
-      'application/x-executable',
-      'application/x-msdownload',
-      'application/x-ms-dos-executable',
-      'application/javascript',
-      'text/javascript',
+      "application/x-executable",
+      "application/x-msdownload",
+      "application/x-ms-dos-executable",
+      "application/javascript",
+      "text/javascript",
     ];
 
     if (dangerousTypes.includes(mimeType)) {
-      return { valid: false, error: 'File type not allowed for security reasons' };
+      return {
+        valid: false,
+        error: "File type not allowed for security reasons",
+      };
     }
 
     // Dangerous extensions
     const dangerousExtensions = [
-      'exe', 'bat', 'com', 'cmd', 'scr', 'pif', 'vbs', 'js', 'jar', 
-      'app', 'deb', 'pkg', 'rpm', 'dmg', 'iso'
+      "exe",
+      "bat",
+      "com",
+      "cmd",
+      "scr",
+      "pif",
+      "vbs",
+      "js",
+      "jar",
+      "app",
+      "deb",
+      "pkg",
+      "rpm",
+      "dmg",
+      "iso",
     ];
 
     const extension = this.getFileExtension(filename);
     if (dangerousExtensions.includes(extension)) {
-      return { valid: false, error: 'File extension not allowed for security reasons' };
+      return {
+        valid: false,
+        error: "File extension not allowed for security reasons",
+      };
     }
 
     // Maximum file size (100MB)
     const maxSize = 100 * 1024 * 1024;
     if (size > maxSize) {
-      return { valid: false, error: `File size exceeds maximum limit of ${this.formatFileSize(maxSize)}` };
+      return {
+        valid: false,
+        error: `File size exceeds maximum limit of ${this.formatFileSize(maxSize)}`,
+      };
     }
 
     return { valid: true };
@@ -231,7 +262,7 @@ export class FileUtils {
     filename: string,
     mimeType: string,
     size: number,
-    additionalData?: Record<string, any>
+    additionalData?: Record<string, any>,
   ) {
     return {
       originalName: filename,
@@ -254,8 +285,10 @@ export class ProjectFileUtils {
    */
   static getSegmentImage(segment: ProjectSegment): ProjectFile | null {
     if (!segment.files) return null;
-    
-    const imageFiles = segment.files.filter(file => file.fileType === 'image');
+
+    const imageFiles = segment.files.filter(
+      (file) => file.fileType === "image",
+    );
     return this.getLatestFile(imageFiles);
   }
 
@@ -264,8 +297,10 @@ export class ProjectFileUtils {
    */
   static getSegmentAudio(segment: ProjectSegment): ProjectFile | null {
     if (!segment.files) return null;
-    
-    const audioFiles = segment.files.filter(file => file.fileType === 'audio');
+
+    const audioFiles = segment.files.filter(
+      (file) => file.fileType === "audio",
+    );
     return this.getLatestFile(audioFiles);
   }
 
@@ -274,8 +309,10 @@ export class ProjectFileUtils {
    */
   static getSegmentVideo(segment: ProjectSegment): ProjectFile | null {
     if (!segment.files) return null;
-    
-    const videoFiles = segment.files.filter(file => file.fileType === 'generated_video');
+
+    const videoFiles = segment.files.filter(
+      (file) => file.fileType === "generated_video",
+    );
     return this.getLatestFile(videoFiles);
   }
 
@@ -283,10 +320,10 @@ export class ProjectFileUtils {
    * Get the URL for a file, prioritizing r2Url over tempUrl
    */
   static getFileUrl(file: ProjectFile | null): string {
-    if (!file) return '';
-    
+    if (!file) return "";
+
     // Prioritize r2Url (permanent storage) over tempUrl
-    return file.r2Url || file.tempUrl || '';
+    return file.r2Url || file.tempUrl || "";
   }
 
   /**
@@ -295,10 +332,11 @@ export class ProjectFileUtils {
   static getLatestFile(files: ProjectFile[]): ProjectFile | null {
     if (files.length === 0) return null;
     if (files.length === 1) return files[0];
-    
+
     // Sort by createdAt descending and return the most recent
-    return files.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    return files.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )[0];
   }
 
@@ -306,10 +344,10 @@ export class ProjectFileUtils {
    * Get file by specific type, with fallback to latest
    */
   static getFileByType(
-    files: ProjectFile[], 
-    fileType: ProjectFile['fileType']
+    files: ProjectFile[],
+    fileType: ProjectFile["fileType"],
   ): ProjectFile | null {
-    const filteredFiles = files.filter(file => file.fileType === fileType);
+    const filteredFiles = files.filter((file) => file.fileType === fileType);
     return this.getLatestFile(filteredFiles);
   }
 
@@ -318,7 +356,7 @@ export class ProjectFileUtils {
    */
   static isFileReady(file: ProjectFile | null): boolean {
     if (!file) return false;
-    return file.uploadStatus === 'completed' && !!(file.r2Url || file.tempUrl);
+    return file.uploadStatus === "completed" && !!(file.r2Url || file.tempUrl);
   }
 
   /**
@@ -350,9 +388,11 @@ export class ProjectFileUtils {
     }
 
     return {
-      images: segment.files.filter(file => file.fileType === 'image'),
-      audio: segment.files.filter(file => file.fileType === 'audio'),
-      videos: segment.files.filter(file => file.fileType === 'generated_video'),
+      images: segment.files.filter((file) => file.fileType === "image"),
+      audio: segment.files.filter((file) => file.fileType === "audio"),
+      videos: segment.files.filter(
+        (file) => file.fileType === "generated_video",
+      ),
       all: segment.files,
     };
   }
@@ -363,7 +403,7 @@ export class ProjectFileUtils {
   static isSegmentReady(segment: ProjectSegment): boolean {
     const image = this.getSegmentImage(segment);
     const audio = this.getSegmentAudio(segment);
-    
+
     return this.isFileReady(image) && this.isFileReady(audio);
   }
 }

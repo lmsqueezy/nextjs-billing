@@ -2,10 +2,10 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VoiceSelector, ScriptInput } from "../../forms";
 import { voiceOptions } from "@/lib/voice-options";
-import type { VideoSegment } from "@/types/video";
+import type { ProjectSegment } from "@/types/project";
 
 interface ScriptEditTabProps {
-  segment: VideoSegment;
+  segment: ProjectSegment;
   script: string;
   voice: string;
   onScriptChange: (script: string) => void;

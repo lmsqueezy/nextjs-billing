@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
-import type { VideoSegment } from "@/types/video";
+import type { ProjectSegment } from "@/types/project";
+import type { ProjectFile } from "@/types/video";
 import { Button } from "@/components/ui/button";
-import { TabNavigation, ImageEditTab, VideoEditTab, ScriptEditTab } from "../dialogs/tabs";
+import {
+  TabNavigation,
+  ImageEditTab,
+  VideoEditTab,
+  ScriptEditTab,
+} from "../dialogs/tabs";
 
 type EditMode = "image" | "video" | "script";
 
 interface EditSegmentSidebarProps {
-  segment: VideoSegment;
+  segment: ProjectSegment;
   segmentIndex: number;
   onRegenerateImage: (
     index: number,
@@ -19,7 +25,10 @@ interface EditSegmentSidebarProps {
     voice: string,
   ) => Promise<void>;
   onConvertToVideo?: (index: number, prompt?: string) => Promise<void>;
-  onSegmentUpdate?: (index: number, updatedSegment: VideoSegment) => void;
+  onSegmentUpdate?: (
+    index: number,
+    updates: Partial<ProjectSegment> & { files?: ProjectFile[] },
+  ) => void;
   isRegenerating: boolean;
   isConverting?: boolean;
   onClose: () => void;
@@ -41,7 +50,9 @@ export function EditSegmentSidebar({
   const [imageModel, setImageModel] = useState("flux-schnell");
   const [script, setScript] = useState("");
   const [voice, setVoice] = useState("echo");
-  const [videoPrompt, setVideoPrompt] = useState("A cinematic scene with subtle movement and natural motion");
+  const [videoPrompt, setVideoPrompt] = useState(
+    "A cinematic scene with subtle movement and natural motion",
+  );
 
   // Debug: Log the props - this will show if the component is re-rendering
   useEffect(() => {
@@ -65,7 +76,10 @@ export function EditSegmentSidebar({
       setImageModel("flux-schnell");
       setVoice("echo");
       // Use stored video prompt or default
-      setVideoPrompt(segment.videoPrompt || "A cinematic scene with subtle movement and natural motion");
+      setVideoPrompt(
+        segment.videoPrompt ||
+          "A cinematic scene with subtle movement and natural motion",
+      );
     }
   }, [segment]);
 
@@ -86,34 +100,31 @@ export function EditSegmentSidebar({
   const handleImagePromptChange = (newPrompt: string) => {
     setImagePrompt(newPrompt);
     if (segment && onSegmentUpdate) {
-      const updatedSegment: VideoSegment = {
-        ...segment,
+      const updates = {
         imagePrompt: newPrompt,
       };
-      // onSegmentUpdate(segmentIndex, updatedSegment);
+      // onSegmentUpdate(segmentIndex, updates);
     }
   };
 
   const handleScriptChange = (newScript: string) => {
     setScript(newScript);
     if (segment && onSegmentUpdate) {
-      const updatedSegment: VideoSegment = {
-        ...segment,
+      const updates = {
         text: newScript,
       };
-      // onSegmentUpdate(segmentIndex, updatedSegment);
+      // onSegmentUpdate(segmentIndex, updates);
     }
   };
 
   const handleSave = () => {
     if (segment && onSegmentUpdate) {
-      const updatedSegment: VideoSegment = {
-        ...segment,
+      const updates = {
         text: script,
         imagePrompt: imagePrompt,
         videoPrompt: videoPrompt,
       };
-      onSegmentUpdate(segmentIndex, updatedSegment);
+      onSegmentUpdate(segmentIndex, updates);
     }
   };
 

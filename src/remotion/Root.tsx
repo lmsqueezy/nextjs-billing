@@ -947,17 +947,17 @@ export const RemotionRoot: React.FC = () => {
         className="h-80 w-full"
         component={VideoComposition}
         durationInFrames={totalFrames}
-        compositionWidth={video.format.width}
-        compositionHeight={video.format.height}
+        compositionWidth={video.format?.width || "1080"}
+        compositionHeight={video.format?.height || "1920"}
         fps={fps}
-        width={video.format.width}
-        height={video.format.height}
+        width={video.format.width || "1080"}
+        height={video.format.height || "1920"}
         style={{
           width: "100%",
           height: "100%",
         }}
         defaultProps={{
-          video: video,
+          project: video,
         }}
         autoPlay={false}
         controls={true}

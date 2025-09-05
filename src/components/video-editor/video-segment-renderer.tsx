@@ -85,9 +85,9 @@ const SegmentComponent: React.FC<SegmentComponentProps> = ({
   const videoUrl = ProjectFileUtils.getFileUrl(
     ProjectFileUtils.getSegmentVideo(segment),
   );
-  const imageUrl = ProjectFileUtils.getFileUrl(
-    ProjectFileUtils.getSegmentImage(segment),
-  );
+  const imageUrl =
+    segment.imageUrl ||
+    ProjectFileUtils.getFileUrl(ProjectFileUtils.getSegmentImage(segment));
   const audioUrl = ProjectFileUtils.getFileUrl(
     ProjectFileUtils.getSegmentAudio(segment),
   );

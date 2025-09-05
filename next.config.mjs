@@ -1,3 +1,6 @@
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -11,7 +14,7 @@ const nextConfig = {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
-      path: false,
+      path: require.resolve("path-browserify"),
       os: false,
     };
 
