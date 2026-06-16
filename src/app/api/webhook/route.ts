@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { processWebhookEvent, storeWebhookEvent } from "@/app/actions";
+import { processWebhookEvent, storeWebhookEvent } from "@/lib/webhook";
 import { webhookHasMeta } from "@/lib/typeguards";
 
 export async function POST(request: Request) {
