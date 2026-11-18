@@ -3,7 +3,7 @@ import {
   getPrice,
   getSubscription,
 } from "@lemonsqueezy/lemonsqueezy.js";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   db,
   plans,
@@ -113,6 +113,7 @@ export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
           renewsAt: attributes.renews_at as string,
           endsAt: attributes.ends_at as string,
           trialEndsAt: attributes.trial_ends_at as string,
+          eventUpdatedAt: new Date(attributes.updated_at as string),
           price: price?.toString() ?? "",
           isPaused: false,
           subscriptionItemId: attributes.first_subscription_item.id,
@@ -126,6 +127,9 @@ export async function processWebhookEvent(webhookEvent: NewWebhookEvent) {
           await db.insert(subscriptions).values(updateData).onConflictDoUpdate({
             target: subscriptions.lemonSqueezyId,
             set: updateData,
+            // Webhooks can arrive out of order: ignore an event that is older
+            // than the one already stored for this subscription.
+            setWhere: sql`${subscriptions.eventUpdatedAt} IS NULL OR ${subscriptions.eventUpdatedAt} <= excluded."eventUpdatedAt"`,
           });
         } catch (error) {
           processingError = `Failed to upsert Subscription #${updateData.lemonSqueezyId} to the database.`;

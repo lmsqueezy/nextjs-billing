@@ -171,6 +171,10 @@ The server action for creating a webhook via SDK will do that automatically for 
 
 In the webhook form you need to add a signing secret. Add the same value you use in the form in the `LEMONSQUEEZY_WEBHOOK_SECRET` environment variable.
 
+## Webhook concurrency test
+
+Lemon Squeezy can deliver webhook events late, twice, or out of order. `npm run test:race` runs the webhook's database writes in every possible order on a real Postgres with [VibeRaven](https://viberaven.dev) (`npx -y viberaven race`) and fails if any order breaks the rule in `race/webhook.race.json`. It also runs in `npm test`. Add a rule there when you add a webhook handler.
+
 ## Production
 
 There are a few things to update in your code to go live.
