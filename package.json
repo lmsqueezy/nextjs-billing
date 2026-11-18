@@ -11,6 +11,8 @@
     "format:fix": "prettier --write --list-different .",
     "lint": "next lint",
     "start": "next start",
+    "test": "npm run test:race",
+    "test:race": "npx -y viberaven@1.10.0 race . --spec race/webhook.race.json --migrations race",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

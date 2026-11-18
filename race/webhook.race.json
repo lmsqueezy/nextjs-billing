@@ -1,0 +1,21 @@
+{
+  "rule": "An older subscription_updated (active) must not overwrite the later subscription_expired",
+  "setup": "INSERT INTO subscription VALUES ('s1','on_trial','2026-01-01')",
+  "invariant": "SELECT status <> 'active' FROM subscription WHERE lemon_squeezy_id='s1'",
+  "isolation": [
+    "read committed"
+  ],
+  "notes": "SQL transliteration of the webhook handler; covers bounded SQL orders only, not HTTP or Stripe.",
+  "requests": [
+    {
+      "statements": [
+        "INSERT INTO subscription(lemon_squeezy_id,status,event_updated_at) VALUES ('s1','active','2026-02-01 10:00:00+00') ON CONFLICT (lemon_squeezy_id) DO UPDATE SET status=excluded.status,event_updated_at=excluded.event_updated_at WHERE subscription.event_updated_at IS NULL OR subscription.event_updated_at <= excluded.event_updated_at"
+      ]
+    },
+    {
+      "statements": [
+        "INSERT INTO subscription(lemon_squeezy_id,status,event_updated_at) VALUES ('s1','expired','2026-02-02 10:00:00+00') ON CONFLICT (lemon_squeezy_id) DO UPDATE SET status=excluded.status,event_updated_at=excluded.event_updated_at WHERE subscription.event_updated_at IS NULL OR subscription.event_updated_at <= excluded.event_updated_at"
+      ]
+    }
+  ]
+}

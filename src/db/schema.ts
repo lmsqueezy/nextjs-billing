@@ -100,6 +100,8 @@ export const subscriptions = pgTable("subscription", {
   renewsAt: text("renewsAt"),
   endsAt: text("endsAt"),
   trialEndsAt: text("trialEndsAt"),
+  // updated_at of the webhook event that last wrote this row (orders late events)
+  eventUpdatedAt: timestamp("eventUpdatedAt", { withTimezone: true }),
   price: text("price").notNull(),
   isUsageBased: boolean("isUsageBased").default(false),
   isPaused: boolean("isPaused").default(false),
